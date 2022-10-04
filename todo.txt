@@ -1,0 +1,7 @@
+- refactor html
+    - import statements
+
+- refactor js
+
+
+d3Force - how to use? 
