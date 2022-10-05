@@ -5,21 +5,25 @@ export class Step1Input extends Component {
       super(props)
     
       this.state = {
-        data: this.props.globals.data,
         deleted: false,
         inputCreated: false,
+        inputValue: '',
+        count: this.props.inputCounter,
       }
     }
 
     updateInput = (e) => {
+        this.setState({inputValue: e.target.value})
+
         const data = Object.assign({}, this.props.globals.data);
+        console.log(data);
         // if the input has not been created
         if (!this.state.inputCreated) {
             // set the input to have been created
             this.setState({inputCreated: true})
             // create a new node (and push it to the data.nodes) and give the new node's name a value of whatever was input
             data.nodes.push({
-                id: this.props.count,
+                id: this.state.count,
                 name: e.target.value,
                 x: 0,
                 y: 0
@@ -27,11 +31,9 @@ export class Step1Input extends Component {
             // temporarily sets the collision force to the whole node radius so that nodes do not intersect on creation
             this.props.setForceCollideRadius(this.props.globals.NODE_RADIUS * 1.2);
             this.props.updateGraphData(data);
-            console.log(data)
             setTimeout(() => this.props.setForceCollideRadius(this.props.globals.NODE_RADIUS / 2), 400)
             // set up a new blank input box 
             this.props.createNewInput();
-            setTimeout(() => console.log(this.props.globals.data), 0);
         } else {
             // find the pre-existing node by id
             let node = data.nodes.find(x => x.id === this.state.count);
@@ -44,13 +46,25 @@ export class Step1Input extends Component {
         }
     }
 
+    deleteInput = () => {
+        const data = Object.assign({}, this.props.globals.data);
+        if (this.state.inputCreated) {
+            data.nodes.splice(data.nodes.findIndex(node => node.id === this.state.count), 1);
+            while (data.links.findIndex(link => link.source.id === this.state.count || link.target.id === this.state.count) !== -1) {
+                data.links.splice(data.links.findIndex(link => link.source.id === this.state.count || link.target.id === this.state.count), 1)
+            }
+            this.props.updateGraphData(data);
+            this.setState({deleted: true})
+        }
+    }
+
     render() {
         return (
             <Fragment>
                 {this.state.deleted ? <div></div> : 
                 <div className="input-group mb-3 w-100">
-                    <input id={'s-1-input-' + this.props.inputCounter} className='form-control' type="text" placeholder='State Name' aria-label='State Name' onChange={this.updateInput}></input>
-                    <button id={"button-addon-" + this.props.inputCounter} className="btn btn-danger" type="button" onClick={() => this.setState({deleted: true})}>Delete</button>
+                    <input id={'s-1-input-' + this.state.count} className='form-control' type="text" placeholder='State Name' aria-label='State Name' value={this.state.inputValue} onChange={this.updateInput}></input>
+                    <button id={"button-addon-" + this.state.count} className="btn btn-danger" type="button" onClick={this.deleteInput}>Delete</button>
                 </div>}
             </Fragment>
         )

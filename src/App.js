@@ -52,13 +52,11 @@ export class App extends Component {
     }
 
     setForceCollideRadius = (radius) => {
-        console.log(radius)
         this.setState(prevState => 
             ({globals: {
                 ...prevState.globals, 
                 forceCollideRadius: radius
             }}))
-        console.log(this.state)
     }
 
     render() {        

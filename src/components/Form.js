@@ -1,21 +1,24 @@
 import React, { Component, Fragment } from 'react'
 
 import Step1Input from './Step1Input';
-// TODO: Continue working on this
 
 export class Form extends Component {
     constructor(props) {
         super(props)
 
         this.state = {
-            inputCounter: 0,
             nodeInputs: [],
+            globals: this.props.globals,
         }
+    }
+
+    componentDidUpdate(props) {
+        console.log(props);
     }
 
     componentDidMount() {
         setTimeout(() => {
-            if (this.state.inputCounter === 0) {
+            if (this.state.nodeInputs.length === 0) {
                 this.createNewInput();
             }
         }, 100)
@@ -60,9 +63,7 @@ export class Form extends Component {
         step2.style.display = "none";
         step3.style.display = "flex";
         formTitle.innerHTML = "Data Input (Step 3)"
-        console.log(data.links.filter(link => link.inducer === undefined));
         if (data.links.filter(link => link.inducer === undefined).length === 0) {
-            console.log("hit")
             this.handleNext();
         } else {
             this.renderStep3();
@@ -92,16 +93,14 @@ export class Form extends Component {
         this.setState(prevState => ({
             nodeInputs: [...this.state.nodeInputs, 
                 <Step1Input
-                key={this.state.inputCounter}
-                globals={this.props.globals}
-                inputCounter={this.state.inputCounter} 
-                setForceCollideRadius={this.props.setForceCollideRadius} 
-                count={this.state.inputCounter}
-                updateGraphData={this.props.updateGraphData}
-                createNewInput={this.createNewInput}
+                    key={this.state.nodeInputs.length}
+                    globals={this.props.globals}
+                    inputCounter={this.state.nodeInputs.length} 
+                    setForceCollideRadius={this.props.setForceCollideRadius} 
+                    updateGraphData={this.props.updateGraphData}
+                    createNewInput={this.createNewInput}
                 />
-            ],
-            inputCounter: prevState.inputCounter + 1})
+            ]})
         )
     }
 
