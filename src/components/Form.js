@@ -1,11 +1,24 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
+
+import Step1Input from './Step1Input';
+// TODO: Continue working on this
 
 export class Form extends Component {
     constructor(props) {
         super(props)
 
         this.state = {
+            inputCounter: 0,
+            nodeInputs: [],
         }
+    }
+
+    componentDidMount() {
+        setTimeout(() => {
+            if (this.state.inputCounter === 0) {
+                this.createNewInput();
+            }
+        }, 100)
     }
 
     handleBack = () => {
@@ -70,13 +83,46 @@ export class Form extends Component {
         this.renderStep5();
     }
 
+    // -------- STEP 1 --------
+
+
+    // creates a new input box for a new node in step 1
+    createNewInput = () => {
+        // increment (by 1) the amount of inputs we created
+        this.setState(prevState => ({
+            nodeInputs: [...this.state.nodeInputs, 
+                <Step1Input
+                key={this.state.inputCounter}
+                globals={this.props.globals}
+                inputCounter={this.state.inputCounter} 
+                setForceCollideRadius={this.props.setForceCollideRadius} 
+                count={this.state.inputCounter}
+                updateGraphData={this.props.updateGraphData}
+                createNewInput={this.createNewInput}
+                />
+            ],
+            inputCounter: prevState.inputCounter + 1})
+        )
+    }
+
     render() {
         return (
             <div id="form">
                 <h1 id="formTitle">Data Input (Step 1)</h1>
                 <div id={`step${this.props.globals.step}-container`} className="step-containers">
-                    {this.props.globals.step === 1 ? <h3 className="title">Add Nodes</h3> : ''}
-                    {this.props.globals.step === 2 ? <h3 className="title">Add Edges To Nodes</h3> : ''}
+                    {
+                        {
+                            1: 
+                            <Fragment>
+                                <h3 className="title">Add Nodes</h3>
+                                {this.state.nodeInputs}
+                            </Fragment>,
+                            2:
+                            <Fragment>
+                                <h3 className="title">Add Edges To Nodes</h3>
+                            </Fragment>
+                        }[this.props.globals.step]
+                    }
                 </div>
                 <div id="button-container">
                     <button onClick={this.handleBack} type="button" className="btn btn-secondary">Back</button>

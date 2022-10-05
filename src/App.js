@@ -20,11 +20,11 @@ export class App extends Component {
                     linkCounter: {},
                 },
                 step: 1,
-                inputCounter: 0,
             },
-
             indicatorStyle: {},
         }
+
+        this.state.globals.forceCollideRadius = this.state.globals.NODE_RADIUS / 2
     }
 
     indicatorFadeOut = () => {
@@ -45,11 +45,20 @@ export class App extends Component {
     }
 
     updateGraphData = (data) => {
+        this.setState(prevState => ({globals: {
+            ...prevState.globals,
+            data
+        }}))
+    }
+
+    setForceCollideRadius = (radius) => {
+        console.log(radius)
         this.setState(prevState => 
             ({globals: {
                 ...prevState.globals, 
-                data: data
+                forceCollideRadius: radius
             }}))
+        console.log(this.state)
     }
 
     render() {        
@@ -68,10 +77,12 @@ export class App extends Component {
                 <a href="https://github.com/spis2022/GEMF-State-Visualization-Tool" target="_blank" rel="noreferrer"><button className="btn btn-outline-dark p-0"><img src={githubIcon} alt="" /></button></a>
                 <GraphComponent globals={this.state.globals}/> 
             </div>
-            <Form 
+            <Form
             globals={this.state.globals} 
-            incrementStep={this.incrementStep} 
-            updateGraphData={this.updateGraphData}/> 
+            incrementStep={this.incrementStep}
+            updateGraphData={this.updateGraphData}
+            forceCollideRadius={this.state.forceCollideRadius}
+            setForceCollideRadius={this.setForceCollideRadius} />
         </div>
         );
     }

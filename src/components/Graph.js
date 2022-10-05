@@ -1,12 +1,26 @@
 import React, { Component } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
+import {forceCollide} from 'd3-force';
 
 export class Graph extends Component {
     constructor(props) {
         super(props)
 
-        this.state = {
+        this.state = {     
         }
+
+        this.ref = React.createRef();
+    }
+
+    componentDidMount() {
+        this.ref.current.d3Force('charge', null)
+        this.ref.current.d3Force('center', null)
+        this.ref.current.d3Force('collide', forceCollide(this.props.globals.forceCollideRadius))
+        this.ref.current.d3Force('link', null)
+    }
+
+    componentDidUpdate() {
+        this.ref.current.d3Force('collide', forceCollide(this.props.globals.forceCollideRadius))
     }
 
     fitCircleToPoints(x1, y1, x2, y2, x3, y3) {
@@ -63,8 +77,9 @@ export class Graph extends Component {
     render() {
         return (
             <ForceGraph2D 
+            ref={this.ref}
             id="graph" 
-            graphData={this.props.globals.graphData}
+            graphData={this.props.globals.data}
             nodeVal={this.props.globals.NODE_RADIUS}
             nodeLabel=''
             nodeAutoColorBy='group'
