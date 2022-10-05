@@ -2,3 +2,4 @@
     - import statements
 
 - refactor js
+- include edge bugfixes from html-based vis tool (like link canvas drawing) 
