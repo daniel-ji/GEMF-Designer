@@ -11,6 +11,7 @@ export class App extends Component {
         super(props)
 
         this.state = {
+            // global variables
             globals: {
                 NODE_RADIUS: 12,
                 ARROW_SIZE: 4,

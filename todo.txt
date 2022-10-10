@@ -1,5 +1,3 @@
-- refactor html
-    - import statements
-
 - refactor js
+    - step 2, 3, 4
 - include edge bugfixes from html-based vis tool (like link canvas drawing) 

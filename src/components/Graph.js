@@ -74,6 +74,90 @@ export class Graph extends Component {
         ctx.fill();
     };
 
+    drawLinks = (link, ctx, globalScale) => {
+        ctx.lineWidth = 1;
+        const source = this.scaleTriangle(link);
+        const dx = (source[2] - source[0]);
+        const dy = (source[3] - source[1]);
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const x99 = (source[2] - source[0]) * 0.99;
+        const y99 = (source[3] - source[1]) * 0.99;
+        const src = Math.min(link.source.id, link.target.id);
+        const tgt = Math.max(link.source.id, link.target.id);
+        const mx = (link.target.x + link.source.x) / 2
+        const my = (link.target.y + link.source.y) / 2
+        let fx = mx;
+        let fy = my;
+        if (this.props.globals.data.linkCounter[src + "-" + tgt] === 1) {
+            ctx.beginPath();
+            ctx.strokeStyle = "black";
+            ctx.moveTo(source[0], source[1]);
+            ctx.lineTo(source[2], source[3]);
+            ctx.stroke();
+            this.drawArrow(ctx, source[0], source[1], source[0] + x99, source[1] + y99, .9);
+        } else {
+            const h = (Math.sqrt(dist) * 2 + (Math.floor((link.repeatCount + 1) / 2) - 1) * this.state.globals.NODE_RADIUS * 1.5) * (link.source.id === src ? 1 : -1) * (dy < 0 ? 1 : -1) * (link.repeatCount % 2 === 0 ? 1 : -1);
+            // perpendicular slope
+            const ps = - x99 / y99
+            const dfx = h / Math.sqrt(ps * ps + 1)
+            const dfy = dfx * ps
+            fx = dfx + mx;
+            fy = dfy + my;
+            const fitCircle = this.fitCircleToPoints(source[0], source[1], fx, fy, source[2], source[3]);
+            const ang1 = Math.atan2(source[1] - fitCircle.y, source[0] - fitCircle.x);
+            const ang2 = Math.atan2(source[3] - fitCircle.y, source[2] - fitCircle.x);
+            ctx.beginPath();
+            ctx.arc(fitCircle.x, fitCircle.y, fitCircle.radius, ang1, ang2, fitCircle.CCW);
+            ctx.strokeStyle = "black";
+            ctx.stroke();
+
+            const rdx = source[2] - fitCircle.x
+            const rdy = source[3] - fitCircle.y
+            // perp of rm
+            const prm = - rdx / rdy
+            let flip = 1;
+            if ((link.repeatCount % 2 === 0 && link.source.id === src) || (link.repeatCount % 2 === 1 && link.source.id === tgt)) {
+                flip = -1;
+            }
+            const arrdfx = - dist / Math.sqrt(prm * prm + 1) * (rdy > 0 ? -1 : 1) * flip;
+            const arrdfy = arrdfx * prm
+            const arrfx = arrdfx + source[2]
+            const arrfy = arrdfy + source[3]
+            this.drawArrow(ctx, arrfx, arrfy, source[2], source[3], .9);
+        }
+
+        // draw rate label circle
+        ctx.beginPath();
+        ctx.arc(fx, fy, this.props.globals.NODE_RADIUS * 0.5, 0, 2 * Math.PI);
+        ctx.strokeStyle = link.inducer === undefined ? "green" : "red";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.strokeStyle = "black";
+        ctx.fillStyle = "white";
+        ctx.fill();
+        // // TODO: make global variable
+        // // TODO: font-sizing so that the text fits in the circle
+        ctx.fillStyle = "black";
+        ctx.font = "bold 4px sans-serif";
+        ctx.fillText((link.rate === undefined ? "" : link.rate) + (link.inducer === undefined ? "" : (", " + this.props.globals.data.nodes.find(node => node.id === link.inducer).name)), fx, fy);
+    }
+
+    drawNode = (node, ctx, globalScale) => {
+        // draw label
+        const label = node.name;
+        const fontSize = 6;
+        ctx.lineWidth = 1;
+        ctx.fillStyle = "black";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.font = `${fontSize}px Sans-Serif`
+        ctx.fillText(label, node.x, node.y);
+        // draw circle
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, this.props.globals.NODE_RADIUS, 0, 2 * Math.PI);
+        ctx.stroke();
+    }
+
     render() {
         return (
             <ForceGraph2D 
@@ -87,97 +171,9 @@ export class Graph extends Component {
             height={window.innerWidth >= 768 ? window.innerHeight : window.innerHeight * 0.6}
             maxZoom={5}
             minZoom={1}
-            nodeCanvasObject={(node, ctx, globalScale) => {
-                // draw label
-                const label = node.name;
-                const fontSize = 6;
-                ctx.lineWidth = 1;
-                ctx.fillStyle = "black";
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-                ctx.font = `${fontSize}px Sans-Serif`
-                ctx.fillText(label, node.x, node.y);
-                // draw circle
-                ctx.beginPath();
-                ctx.arc(node.x, node.y, this.props.globals.NODE_RADIUS, 0, 2 * Math.PI);
-                ctx.stroke();
-            }}
-            onNodeHover={(node) => {
-                if (node === null) {
-                    document.body.style.cursor = "pointer";
-                } else {
-                    document.body.style.cursor = "grab";
-                }
-            }}
-            linkCanvasObject={function (link, ctx, globalScale) {
-                ctx.lineWidth = 1;
-                const source = this.scaleTriangle(link);
-                const dx = (source[2] - source[0]);
-                const dy = (source[3] - source[1]);
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                const x99 = (source[2] - source[0]) * 0.99;
-                const y99 = (source[3] - source[1]) * 0.99;
-                const src = Math.min(link.source.id, link.target.id);
-                const tgt = Math.max(link.source.id, link.target.id);
-                const mx = (link.target.x + link.source.x) / 2
-                const my = (link.target.y + link.source.y) / 2
-                let fx = mx;
-                let fy = my;
-                if (this.props.globals.data.linkCounter[src + "-" + tgt] === 1) {
-                    ctx.beginPath();
-                    ctx.strokeStyle = "black";
-                    ctx.moveTo(source[0], source[1]);
-                    ctx.lineTo(source[2], source[3]);
-                    ctx.stroke();
-                    this.drawArrow(ctx, source[0], source[1], source[0] + x99, source[1] + y99, .9);
-                } else {
-                    const h = (Math.sqrt(dist) * 2 + (Math.floor((link.repeatCount + 1) / 2) - 1) * this.state.globals.NODE_RADIUS * 1.5) * (link.source.id === src ? 1 : -1) * (dy < 0 ? 1 : -1) * (link.repeatCount % 2 === 0 ? 1 : -1);
-                    // perpendicular slope
-                    const ps = - x99 / y99
-                    const dfx = h / Math.sqrt(ps * ps + 1)
-                    const dfy = dfx * ps
-                    fx = dfx + mx;
-                    fy = dfy + my;
-                    const fitCircle = this.fitCircleToPoints(source[0], source[1], fx, fy, source[2], source[3]);
-                    const ang1 = Math.atan2(source[1] - fitCircle.y, source[0] - fitCircle.x);
-                    const ang2 = Math.atan2(source[3] - fitCircle.y, source[2] - fitCircle.x);
-                    ctx.beginPath();
-                    ctx.arc(fitCircle.x, fitCircle.y, fitCircle.radius, ang1, ang2, fitCircle.CCW);
-                    ctx.strokeStyle = "black";
-                    ctx.stroke();
-    
-                    const rdx = source[2] - fitCircle.x
-                    const rdy = source[3] - fitCircle.y
-                    // perp of rm
-                    const prm = - rdx / rdy
-                    let flip = 1;
-                    if ((link.repeatCount % 2 === 0 && link.source.id === src) || (link.repeatCount % 2 === 1 && link.source.id === tgt)) {
-                        flip = -1;
-                    }
-                    const arrdfx = - dist / Math.sqrt(prm * prm + 1) * (rdy > 0 ? -1 : 1) * flip;
-                    const arrdfy = arrdfx * prm
-                    const arrfx = arrdfx + source[2]
-                    const arrfy = arrdfy + source[3]
-                    this.drawArrow(ctx, arrfx, arrfy, source[2], source[3], .9);
-                }
-    
-    
-                // draw rate label circle
-                ctx.beginPath();
-                ctx.arc(fx, fy, this.props.globals.NODE_RADIUS * 0.5, 0, 2 * Math.PI);
-                ctx.strokeStyle = link.inducer === undefined ? "green" : "red";
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                ctx.strokeStyle = "black";
-                ctx.fillStyle = "white";
-                ctx.fill();
-                // // TODO: make global variable
-                // // TODO: font-sizing so that the text fits in the circle
-                ctx.fillStyle = "black";
-                ctx.font = "bold 4px sans-serif";
-                ctx.fillText((link.rate === undefined ? "" : link.rate) + (link.inducer === undefined ? "" : (", " + this.props.globals.data.nodes.find(node => node.id === link.inducer).name)), fx, fy);
-            }}
-
+            nodeCanvasObject={this.drawNode}
+            onNodeHover={(node) => {document.body.style.cursor = (node === null ? "pointer" : "grab")}}
+            linkCanvasObject={this.drawLinks}
             onMouseOver={() => {document.body.style.cursor = "pointer"}}
             onMouseLeave={() => {document.body.style.cursor = "default"}} />
         )

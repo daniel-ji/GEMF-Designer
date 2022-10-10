@@ -1,27 +1,18 @@
 import React, { Component, Fragment } from 'react'
 
-import Step1Input from './Step1Input';
+import Step1Container from './Step1/Step1Container';
+import Step2Container from './Step2/Step2Container';
 
 export class Form extends Component {
     constructor(props) {
         super(props)
 
         this.state = {
-            nodeInputs: [],
-            globals: this.props.globals,
         }
     }
 
     componentDidUpdate(props) {
         console.log(props);
-    }
-
-    componentDidMount() {
-        setTimeout(() => {
-            if (this.state.nodeInputs.length === 0) {
-                this.createNewInput();
-            }
-        }, 100)
     }
 
     handleBack = () => {
@@ -44,9 +35,42 @@ export class Form extends Component {
         }
     }
 
+    // proceed from step 1, includes validation 
     step1Next = () => {
+        const data = this.props.globals.data;
+        // create empty set that will hold duplicate / empty nodes
+        let badState = new Set();
+        for (let i = 0; i < data.nodes.length; i++) {
+            for (let j = i + 1; j < data.nodes.length; j++) {
+                if (data.nodes[i].name === data.nodes[j].name) {
+                    badState.add(data.nodes[i].id);
+                    badState.add(data.nodes[j].id);
+                }
+            }
+            if (data.nodes[i].name.length === 0) {
+                badState.add(data.nodes[i].id);
+            }
+        }
 
+        // alert repeats
+        const repeat = Array.from(badState);
+        for (let i = 0; i < repeat.length; i++) {
+            const element = document.getElementById('s-1-input-' + repeat[i]);
+            element.className += " border border-danger"
+        }
+
+        // continuing to step 2
+        if (repeat.length === 0 && data.nodes.length > 0) {
+            this.props.incrementStep();
+            const element = document.getElementById("step1-container");
+            element.style.display = "none";
+            // sorts the nodes alphabetically 
+            data.nodes.sort((a, b) => a.name.localeCompare(b.name));
+            document.getElementById("formTitle").innerHTML = "Data Input (Step 2)";
+            // TODO: implement renderStep2();
+        }
     }
+
 
     step2Next = (data, step, formTitle) => {
         data.links.sort((a, b) => {
@@ -84,26 +108,6 @@ export class Form extends Component {
         this.renderStep5();
     }
 
-    // -------- STEP 1 --------
-
-
-    // creates a new input box for a new node in step 1
-    createNewInput = () => {
-        // increment (by 1) the amount of inputs we created
-        this.setState(prevState => ({
-            nodeInputs: [...this.state.nodeInputs, 
-                <Step1Input
-                    key={this.state.nodeInputs.length}
-                    globals={this.props.globals}
-                    inputCounter={this.state.nodeInputs.length} 
-                    setForceCollideRadius={this.props.setForceCollideRadius} 
-                    updateGraphData={this.props.updateGraphData}
-                    createNewInput={this.createNewInput}
-                />
-            ]})
-        )
-    }
-
     render() {
         return (
             <div id="form">
@@ -112,14 +116,16 @@ export class Form extends Component {
                     {
                         {
                             1: 
-                            <Fragment>
-                                <h3 className="title">Add Nodes</h3>
-                                {this.state.nodeInputs}
-                            </Fragment>,
+                            <Step1Container 
+                                globals={this.props.globals} 
+                                setForceCollideRadius={this.props.setForceCollideRadius} 
+                                updateGraphData={this.props.updateGraphData}
+                            />,
                             2:
-                            <Fragment>
-                                <h3 className="title">Add Edges To Nodes</h3>
-                            </Fragment>
+                            <Step2Container 
+                                globals={this.props.globals} 
+                                updateGraphData={this.props.updateGraphData}
+                            />
                         }[this.props.globals.step]
                     }
                 </div>
