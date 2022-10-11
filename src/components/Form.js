@@ -12,7 +12,15 @@ export class Form extends Component {
     }
 
     handleBack = () => {
-
+        const step = this.props.globals.step;
+        
+        if (step === 2) {
+            this.props.incrementStep(-1);
+        } else if (step === 3) {
+            this.step3Next();
+        } else if (step === 4) {
+            this.step4Next();
+        }
     }
 
     handleNext = () => {
@@ -45,10 +53,15 @@ export class Form extends Component {
             if (data.nodes[i].name.length === 0) {
                 badState.add(data.nodes[i].id);
             }
+            const element = document.getElementById('s-1-input-' + data.nodes[i].id);
+            element.classList.remove("border");
+            element.classList.remove("border-danger");
         }
 
         // alert repeats
         const repeat = Array.from(badState);
+        console.log(repeat);
+
         for (let i = 0; i < repeat.length; i++) {
             const element = document.getElementById('s-1-input-' + repeat[i]);
             element.className += " border border-danger"

@@ -6,8 +6,8 @@ export class Step1Input extends Component {
     
       this.state = {
         deleted: false,
-        inputCreated: false,
-        inputValue: '',
+        inputCreated: this.props.inputValue === undefined ? false : true,
+        inputValue: this.props.inputValue ?? '',
         count: this.props.inputCounter,
       }
     }

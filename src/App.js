@@ -37,11 +37,11 @@ export class App extends Component {
         }
     }
 
-    incrementStep = () => {
+    incrementStep = (amount = 1) => {
         this.setState(prevState => 
             ({globals: {
                 ...prevState.globals, 
-                step: prevState.globals.step + 1
+                step: prevState.globals.step + amount
             }}))
     }
 

@@ -12,11 +12,29 @@ export class Step1Container extends Component {
     }
 
     componentDidMount() {
-        setTimeout(() => {
-            if (this.state.nodeInputs.length === 0) {
-                this.createNewInput();
-            }
-        }, 100)
+        const data = this.props.globals.data;
+        this.setState({nodeInputs: [data.nodes.map(node => {
+            return (
+                <Step1Input
+                    key={node.id}
+                    globals={this.props.globals}
+                    inputCounter={node.id}
+                    inputValue={node.name}
+                    setForceCollideRadius={this.props.setForceCollideRadius} 
+                    updateGraphData={this.props.updateGraphData}
+                    createNewInput={this.createNewInput}
+                />
+            )
+        }), 
+            <Step1Input
+            key={data.nodes.length}
+            globals={this.props.globals}
+            inputCounter={data.nodes.length + 1} 
+            setForceCollideRadius={this.props.setForceCollideRadius} 
+            updateGraphData={this.props.updateGraphData}
+            createNewInput={this.createNewInput}
+        />
+        ]})
     }
 
     // creates a new input box for a new node
