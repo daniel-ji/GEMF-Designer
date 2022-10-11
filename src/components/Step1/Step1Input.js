@@ -16,7 +16,6 @@ export class Step1Input extends Component {
         this.setState({inputValue: e.target.value})
 
         const data = Object.assign({}, this.props.globals.data);
-        console.log(data);
         // if the input has not been created
         if (!this.state.inputCreated) {
             // set the input to have been created

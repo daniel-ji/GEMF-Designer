@@ -75,6 +75,12 @@ export class Graph extends Component {
     };
 
     drawLinks = (link, ctx, globalScale) => {
+        const data = this.props.globals.data;
+        const repeats = data.links.filter(
+            e => (e.source.id === link.source.id && e.target.id === link.target.id) 
+            || (e.source.id === link.target.id && e.target.id === link.source.id));
+        const repeatCount = repeats.findIndex(e => e === link) + 1;
+
         ctx.lineWidth = 1;
         const source = this.scaleTriangle(link);
         const dx = (source[2] - source[0]);
@@ -88,7 +94,7 @@ export class Graph extends Component {
         const my = (link.target.y + link.source.y) / 2
         let fx = mx;
         let fy = my;
-        if (this.props.globals.data.linkCounter[src + "-" + tgt] === 1) {
+        if (repeats.length === 1) {
             ctx.beginPath();
             ctx.strokeStyle = "black";
             ctx.moveTo(source[0], source[1]);
@@ -96,7 +102,11 @@ export class Graph extends Component {
             ctx.stroke();
             this.drawArrow(ctx, source[0], source[1], source[0] + x99, source[1] + y99, .9);
         } else {
-            const h = (Math.sqrt(dist) * 2 + (Math.floor((link.repeatCount + 1) / 2) - 1) * this.state.globals.NODE_RADIUS * 1.5) * (link.source.id === src ? 1 : -1) * (dy < 0 ? 1 : -1) * (link.repeatCount % 2 === 0 ? 1 : -1);
+            // vertical height of edge based on distance and repeatedness of edge
+            const h = (Math.sqrt(dist) * 2 + (Math.floor((repeatCount + 1) / 2) - 1) * this.props.globals.NODE_RADIUS * 1.5) 
+            // determining whether or not the line should be flipped based on:
+            // edge direction, edge y displacement, alternations of edges  
+                * (link.source.id === src ? 1 : -1) * (dy < 0 ? 1 : -1) * (repeatCount % 2 === 0 ? 1 : -1);
             // perpendicular slope
             const ps = - x99 / y99
             const dfx = h / Math.sqrt(ps * ps + 1)
@@ -116,7 +126,7 @@ export class Graph extends Component {
             // perp of rm
             const prm = - rdx / rdy
             let flip = 1;
-            if ((link.repeatCount % 2 === 0 && link.source.id === src) || (link.repeatCount % 2 === 1 && link.source.id === tgt)) {
+            if ((repeatCount % 2 === 0 && link.source.id === src) || (repeatCount % 2 === 1 && link.source.id === tgt)) {
                 flip = -1;
             }
             const arrdfx = - dist / Math.sqrt(prm * prm + 1) * (rdy > 0 ? -1 : 1) * flip;
@@ -139,7 +149,7 @@ export class Graph extends Component {
         // // TODO: font-sizing so that the text fits in the circle
         ctx.fillStyle = "black";
         ctx.font = "bold 4px sans-serif";
-        ctx.fillText((link.rate === undefined ? "" : link.rate) + (link.inducer === undefined ? "" : (", " + this.props.globals.data.nodes.find(node => node.id === link.inducer).name)), fx, fy);
+        ctx.fillText((link.rate === undefined ? "" : link.rate) + (link.inducer === undefined ? "" : (", " + data.nodes.find(node => node.id === link.inducer).name)), fx, fy);
     }
 
     drawNode = (node, ctx, globalScale) => {
