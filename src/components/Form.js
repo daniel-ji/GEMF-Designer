@@ -11,10 +11,6 @@ export class Form extends Component {
         }
     }
 
-    componentDidUpdate(props) {
-        console.log(props);
-    }
-
     handleBack = () => {
 
     }
@@ -63,7 +59,6 @@ export class Form extends Component {
             this.props.incrementStep();
             // sorts the nodes alphabetically 
             data.nodes.sort((a, b) => a.name.localeCompare(b.name));
-            // TODO: implement renderStep2();
         }
     }
 
@@ -76,13 +71,14 @@ export class Form extends Component {
                 return a.target.name.localeCompare(b.target.name, undefined, { numeric: true })
             }
         })
-        this.props.updateGraphData(data);
-        this.props.incrementStep();
-        if (data.links.filter(link => link.inducer === undefined).length === 0) {
-            this.handleNext();
-        } else {
-            this.renderStep3();
-        }
+        this.props.updateGraphData(data, () => {
+            this.props.incrementStep();
+            if (data.links.filter(link => link.inducer === undefined).length === 0) {
+                this.handleNext();
+            } else {
+                this.renderStep3();
+            }
+        });
     }
 
     step3Next = () => {

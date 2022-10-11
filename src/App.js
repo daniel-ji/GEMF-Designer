@@ -45,11 +45,11 @@ export class App extends Component {
             }}))
     }
 
-    updateGraphData = (data) => {
+    updateGraphData = (data, callback) => {
         this.setState(prevState => ({globals: {
             ...prevState.globals,
             data
-        }}))
+        }}), callback)
     }
 
     setForceCollideRadius = (radius) => {
@@ -73,7 +73,7 @@ export class App extends Component {
                     <span style={{color: "green"}}>Green</span> Links: Node-based Transition<br/>
                     <span style={{color: "red"}}>Red</span> Links: Edge-based Transition
                 </p>
-                <a href="https://github.com/spis2022/GEMF-State-Visualization-Tool" target="_blank" rel="noreferrer"><button className="btn btn-outline-dark p-0"><img src={githubIcon} alt="" /></button></a>
+                <a href="https://github.com/spis2022/GEMF-State-Visualization-Tool" target="_blank" rel="noreferrer"><button className="btn btn-outline-dark p-0 githubButton"><img src={githubIcon} alt="" /></button></a>
                 <GraphComponent globals={this.state.globals}/> 
             </div>
             <Form
