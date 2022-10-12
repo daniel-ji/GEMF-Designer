@@ -37,8 +37,8 @@ export class Step1Input extends Component {
             // find the pre-existing node by id
             let node = data.nodes.find(x => x.id === this.state.count);
             // remove any red border
-            e.target.parentNode.classList.remove("border");
-            e.target.parentNode.classList.remove("border-danger");
+            e.target.classList.remove("border");
+            e.target.classList.remove("border-danger");
             // updates the name to the new value in the input
             node.name = e.target.value;
             this.props.updateGraphData(data);

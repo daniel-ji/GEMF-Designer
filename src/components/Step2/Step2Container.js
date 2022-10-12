@@ -87,24 +87,31 @@ export class Step2Container extends Component {
             
             this.setState({edgeCheckboxes: checkboxes}, () => {
                 const edgeInputs = [];
-                
+
                 // create an accordion header for each node, contains rest of nodes to link to
                 for (let i = 0; i < data.nodes.length; i++) {
+                    let open;
+                    if (this.props.openedStep2) {
+                        open = this.props.openAccordions.has(data.nodes[i].id);
+                    } else {
+                        open = i === 0;
+                    }
                     edgeInputs.push(
                         <div className="accordion-item" key={data.nodes[i].id}>
                         <h2 className="accordion-header" id={"openAccordionHeading-" + data.nodes[i].id}>
                             <button
                             type="button"
-                            className={"accordion-button" + (i === 0 ? "" : " collapsed")}
+                            className={"step2accordion-button accordion-button" + (open ? "" : " collapsed")}
                             data-bs-toggle="collapse"
                             data-bs-target={"#panels-collapse-" + data.nodes[i].id}
-                            aria-expanded={i === 0 ? "true" : "false"}
-                            aria-controls={"panels-collapse-" + data.nodes[i].id}>
+                            aria-expanded={open ? "true" : "false"}
+                            aria-controls={"panels-collapse-" + data.nodes[i].id}
+                            data-node-id={data.nodes[i].id}>
                             Links from State  {data.nodes[i].name + ":"}
                             </button>
                         </h2>
                         <div 
-                        className={"accordion-collapse collapse" + (i === 0 ? " show" : "")} 
+                        className={"accordion-collapse collapse" + (open ? " show" : "")} 
                         id={"panels-collapse-" + data.nodes[i].id}
                         aria-labelledby={"openAccordionHeading-" + data.nodes[i].id}>
                             <div className="accordion-body" id={"accordion-body-" + data.nodes[i].id}>

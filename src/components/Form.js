@@ -1,25 +1,36 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 
 import Step1Container from './Step1/Step1Container';
 import Step2Container from './Step2/Step2Container';
+import Step3Container from './Step3/Step3Container';
+import Step4Container from './Step4/Step4Container';
 
 export class Form extends Component {
     constructor(props) {
         super(props)
 
         this.state = {
+            step2OpenAccordions: new Set(),
+            openedStep2: false,
         }
     }
 
     handleBack = () => {
+        const data = this.props.globals.data;
         const step = this.props.globals.step;
         
         if (step === 2) {
+            this.updateStep2Accordions();
             this.props.incrementStep(-1);
         } else if (step === 3) {
-            this.step3Next();
+            this.props.incrementStep(-1);
         } else if (step === 4) {
-            this.step4Next();
+            if (data.links.filter(link => link.inducer === undefined).length === 0) {
+                this.props.incrementStep(-1);
+            }
+            this.props.incrementStep(-1);
+        } else if (step === 5) {
+            this.props.incrementStep(-1);
         }
     }
 
@@ -30,7 +41,8 @@ export class Form extends Component {
         if (step === 1) {
             this.step1Next();
         } else if (step === 2) {
-            this.step2Next(data, step);
+            this.updateStep2Accordions();
+            this.step2Next(data);
         } else if (step === 3) {
             this.step3Next();
         } else if (step === 4) {
@@ -53,14 +65,10 @@ export class Form extends Component {
             if (data.nodes[i].name.length === 0) {
                 badState.add(data.nodes[i].id);
             }
-            const element = document.getElementById('s-1-input-' + data.nodes[i].id);
-            element.classList.remove("border");
-            element.classList.remove("border-danger");
         }
 
         // alert repeats
         const repeat = Array.from(badState);
-        console.log(repeat);
 
         for (let i = 0; i < repeat.length; i++) {
             const element = document.getElementById('s-1-input-' + repeat[i]);
@@ -69,12 +77,27 @@ export class Form extends Component {
 
         // continuing to step 2
         if (repeat.length === 0 && data.nodes.length > 0) {
+            if (!this.state.openedStep2) {
+                this.setState({openedStep2: true, step2OpenAccordions: new Set([data.nodes[0].id])})
+            }
             this.props.incrementStep();
             // sorts the nodes alphabetically 
             data.nodes.sort((a, b) => a.name.localeCompare(b.name));
         }
     }
 
+    updateStep2Accordions = () => {
+        const accordions = document.getElementsByClassName("step2accordion-button");
+        const openAccordions = new Set();
+
+        for (const accordion of accordions) {
+            if (!accordion.classList.contains("collapsed")) {
+                openAccordions.add(parseInt(accordion.dataset.nodeId));
+            }
+        }
+
+        this.setState({step2OpenAccordions: openAccordions});
+    }
 
     step2Next = (data) => {
         data.links.sort((a, b) => {
@@ -87,15 +110,32 @@ export class Form extends Component {
         this.props.updateGraphData(data, () => {
             this.props.incrementStep();
             if (data.links.filter(link => link.inducer === undefined).length === 0) {
-                this.handleNext();
-            } else {
-                this.renderStep3();
+                this.props.incrementStep();
             }
         });
     }
 
     step3Next = () => {
+        const data = this.props.globals.data;
+        // check inputs for blanks
+        let valid = true;
+        for (let i = 0; i < data.links.length; i++) {
+            if (data.links[i].inducer === undefined) {
+                const input = document.getElementById("link-input-" + data.links[i].source.id + "-" + data.links[i].target.id);
+                if (data.links[i].rate === undefined || input.value.length === 0 || input.value < 0) {
+                    if (data.links[i].rate === undefined) {
+                        data.links[i].rate = undefined;
+                    } else if (data.links[i].rate < 0) {
+                    }
+                    valid = false;
+                    input.className += " border border-danger"
+                }
+            }
+        }
 
+        if (valid) {
+            this.props.incrementStep();
+        }
     }
 
     step4Next = () => {
@@ -117,14 +157,26 @@ export class Form extends Component {
                     {{
                         1: 
                         <Step1Container 
-                            globals={this.props.globals} 
-                            setForceCollideRadius={this.props.setForceCollideRadius} 
-                            updateGraphData={this.props.updateGraphData}
+                        globals={this.props.globals} 
+                        setForceCollideRadius={this.props.setForceCollideRadius} 
+                        updateGraphData={this.props.updateGraphData}
                         />,
                         2:
                         <Step2Container 
-                            globals={this.props.globals} 
-                            updateGraphData={this.props.updateGraphData}
+                        globals={this.props.globals} 
+                        updateGraphData={this.props.updateGraphData}
+                        openAccordions={this.state.step2OpenAccordions}
+                        openedStep2={this.state.openedStep2}
+                        />,
+                        3: 
+                        <Step3Container
+                        globals={this.props.globals}
+                        updateGraphData={this.props.updateGraphData}
+                        />, 
+                        4: 
+                        <Step4Container
+                        globals={this.props.globals}
+                        updateGraphData={this.props.updateGraphData}
                         />
                     }[this.props.globals.step]}
                 </div>
