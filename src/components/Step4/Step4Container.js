@@ -1,5 +1,3 @@
-// TODO: move out all style css stuff
-
 import React, { Component, Fragment } from 'react'
 
 export class Step4Container extends Component {
@@ -7,6 +5,7 @@ export class Step4Container extends Component {
         super(props)
 
         this.state = {
+            edgeEntries: []
         }
     }
 
@@ -72,7 +71,7 @@ export class Step4Container extends Component {
             this.props.updateGraphData(data);
 
             // create new entry based off link 
-            // this.createEdgeEntry(data.links[data.links.length - 1])
+            this.createEdgeEntry(data.links[data.links.length - 1])
         }
     }
     
@@ -80,91 +79,92 @@ export class Step4Container extends Component {
     createEdgeEntry = (link) => {
         const data = this.props.globals.data;
 
-        // display to dom
-        <Fragment>
-            <div 
-            style={{
-                display: "flex", 
-                flexWrap: "wrap",
-                justifyContent: "space-between"
-            }} 
-            className="mt-3 mb-3 w-100">
-                <button
-                type="button"
-                className="btn btn-primary mb-3 w-100"
-                style={{width: "60%"}}
-                data-bs-toggle="collapse"
-                data-bs-target={"#collapseWidth-" + link.id}
-                aria-controls={"collapseWidth-" + link.id}
-                aria-expanded="false">
-                    State Transition Edge {link.shortName}
-                </button>
-                <button 
-                className="btn btn-danger p-0 mb-3" 
-                style={{width: "10%"}}>
-                    <i className="bi bi-trash" />
-                onClick={(e) => {
-                    const newData = Object.assign({}, this.props.globals.data);
-                    newData.links = newData.links.filter(l => l.id !== link.id);
-                    this.props.updateGraphData(newData);
-                    // edgeGroup.remove();
-                    // collapseStyle.parentNode.removeChild(collapseStyle)
-                }}
-                </button>
+        console.log(data);
+        console.log(link);
+        this.setState({edgeEntries: [...this.state.edgeEntries,
+            <div key={link.id}>
+                <div 
+                style={{
+                    display: "flex", 
+                    flexWrap: "wrap",
+                    justifyContent: "space-between"
+                }} 
+                className="mt-4 mb-3 w-100">
+                    <div style={{width: "60%"}}>
+                        <button
+                        type="button"
+                        className="btn btn-primary mb-3 w-100"
+                        data-bs-toggle="collapse"
+                        data-bs-target={"#collapseWidth-" + link.id}
+                        aria-controls={"collapseWidth-" + link.id}
+                        aria-expanded="false">
+                            State Transition Edge {link.shortName}
+                        </button>
+                    </div>
+                    <button 
+                    className="btn btn-danger p-0 mb-3" 
+                    style={{width: "10%"}}
+                    onClick={(e) => {
+                        const newData = Object.assign({}, this.props.globals.data);
+                        newData.links = newData.links.filter(l => l.id !== link.id);
+                        this.props.updateGraphData(newData);
+                        this.setState({edgeEntries: this.state.edgeEntries.filter(element => 
+                            element.key !== link.id
+                        )})
+                    }}>
+                        <i className="bi bi-trash" />
+                    </button>
+                </div>
+                <div>
+                    <div 
+                    className="collapse"
+                    id={"collapseWidth-" + link.id}
+                    style={{minHeight: "120px"}}>
+                        <div className="card card-body w-100">
+                            <p className="mb-1">Source: </p>
+                            <input 
+                            type="text" 
+                            className="form-control mb-2"
+                            disabled
+                            readOnly
+                            style={{width: "30%"}}
+                            value={typeof link.source === 'number' ? 
+                                data.nodes.find(n => n.id === link.source).name
+                                : link.source.name}/>
+
+                            <p className="mb-1">Target: </p>
+                            <input 
+                            type="text" 
+                            className="form-control mb-2"
+                            disabled
+                            readOnly
+                            style={{width: "30%"}}
+                            value={typeof link.target === 'number' ? 
+                                data.nodes.find(n => n.id === link.target).name
+                                : link.target.name}/>
+
+                            <p className="mb-1">Inducer: </p>
+                            <input 
+                            type="text" 
+                            className="form-control mb-2"
+                            disabled
+                            readOnly
+                            style={{width: "25%"}}
+                            value={data.nodes.find(n => n.id === link.inducer).name}/>
+
+                            <p className="mb-1">Rate: </p>
+                            <input 
+                            type="text" 
+                            className="form-control mb-2"
+                            disabled
+                            readOnly
+                            style={{width: "20%"}}
+                            value={link.rate}/>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div 
-            className="collapse"
-            id={"collapseWidth-" + link.id}
-            style={{minHeight: "120px"}}>
-                <p>Source: </p>
-                <div className="card card-body w-100">
-                    <input 
-                    type="text" 
-                    className="form-control mb-3"
-                    disabled
-                    readOnly
-                    style={{width: "30%"}}
-                    value={link.source === 'number' ? 
-                        data.nodes.find(n => n.id === link.source).name
-                        : link.source.name}/>
-                </div>
-
-                <p>Target: </p>
-                <div className="card card-body w-100">
-                    <input 
-                    type="text" 
-                    className="form-control mb-3"
-                    disabled
-                    readOnly
-                    style={{width: "30%"}}
-                    value={link.target === 'number' ? 
-                        data.nodes.find(n => n.id === link.target).name
-                        : link.target.name}/>
-                </div>
-
-                <p>Inducer: </p>
-                <div className="card card-body w-100">
-                    <input 
-                    type="text" 
-                    className="form-control mb-3"
-                    disabled
-                    readOnly
-                    style={{width: "25%"}}
-                    value={data.nodes.find(n => n.id === link.inducer).name}/>
-                </div>
-
-                <p>Rate: </p>
-                <div className="card card-body w-100">
-                    <input 
-                    type="text" 
-                    className="form-control mb-3"
-                    disabled
-                    readOnly
-                    style={{width: "20%"}}
-                    value={link.rate}/>
-                </div>
-            </div>
-        </Fragment>
+        ]})
     }
 
     componentDidMount() {
@@ -184,7 +184,7 @@ export class Step4Container extends Component {
                 id="selectSource">
                     {data.nodes.map(node => {
                         return (
-                            <option value={node.id} id={"select-source-" + node.id}>{node.name}</option>
+                            <option key={node.id} value={node.id} id={"select-source-" + node.id}>{node.name}</option>
                         )
                     })}
                 </select>
@@ -195,7 +195,7 @@ export class Step4Container extends Component {
                 id="selectTarget">
                     {data.nodes.map(node => {
                         return (
-                            <option value={node.id} id={"select-target-" + node.id}>{node.name}</option>
+                            <option key={node.id} value={node.id} id={"select-target-" + node.id}>{node.name}</option>
                         )
                     })}
                 </select>
@@ -206,7 +206,7 @@ export class Step4Container extends Component {
                 id="selectInducer">
                     {data.nodes.map(node => {
                         return (
-                            <option value={node.id} id={"select-inducer-" + node.id}>{node.name}</option>
+                            <option key={node.id} value={node.id} id={"select-inducer-" + node.id}>{node.name}</option>
                         )
                     })}
                 </select> 
@@ -218,7 +218,7 @@ export class Step4Container extends Component {
                         type="number"
                         className="form-control"
                         placeholder="Enter Trans. Rate"
-                        ariaLabel="Enter Trans. Rate"
+                        aria-label="Enter Trans. Rate"
                         id="rateInput"/>
                     </div>
                     <button 
@@ -226,6 +226,7 @@ export class Step4Container extends Component {
                     style={{width: "30%"}} 
                     onClick={this.addRate}>Add</button>
                 </div>
+                {this.state.edgeEntries}
             </Fragment>
         )
     }

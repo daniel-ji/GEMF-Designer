@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 import GraphComponent from './components/Graph';
 import Form from './components/Form';
 
-import './App.css';
+import './App.scss';
 import githubIcon from './images/githubicon.png';
 
 export class App extends Component {
