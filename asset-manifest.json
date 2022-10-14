@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/GEMF-State-Visualization-Tool/static/css/main.cdf53fd9.css",
+    "main.js": "/GEMF-State-Visualization-Tool/static/js/main.776aaeaf.js",
+    "static/media/bootstrap-icons.woff?": "/GEMF-State-Visualization-Tool/static/media/bootstrap-icons.e559bf06bc84fd9525e6.woff",
+    "static/media/bootstrap-icons.woff2?": "/GEMF-State-Visualization-Tool/static/media/bootstrap-icons.ea98e12d2d58747f9fc5.woff2",
+    "index.html": "/GEMF-State-Visualization-Tool/index.html",
+    "main.cdf53fd9.css.map": "/GEMF-State-Visualization-Tool/static/css/main.cdf53fd9.css.map",
+    "main.776aaeaf.js.map": "/GEMF-State-Visualization-Tool/static/js/main.776aaeaf.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.cdf53fd9.css",
+    "static/js/main.776aaeaf.js"
+  ]
+}
