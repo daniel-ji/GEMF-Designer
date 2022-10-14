@@ -63,7 +63,10 @@ export class App extends Component {
     render() {        
         return (
         <div className="App">
-            <div id="graphIndicator" onMouseDown={this.indicatorFadeOut} onTouchStart={this.indicatorFadeOut} style={this.state.indicatorStyle}>
+            <div id="graphIndicator"
+            onMouseDown={this.indicatorFadeOut}
+            onTouchStart={this.indicatorFadeOut}
+            style={this.state.indicatorStyle}>
                 <p className="noselect">Click and Drag Graph to Interact</p>
             </div>
             <div id="graphCover">
@@ -73,7 +76,9 @@ export class App extends Component {
                     <span style={{color: "green"}}>Green</span> Links: Node-based Transition<br/>
                     <span style={{color: "red"}}>Red</span> Links: Edge-based Transition
                 </p>
-                <a href="https://github.com/spis2022/GEMF-State-Visualization-Tool" target="_blank" rel="noreferrer"><button className="btn btn-outline-dark p-0 githubButton"><img src={githubIcon} alt="" /></button></a>
+                <a href="https://github.com/daniel-ji/GEMF-State-Visualization-Tool" target="_blank" rel="noreferrer">
+                    <button className="btn btn-outline-dark p-0 githubButton"><img src={githubIcon} alt="" /></button>
+                </a>
                 <GraphComponent globals={this.state.globals}/> 
             </div>
             <Form
