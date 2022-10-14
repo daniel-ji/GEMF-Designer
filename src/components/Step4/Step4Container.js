@@ -79,8 +79,6 @@ export class Step4Container extends Component {
     createEdgeEntry = (link) => {
         const data = this.props.globals.data;
 
-        console.log(data);
-        console.log(link);
         this.setState({edgeEntries: [...this.state.edgeEntries,
             <div key={link.id}>
                 <div 

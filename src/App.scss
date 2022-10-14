@@ -21,6 +21,7 @@ body {
     box-sizing: content-box;
     width: 100vw;
     height: 60vh;
+    cursor: pointer;
 }
 
 #graphCover h1 {
@@ -84,6 +85,7 @@ body {
     padding: 2vw;
     width: 100vw;
     height: 60vh;
+    cursor: default;
 }
 
 .step-containers {

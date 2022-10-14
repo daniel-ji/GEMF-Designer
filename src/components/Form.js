@@ -4,6 +4,7 @@ import Step1Container from './Step1/Step1Container';
 import Step2Container from './Step2/Step2Container';
 import Step3Container from './Step3/Step3Container';
 import Step4Container from './Step4/Step4Container';
+import FinalData from './FinalData';
 
 export class Form extends Component {
     constructor(props) {
@@ -140,7 +141,6 @@ export class Form extends Component {
 
     step4Next = () => {
         this.props.incrementStep();
-        this.renderStep5();
     }
 
     render() {
@@ -175,6 +175,11 @@ export class Form extends Component {
                         />, 
                         4: 
                         <Step4Container
+                        globals={this.props.globals}
+                        updateGraphData={this.props.updateGraphData}
+                        />,
+                        5:
+                        <FinalData
                         globals={this.props.globals}
                         updateGraphData={this.props.updateGraphData}
                         />
