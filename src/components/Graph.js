@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
 import {forceCollide} from 'd3-force';
 
+import { CSS_BREAKPOINT, WIDTH_RATIO } from '../Constants';
+
 export class Graph extends Component {
     constructor(props) {
         super(props)
@@ -177,8 +179,8 @@ export class Graph extends Component {
             nodeVal={this.props.globals.NODE_RADIUS}
             nodeLabel=''
             nodeAutoColorBy='group'
-            width={window.innerWidth >= 768 ? window.innerWidth * .6 : window.innerWidth}
-            height={window.innerWidth >= 768 ? window.innerHeight : window.innerHeight * 0.6}
+            width={window.innerWidth >= CSS_BREAKPOINT ? window.innerWidth * WIDTH_RATIO : window.innerWidth}
+            height={window.innerWidth >= CSS_BREAKPOINT ? window.innerHeight : window.innerHeight * WIDTH_RATIO}
             maxZoom={5}
             minZoom={1}
             nodeCanvasObject={this.drawNode}

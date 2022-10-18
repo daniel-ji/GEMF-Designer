@@ -57,7 +57,7 @@ body {
     border-color: black !important;
 }
 
-#graphIndicator {
+.graphIndicator {
     position: absolute;
     top: 0;
     left: 0;
@@ -70,10 +70,10 @@ body {
     cursor: pointer;
     z-index: 100;
     transition: 0.5s;
-}
 
-#graphIndicator:hover {
-    background-color: rgba(0, 0, 0, 0);
+    &:hover {
+        background-color: rgba(0, 0, 0, 0);
+    }
 }
 
 #form {
@@ -127,7 +127,7 @@ body {
         right: 40vw;
     }
 
-    #graphIndicator {
+    .graphIndicator {
         height: 100vh;
         width: 60vw;
     }
