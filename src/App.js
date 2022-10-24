@@ -65,20 +65,35 @@ export class App extends Component {
 
     parseGraphVizSVG() {
         const graph = document.getElementById("graph0");
+        const data = Object.assign({}, this.state.globals.data);
 
         if (graph !== null) {
             const nodes = [];
             const edges = [];
 
+            const graphDimensions = document.getElementById("graphCover").getBoundingClientRect();
+            console.log(graphDimensions);
+
             for (const child of graph.children) {
                 if (child.classList.contains("node")) {
                     const ellipse = child.querySelector('ellipse');
                     const rect = ellipse.getBoundingClientRect();
-                    nodes.push([rect.left, rect.top]);
+                    console.log(rect);
+                    const middleRectX = (rect.left + rect.right) / 2;
+                    const middleRectY = (rect.top + rect.bottom) / 2;
+                    const radius = this.state.globals.NODE_RADIUS;
+                    data.nodes.push({
+                        // TODO: change to actual unique ID
+                        id: child.getElementsByTagName('title')[0].innerHTML,
+                        name: child.getElementsByTagName('title')[0].innerHTML,
+                        x: (middleRectX) / 2,
+                        y: (middleRectY) / 2,
+                    })
                 }
             }
-    
-            console.log(nodes);
+
+            this.updateGraphData(data);
+            console.log(data.nodes);
         }
     }
 
@@ -89,13 +104,13 @@ export class App extends Component {
     render() {        
         return (
         <div className="App">
-            <div className="graphIndicator"
+            {/* <div className="graphIndicator"
             onMouseDown={this.indicatorFadeOut}
             onTouchStart={this.indicatorFadeOut}
             style={this.state.indicatorStyle}>
                 <p className="noselect">Click and Drag Graph to Interact</p>
-            </div>
-            {/* <Graphviz 
+            </div> */}
+            <Graphviz 
             className="graphIndicator"
             options={{
                 width: window.innerWidth * WIDTH_RATIO,
@@ -122,7 +137,7 @@ export class App extends Component {
                 7 -> 5 [label = "S(a)"];
                 8 -> 6 [label = "S(b)"];
                 8 -> 5 [label = "S(a)"];
-            }`}/> */}
+            }`}/>
             <div id="graphCover">
                 <h1 className="noselect">Graph View </h1>
                 <p className="noselect">
