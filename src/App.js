@@ -63,38 +63,83 @@ export class App extends Component {
             }}))
     }
 
-    parseGraphVizSVG() {
+    parseGraphVizSVG = () => {
         const graph = document.getElementById("graph0");
-        const data = Object.assign({}, this.state.globals.data);
-
+        
         if (graph !== null) {
-            const nodes = [];
-            const edges = [];
-
-            const graphDimensions = document.getElementById("graphCover").getBoundingClientRect();
-            console.log(graphDimensions);
-
+            const data = Object.assign({}, this.state.globals.data);
+            const graphDimensions = graph.getBoundingClientRect();
+            const graphMiddleX = (graphDimensions.left + graphDimensions.right) / 2; 
+            const graphMiddleY = (graphDimensions.top + graphDimensions.bottom) / 2; 
+            
             for (const child of graph.children) {
                 if (child.classList.contains("node")) {
                     const ellipse = child.querySelector('ellipse');
                     const rect = ellipse.getBoundingClientRect();
-                    console.log(rect);
-                    const middleRectX = (rect.left + rect.right) / 2;
-                    const middleRectY = (rect.top + rect.bottom) / 2;
-                    const radius = this.state.globals.NODE_RADIUS;
+                    const normalizedX = (rect.left - graphMiddleX) / graphMiddleX;
+                    const normalizedY = (rect.top - graphMiddleY) / graphMiddleY;
+                    const normalizedR = rect.width / graphDimensions.width;
+                    const scaleRatio = 1 / normalizedR * this.state.globals.NODE_RADIUS;
                     data.nodes.push({
                         // TODO: change to actual unique ID
                         id: child.getElementsByTagName('title')[0].innerHTML,
                         name: child.getElementsByTagName('title')[0].innerHTML,
-                        x: (middleRectX) / 2,
-                        y: (middleRectY) / 2,
+                        x: normalizedX * scaleRatio,
+                        y: normalizedY * scaleRatio,
                     })
                 }
             }
 
             this.updateGraphData(data);
-            console.log(data.nodes);
         }
+    }
+
+    processSTR = (e) => {
+        const reader = new FileReader();
+        const nodes = [];
+        const edges = [];
+        // TODO: validate str file
+        reader.onload = (e) => {
+            const parsedSTR = e.target.result.split(/\r?\n/).map(row => row.split(/\t/));
+            for (let i = 0; i < parsedSTR.length; i++) {
+                // TODO: more validation here? 
+                if (parsedSTR[i].length === 4) {
+                    for (let j = 0; j < parsedSTR[i].length; j++) {
+                        const value = parsedSTR[i][j];
+                        // source and target node
+                        if (j <= 1 && nodes.indexOf(value) === -1) {
+                            nodes.push(value);
+                        // inducer node
+                        } else if (j === 2) {
+                            if (value !== "None" && nodes.indexOf(value) === -1) {
+                                nodes.push(value);
+                            }
+                        }
+                    }
+                    if (parsedSTR[i][2] === "None") {
+                        edges.push({
+                            id: nodes.indexOf(parsedSTR[i][0]) + "-" + nodes.indexOf(parsedSTR[i][1]),
+                            shortName: parsedSTR[i][0] + "-" + parsedSTR[i][1],
+                            source: nodes.indexOf(parsedSTR[i][0]),
+                            target: nodes.indexOf(parsedSTR[i][1]),
+                            rate: parseInt(parsedSTR[i][3])
+                        })
+                    } else {
+                        edges.push({
+                            id: nodes.indexOf(parsedSTR[i][0]) + "-" + nodes.indexOf(parsedSTR[i][1]) + "-" + nodes.indexOf(parsedSTR[i][2]),
+                            shortName: parsedSTR[i][0] + "-" + parsedSTR[i][1] + "-" + parsedSTR[i][2],
+                            source: nodes.indexOf(parsedSTR[i][0]),
+                            target: nodes.indexOf(parsedSTR[i][1]),
+                            inducer: nodes.indexOf(parsedSTR[i][2]),
+                            rate: parseInt(parsedSTR[i][3])
+                        })
+                    }
+                }
+            }
+            console.log(nodes);
+            console.log(edges);
+        }
+        reader.readAsText(e.target.files[0]);
     }
 
     componentDidMount() {
@@ -155,7 +200,8 @@ export class App extends Component {
             incrementStep={this.incrementStep}
             updateGraphData={this.updateGraphData}
             forceCollideRadius={this.state.forceCollideRadius}
-            setForceCollideRadius={this.setForceCollideRadius} />
+            setForceCollideRadius={this.setForceCollideRadius} 
+            processSTR={this.processSTR}/>
         </div>
         );
     }

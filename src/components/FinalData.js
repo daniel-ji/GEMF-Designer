@@ -32,7 +32,6 @@ export class FinalData extends Component {
             )
         })
 
-        console.log(tsvData);
         this.setState({tableData, tsvData})
     }
 
@@ -58,7 +57,6 @@ export class FinalData extends Component {
                     </tbody>
                 </table>
                 <button className="w-100 btn btn-primary" id="btn" onClick={() => {
-                    console.log(this.state.tsvData);
                     const element = document.createElement('a');
                     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + this.state.tsvData);
                     element.setAttribute('download', "STR.tsv");

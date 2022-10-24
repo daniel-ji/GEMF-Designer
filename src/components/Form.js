@@ -160,6 +160,7 @@ export class Form extends Component {
                         globals={this.props.globals} 
                         setForceCollideRadius={this.props.setForceCollideRadius} 
                         updateGraphData={this.props.updateGraphData}
+                        processSTR={this.props.processSTR}
                         />,
                         2:
                         <Step2Container 

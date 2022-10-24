@@ -68,7 +68,8 @@ body {
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    // opacity: 0;
+    // z-index: 100;
+    opacity: 0;
     transition: 0.5s;
 
     &:hover {
@@ -98,6 +99,16 @@ body {
 
 .step-containers .title {
     margin-bottom: 2vh;
+}
+
+#step1-container {
+    overflow: hidden;
+
+    .nodeInputs {
+        width: 100%;
+        height: 50vh;
+        overflow-y: scroll;
+    }
 }
 
 #step4-container select {

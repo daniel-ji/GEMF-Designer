@@ -19,10 +19,6 @@ export class Graph extends Component {
         this.ref.current.d3Force('center', null)
         this.ref.current.d3Force('collide', forceCollide(this.props.globals.forceCollideRadius))
         this.ref.current.d3Force('link', null)
-        
-        const graphDimensions = document.getElementById("graphCover").getBoundingClientRect();
-        this.ref.current.centerAt((graphDimensions.left + graphDimensions.right) / 4, (graphDimensions.bottom + graphDimensions.top) / 4);
-        setTimeout(() => console.log(this.ref.current.centerAt()), 1000);
     }
 
     componentDidUpdate() {
