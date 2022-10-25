@@ -67,7 +67,8 @@ export class Step2Container extends Component {
             for (let j = 0; j < data.nodes.length; j++) {
                 inputsChecked[i][j] = !!data.links.find(obj => 
                     (obj.source === data.nodes[i].id || obj.source.id === data.nodes[i].id)
-                    && (obj.target === data.nodes[j].id || obj.target.id === data.nodes[j].id))
+                    && (obj.target === data.nodes[j].id || obj.target.id === data.nodes[j].id)
+                    && obj.inducer === undefined)
             }
         }
 

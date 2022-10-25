@@ -83,7 +83,7 @@ export class Form extends Component {
             }
             this.props.incrementStep();
             // sorts the nodes alphabetically 
-            data.nodes.sort((a, b) => a.name.localeCompare(b.name));
+            // data.nodes.sort((a, b) => a.name.localeCompare(b.name));
         }
     }
 

@@ -27,9 +27,9 @@ export class Step1Container extends Component {
             )
         }), 
             <Step1Input
-            key={Math.max([...this.props.globals.data.nodes.map(node => node.id)]) + 1}
+            key={data.nodes.length + 1}
             globals={this.props.globals}
-            inputCounter={Math.max([...this.props.globals.data.nodes.map(node => node.id)]) + 1} 
+            inputCounter={data.nodes.length + 1} 
             setForceCollideRadius={this.props.setForceCollideRadius} 
             updateGraphData={this.props.updateGraphData}
             createNewInput={this.createNewInput}
@@ -43,9 +43,9 @@ export class Step1Container extends Component {
         this.setState(prevState => ({
             nodeInputs: [...this.state.nodeInputs, 
                 <Step1Input
-                    key={Math.max([...this.props.globals.data.nodes.map(node => node.id)]) + 1}
+                    key={this.props.globals.data.nodes.length + 1}
                     globals={this.props.globals}
-                    inputCounter={Math.max([...this.props.globals.data.nodes.map(node => node.id)]) + 1} 
+                    inputCounter={this.props.globals.data.nodes.length + 1} 
                     setForceCollideRadius={this.props.setForceCollideRadius} 
                     updateGraphData={this.props.updateGraphData}
                     createNewInput={this.createNewInput}

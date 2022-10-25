@@ -58,23 +58,30 @@ body {
 }
 
 .graphIndicator {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 60vh;
-    width: 100vw;
     background-color: rgba(0, 0, 0, 0.15);
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    // z-index: 100;
-    opacity: 0;
+    z-index: 100;
     transition: 0.5s;
 
     &:hover {
         background-color: rgba(0, 0, 0, 0);
     }
+}
+
+.graphOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 60vh;
+    width: 100vw;
+}
+
+.graphViz {
+    opacity: 0;
+    z-index: -1;
 }
 
 #form {
@@ -138,7 +145,7 @@ body {
         right: 40vw;
     }
 
-    .graphIndicator {
+    .graphOverlay {
         height: 100vh;
         width: 60vw;
     }
