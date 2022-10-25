@@ -63,7 +63,7 @@ export class App extends Component {
             }}))
     }
 
-    parseGraphVizSVG = () => {
+    parseGraphvizSVG = () => {
         const graph = document.getElementById("graph0");
         
         if (graph !== null) {
@@ -98,20 +98,29 @@ export class App extends Component {
         const reader = new FileReader();
         const nodes = [];
         const edges = [];
+        
         // TODO: validate str file
         reader.onload = (e) => {
+            
+            let nodeID = Math.max(...this.state.globals.data.nodes.map(node => parseInt(node.id)));
+
             const parsedSTR = e.target.result.split(/\r?\n/).map(row => row.split(/\t/));
             for (let i = 0; i < parsedSTR.length; i++) {
                 // TODO: more validation here? 
                 if (parsedSTR[i].length === 4) {
                     for (let j = 0; j < parsedSTR[i].length; j++) {
                         const value = parsedSTR[i][j];
+                        const foundNode = nodes.map(node => node.name).indexOf(value) !== -1;
                         // source and target node
-                        if (j <= 1 && nodes.indexOf(value) === -1) {
-                            nodes.push(value);
+                        if (j <= 1 && !foundNode) {
+                            nodes.push({
+                                // TODO: change to actual unique ID
+                                id: ++nodeID,
+                                name: value,
+                            });
                         // inducer node
                         } else if (j === 2) {
-                            if (value !== "None" && nodes.indexOf(value) === -1) {
+                            if (value !== "None" && !foundNode) {
                                 nodes.push(value);
                             }
                         }
@@ -136,14 +145,14 @@ export class App extends Component {
                     }
                 }
             }
-            console.log(nodes);
-            console.log(edges);
+
+            this.createGraphviz();
         }
         reader.readAsText(e.target.files[0]);
     }
 
     componentDidMount() {
-        this.parseGraphVizSVG();
+        this.parseGraphvizSVG();
     }
 
     render() {        
