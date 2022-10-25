@@ -58,11 +58,11 @@ export class Step1Container extends Component {
         return (
             <Fragment>
                 <h3 className="title">Add Nodes</h3>
-                <div className="nodeInputs mb-5 px-3">
+                <div className="nodeInputs mb-5 p-3">
                     {this.state.nodeInputs}
                 </div>
                 <div className="w-100">
-                    <label htmlFor="formFile" className="form-label"><h3 className="title">Upload Existing State Transition Rates File</h3></label>
+                    <label htmlFor="formFile" className="form-label"><h4>Upload Existing State Transition Rates File</h4></label>
                     <input type="file" id="formFile" className="form-control" accept=".tsv,.csv,.txt" onChange={this.props.processSTR}/>
                 </div>
             </Fragment>

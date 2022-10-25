@@ -1,2 +1,3 @@
 - bugtest
 - create individual step for graphviz loadin
+- known bug: not drawing repeat links until movement 
