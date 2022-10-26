@@ -23,7 +23,7 @@ export class App extends Component {
                     links: [],
                     linkCounter: {},
                 },
-                step: 1,
+                step: 0,
             },
             indicatorStyle: {},
             strGraphviz: undefined,

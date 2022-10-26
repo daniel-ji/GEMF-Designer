@@ -97,6 +97,7 @@ body {
 }
 
 .step-containers {
+    display: flex;
     flex-direction: column;
     width: 100%;
     height: 75vh;
@@ -106,6 +107,16 @@ body {
 
 .step-containers .title {
     margin-bottom: 2vh;
+}
+
+#step0-container {
+    position: relative;
+
+    footer {
+        align-self: center;
+        position: absolute;
+        bottom: 0;
+    }
 }
 
 #step1-container {

@@ -4,6 +4,7 @@ import Step1Container from './Step1/Step1Container';
 import Step2Container from './Step2/Step2Container';
 import Step3Container from './Step3/Step3Container';
 import Step4Container from './Step4/Step4Container';
+import Welcome from './Welcome';
 import FinalData from './FinalData';
 
 export class Form extends Component {
@@ -19,8 +20,9 @@ export class Form extends Component {
     handleBack = () => {
         const data = this.props.globals.data;
         const step = this.props.globals.step;
-        
-        if (step === 2) {
+        if (step === 1) {
+            this.props.incrementStep(-1);
+        } else if (step === 2) {
             this.updateStep2Accordions();
             this.props.incrementStep(-1);
         } else if (step === 3) {
@@ -39,7 +41,9 @@ export class Form extends Component {
         const data = this.props.globals.data;
         const step = this.props.globals.step;
 
-        if (step === 1) {
+        if (step === 0) {
+            this.props.incrementStep();
+        } else if (step === 1) {
             this.step1Next();
         } else if (step === 2) {
             this.updateStep2Accordions();
@@ -147,6 +151,7 @@ export class Form extends Component {
         return (
             <div id="form">
                 <h1 id="formTitle">{{
+                    0: 'GEMF State Visualization Tool',
                     1: 'Form Input (Step 1)',
                     2: 'Form Input (Step 2)',
                     3: 'Form Input (Step 3)',
@@ -155,6 +160,8 @@ export class Form extends Component {
                 }[this.props.globals.step]}</h1>
                 <div id={`step${this.props.globals.step}-container`} className="step-containers">
                     {{
+                        0:
+                        <Welcome />,
                         1: 
                         <Step1Container 
                         globals={this.props.globals} 

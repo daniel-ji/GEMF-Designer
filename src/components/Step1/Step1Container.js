@@ -58,7 +58,7 @@ export class Step1Container extends Component {
         return (
             <Fragment>
                 <h3 className="title">Add Nodes</h3>
-                <div className="nodeInputs mb-5 p-3">
+                <div className="nodeInputs mb-3 p-3">
                     {this.state.nodeInputs}
                 </div>
                 <div className="w-100">
