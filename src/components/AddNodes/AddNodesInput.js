@@ -1,3 +1,7 @@
+/**
+ * Individual node input component for creating nodes. Part of node input container component.
+ * The actual individual inputs.    
+ */
 import React, { Component, Fragment } from 'react'
 
 export class AddNodesInput extends Component {

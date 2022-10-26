@@ -1,3 +1,7 @@
+/**
+ * Node input container component for creating nodes. Part of Form component.  
+ * The entire div.  
+ */
 import React, { Component } from 'react'
 
 import AddNodesInput from './AddNodesInput'
