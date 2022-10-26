@@ -125,8 +125,6 @@ export class App extends Component {
                 }
             }
 
-            console.log(links);
-
             // create graphviz 
             let dotContent = '';
             for (const link of links) {
@@ -136,7 +134,7 @@ export class App extends Component {
 
             this.setState({strGraphviz: 
                 <Graphviz 
-                className="graphOverlay graphViz"
+                className="graph-overlay graph-viz"
                 options={{
                     width: window.innerWidth * WIDTH_RATIO,
                     height: window.innerHeight
@@ -186,7 +184,6 @@ export class App extends Component {
                 data.links.push(link);
             }
 
-            console.log(data);
             this.updateGraphData(data);
             setTimeout(() => this.updateGraphData(data), 100);
         } else {
@@ -197,14 +194,14 @@ export class App extends Component {
     render() {        
         return (
         <div className="App">
-            <div className="graphOverlay graphIndicator"
+            <div className="graph-overlay graph-indicator"
             onMouseDown={this.indicatorFadeOut}
             onTouchStart={this.indicatorFadeOut}
             style={this.state.indicatorStyle}>
                 <p className="noselect">Click and Drag Graph to Interact</p>
             </div>
             {this.state.strGraphviz}
-            <div id="graphCover">
+            <div id="graph-cover">
                 <h1 className="noselect">Graph View </h1>
                 <p className="noselect">
                     Legend:<br/>
@@ -212,7 +209,7 @@ export class App extends Component {
                     <span style={{color: "red"}}>Red</span> Links: Edge-based Transition
                 </p>
                 <a href="https://github.com/daniel-ji/GEMF-State-Visualization-Tool" target="_blank" rel="noreferrer">
-                    <button className="btn btn-outline-dark p-0 githubButton"><img src={githubIcon} alt="" /></button>
+                    <button className="btn btn-outline-dark p-0 github-button"><img src={githubIcon} alt="" /></button>
                 </a>
                 <GraphComponent globals={this.state.globals}/> 
             </div>

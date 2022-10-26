@@ -24,40 +24,42 @@ body {
     cursor: pointer;
 }
 
-#graphCover h1 {
-    position: absolute;
-    top: 0;
-    left: 0;
-    margin: 2vw;
+#graph-cover {
+    h1 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin: 2vw;
+    }
+
+    p {
+        position: absolute;
+        bottom: 40vh;
+        right: 0;
+        padding: 2vw;
+        margin: 0;
+        font-weight: bold;
+    }
+
+    a {
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 0.5vw;
+        height: auto;
+
+        img {
+            width: max(5vw, 40px);
+        }
+
+        button:hover {
+            background-color: rgb(220, 220, 220) !important;
+            border-color: black !important;
+        }
+    }
 }
 
-#graphCover p {
-    position: absolute;
-    bottom: 40vh;
-    right: 0;
-    padding: 2vw;
-    margin: 0;
-    font-weight: bold;
-}
-
-#graphCover a {
-    position: absolute;
-    top: 0;
-    right: 0;
-    margin: 0.5vw;
-    height: auto;
-}
-
-#graphCover a img {
-    width: max(5vw, 40px);
-}
-
-#graphCover a button:hover {
-    background-color: rgb(220, 220, 220) !important;
-    border-color: black !important;
-}
-
-.graphIndicator {
+.graph-indicator {
     background-color: rgba(0, 0, 0, 0.15);
     display: flex;
     justify-content: center;
@@ -71,7 +73,7 @@ body {
     }
 }
 
-.graphOverlay {
+.graph-overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -79,7 +81,7 @@ body {
     width: 100vw;
 }
 
-.graphViz {
+.graph-viz {
     opacity: 0;
     z-index: -1;
 }
@@ -96,7 +98,7 @@ body {
     cursor: default;
 }
 
-.step-containers {
+.form-step {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -105,11 +107,11 @@ body {
     overflow-y: scroll;
 }
 
-.step-containers .title {
+.form-step .title {
     margin-bottom: 2vh;
 }
 
-#step0-container {
+#welcome-container {
     position: relative;
 
     footer {
@@ -119,17 +121,11 @@ body {
     }
 }
 
-#step1-container {
-    overflow: hidden;
-
-    .nodeInputs {
-        width: 100%;
-        height: 50vh;
-        overflow-y: scroll;
-    }
+#add-nodes-container {
+    overflow-y: scroll;
 }
 
-#step4-container select {
+#add-edges-container select {
     margin-bottom: 2vh;
 }
 
@@ -151,12 +147,12 @@ body {
         height: 100vh;
     }
 
-    #graphCover p {
+    #graph-cover p {
         bottom: 0;
         right: 40vw;
     }
 
-    .graphOverlay {
+    .graph-overlay {
         height: 100vh;
         width: 60vw;
     }
@@ -179,6 +175,6 @@ body {
                                 supported by Chrome, Edge, Opera and Firefox */
 }
 
-.githubButton:active {
+.github-button:active {
     background-color: inherit !important;
 }

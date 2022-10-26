@@ -1,6 +1,6 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 
-export class Step4Container extends Component {
+export class AddEdgesContainer extends Component {
     constructor(props) {
         super(props)
 
@@ -10,14 +10,7 @@ export class Step4Container extends Component {
     }
 
     renderStep4 = () => {
-        const data = this.props.globals.data;
-    
-        // when step4 is rendered, create entries for existing inducer-based links
-        for (let i = 0; i < data.links.length; i++) {
-            if (data.links[i].inducer !== undefined) {
-                this.createEdgeEntry(data.links[i]);
-            }
-        }
+        this.createEdgeEntry(this.props.globals.data.links);
     }
 
     addRate = () => {
@@ -55,31 +48,36 @@ export class Step4Container extends Component {
             && data.links.find(link => 
                 link.source.id === parseInt(selectSource.value)
                 && link.target.id === parseInt(selectTarget.value)
-                && link.inducer === parseInt(selectInducer.value)
+                && link.inducer === (selectInducer === undefined ? undefined : parseInt(selectInducer.value))
             ) === undefined) {
             // TODO: show alert when tries to add an existing link
             // add link 
             data.links.push({
-                id: selectSource.value + "-" + selectTarget.value + "-" + selectInducer.value,
-                shortName: selectSource.options[selectSource.selectedIndex].text[0] + "-" + selectTarget.options[selectTarget.selectedIndex].text[0] + ", " + selectInducer.options[selectInducer.selectedIndex].text[0],
+                id: selectSource.value + "-" + selectTarget.value + 
+                (selectInducer.value === "-1" ? "" : "-" + selectInducer.value),
+                shortName: selectSource.options[selectSource.selectedIndex].text[0] + "-" + 
+                    selectTarget.options[selectTarget.selectedIndex].text[0] + 
+                    (selectInducer.value !== "-1" ? 
+                    ", " + selectInducer.options[selectInducer.selectedIndex].text[0] : ""),
                 source: parseInt(selectSource.value),
                 target: parseInt(selectTarget.value),
-                inducer: parseInt(selectInducer.value),
+                inducer: selectInducer.value === "-1" ? undefined : parseInt(selectInducer.value),
                 rate: rateInput.value,
             })
 
             this.props.updateGraphData(data);
 
             // create new entry based off link 
-            this.createEdgeEntry(data.links[data.links.length - 1])
+            this.createEdgeEntry([data.links[data.links.length - 1]])
         }
     }
     
     // create entry for edge-based transition
-    createEdgeEntry = (link) => {
+    createEdgeEntry = (links) => {
         const data = this.props.globals.data;
 
         this.setState({edgeEntries: [...this.state.edgeEntries,
+            links.map(link =>
             <div key={link.id}>
                 <div 
                 style={{
@@ -148,7 +146,7 @@ export class Step4Container extends Component {
                             disabled
                             readOnly
                             style={{width: "25%"}}
-                            value={data.nodes.find(n => n.id === link.inducer).name}/>
+                            value={link.inducer === undefined ? "None" : data.nodes.find(n => n.id === link.inducer).name}/>
 
                             <p className="mb-1">Rate: </p>
                             <input 
@@ -162,6 +160,7 @@ export class Step4Container extends Component {
                     </div>
                 </div>
             </div>
+            )
         ]})
     }
 
@@ -173,8 +172,7 @@ export class Step4Container extends Component {
         const data = this.props.globals.data;
 
         return (
-            <Fragment>
-                <h3 className="title">Add Edge-Based Transition Rates</h3>
+            <div id="add-edges-container" className="form-step">
                 <p>Select Source Node</p>
                 <select
                 className="form-select"
@@ -202,6 +200,7 @@ export class Step4Container extends Component {
                 className="form-select"
                 aria-label="Select Inducer Node"
                 id="selectInducer">
+                    <option key={-1} value={-1} id={"select-inducer-none"}>None</option>
                     {data.nodes.map(node => {
                         return (
                             <option key={node.id} value={node.id} id={"select-inducer-" + node.id}>{node.name}</option>
@@ -210,7 +209,6 @@ export class Step4Container extends Component {
                 </select> 
                 {/** TODO: put this in css*/}
                 <div style={{display: "flex", justifyContent: "space-between"}} className="mb-3">
-                    {/** is this outer div redundant?` */}
                     <div className="input-group" style={{width: "60%"}}>
                         <input
                         type="number"
@@ -225,9 +223,9 @@ export class Step4Container extends Component {
                     onClick={this.addRate}>Add</button>
                 </div>
                 {this.state.edgeEntries}
-            </Fragment>
+            </div>
         )
     }
 }
 
-export default Step4Container
+export default AddEdgesContainer

@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 
 export class FinalData extends Component {
     constructor(props) {
@@ -41,7 +41,7 @@ export class FinalData extends Component {
 
     render() {
         return (
-            <Fragment>
+            <div className="form-step">
                 <h3 className="title">Finished State Transition Rates</h3>
                 <table className="table">
                     <thead>
@@ -65,7 +65,7 @@ export class FinalData extends Component {
                     element.click();
                     document.body.removeChild(element);
                 }}>Download</button>
-            </Fragment>
+            </div>
         )
     }
 }

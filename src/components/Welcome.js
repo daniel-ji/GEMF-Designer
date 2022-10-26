@@ -1,9 +1,9 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 
 export class Welcome extends Component {
   render() {
     return (
-        <Fragment>
+        <div id="welcome-container" className="form-step">
             <h5 className="text-center">State Visualization Tool for Dr. Niema Moshiri's GEMF_FAVITES.py (Generalized Epidemic Modeling Framework)</h5>
             <br></br>
             <h6>STR Generation Process:</h6>
@@ -16,7 +16,7 @@ export class Welcome extends Component {
             </ul>
             <br></br>
             <footer className="text-center mb-3">Created by Daniel Ji (daji@ucsd.edu)<br></br> UCSD Undergraduate Student Researcher for Professor <a href="https://www.niema.net" target="_blank" rel="noreferrer">Niema Moshiri</a></footer>
-        </Fragment>
+        </div>
     )
   }
 }

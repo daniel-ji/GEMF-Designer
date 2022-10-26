@@ -1,8 +1,8 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 
-import Step1Input from './Step1Input'
+import AddNodesInput from './AddNodesInput'
 
-export class Step1Container extends Component {
+export class AddNodesContainer extends Component {
     constructor(props) {
         super(props)
     
@@ -15,7 +15,7 @@ export class Step1Container extends Component {
         const data = this.props.globals.data;
         this.setState({nodeInputs: [data.nodes.map(node => {
             return (
-                <Step1Input
+                <AddNodesInput
                     key={node.id}
                     globals={this.props.globals}
                     inputCounter={node.id}
@@ -26,7 +26,7 @@ export class Step1Container extends Component {
                 />
             )
         }), 
-            <Step1Input
+            <AddNodesInput
             key={data.nodes.length + 1}
             globals={this.props.globals}
             inputCounter={data.nodes.length + 1} 
@@ -42,7 +42,7 @@ export class Step1Container extends Component {
         // increment (by 1) the amount of inputs we created
         this.setState(prevState => ({
             nodeInputs: [...this.state.nodeInputs, 
-                <Step1Input
+                <AddNodesInput
                     key={this.props.globals.data.nodes.length + 1}
                     globals={this.props.globals}
                     inputCounter={this.props.globals.data.nodes.length + 1} 
@@ -56,18 +56,15 @@ export class Step1Container extends Component {
 
     render() {
         return (
-            <Fragment>
-                <h3 className="title">Add Nodes</h3>
-                <div className="nodeInputs mb-3 p-3">
-                    {this.state.nodeInputs}
-                </div>
+            <div id="add-nodes-container" className="form-step">
+                {this.state.nodeInputs}
                 <div className="w-100">
                     <label htmlFor="formFile" className="form-label"><h4>Upload Existing State Transition Rates File</h4></label>
                     <input type="file" id="formFile" className="form-control" accept=".tsv,.csv,.txt" onChange={this.props.processSTR}/>
                 </div>
-            </Fragment>
+            </div>
         )
     }
 }
 
-export default Step1Container
+export default AddNodesContainer

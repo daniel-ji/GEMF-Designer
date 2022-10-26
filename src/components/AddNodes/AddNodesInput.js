@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react'
 
-export class Step1Input extends Component {
+export class AddNodesInput extends Component {
     constructor(props) {
       super(props)
     
@@ -70,4 +70,4 @@ export class Step1Input extends Component {
     }
 }
 
-export default Step1Input
+export default AddNodesInput
