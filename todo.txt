@@ -1,9 +1,5 @@
 - bugtest
 - create individual step for graphviz loadin
-- document and cleanup:
-    - AddEdgesContainer
-    - FinalData
-    - Form
-    - Graph
-    - App.js
-- known bug: not drawing repeat links until movement 
+- known bug: not drawing repeat links until movement
+- STR validation  
+- update preview picture, metadata, icon

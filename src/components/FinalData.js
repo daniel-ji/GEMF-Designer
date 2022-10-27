@@ -1,3 +1,6 @@
+/**
+ * Final data output component. Part of Form component.  
+ */
 import React, { Component } from 'react'
 
 export class FinalData extends Component {
@@ -5,6 +8,7 @@ export class FinalData extends Component {
         super(props)
 
         this.state = {
+            // store output data, as string (for download) and as react elements (for display)
             tsvData: "",
             tableData: [],
         }
@@ -21,6 +25,7 @@ export class FinalData extends Component {
             const inducerState = data.nodes.find(node => node.id === link.inducer)?.name ?? "None";
             const rate = link.rate;
 
+            // use url encoding for tabs / new lines 
             tsvData += fromState + "%09" + toState + "%09" + inducerState + "%09" + rate + "%0D%0A";
             return (
                 <tr key={fromState + "-" + toState + "-" + inducerState}>
@@ -57,6 +62,7 @@ export class FinalData extends Component {
                     </tbody>
                 </table>
                 <button className="w-100 btn btn-primary" id="btn" onClick={() => {
+                    // create temporary element for download 
                     const element = document.createElement('a');
                     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + this.state.tsvData);
                     element.setAttribute('download', "STR.tsv");

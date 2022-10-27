@@ -1,3 +1,6 @@
+/**
+ * Welcome page of Form component. 
+ */
 import React, { Component } from 'react'
 
 export class Welcome extends Component {

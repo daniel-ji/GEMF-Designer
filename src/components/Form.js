@@ -1,3 +1,6 @@
+/**
+ * Form component for tool, displays / handles all the user node / edge inputs. 
+ */
 import React, { Component } from 'react'
 
 import AddNodesContainer from './AddNodes/AddNodesContainer';
@@ -10,63 +13,77 @@ export class Form extends Component {
         super(props)
 
         this.state = {
-            step2OpenAccordions: new Set(),
-            openedStep2: false,
         }
     }
 
+    /**
+     * Handle back button press. 
+     */
     handleBack = () => {
         this.props.incrementStep(-1);
     }
 
+    /**
+     * Handle next button press.
+     */
     handleNext = () => {
-        const step = this.props.globals.step;
-
-        if (step === 0) {
-            this.props.incrementStep();
-        } else if (step === 1) {
-            this.addNodesNext();
-        } else if (step === 2) {
-            this.addEdgesNext();
+        switch (this.props.globals.step) {
+            case 0: 
+                this.welcomePageNext();
+                break;
+            case 1: 
+                this.addNodesNext();
+                break;
+            case 2: 
+                this.addEdgesNext();
+                break;
+            default: 
+                this.props.incrementStep();
+                break;
         }
     }
 
-    // proceed from step 1, includes validation 
+    /**
+     * Proceed from welcome page. 
+     */
+    welcomePageNext = () => {
+        this.props.incrementStep();
+    }
+
+    /**
+     * Proceed from node creation step, validates nodes. 
+     */
     addNodesNext = () => {
         const data = this.props.globals.data;
         // create empty set that will hold duplicate / empty nodes
-        let badState = new Set();
+        let badNodes = new Set();
         for (let i = 0; i < data.nodes.length; i++) {
             for (let j = i + 1; j < data.nodes.length; j++) {
                 if (data.nodes[i].name === data.nodes[j].name) {
-                    badState.add(data.nodes[i].id);
-                    badState.add(data.nodes[j].id);
+                    badNodes.add(data.nodes[i].id);
+                    badNodes.add(data.nodes[j].id);
                 }
             }
             if (data.nodes[i].name.length === 0) {
-                badState.add(data.nodes[i].id);
+                badNodes.add(data.nodes[i].id);
             }
         }
 
         // alert repeats
-        const repeat = Array.from(badState);
-
-        for (let i = 0; i < repeat.length; i++) {
-            const element = document.getElementById('s-1-input-' + repeat[i]);
+        for (const badState of Array.from(badNodes)) {
+            const element = document.getElementById('s-1-input-' + badState);
             element.className += " border border-danger"
         }
 
-        // continuing to step 2
-        if (repeat.length === 0 && data.nodes.length > 0) {
-            if (!this.state.openedStep2) {
-                this.setState({openedStep2: true, step2OpenAccordions: new Set([data.nodes[0].id])})
-            }
+        // continue to step 2 if nodes valid
+        if (badNodes.keys.length === 0 && data.nodes.length > 0) {
             this.props.incrementStep();
-            // sorts the nodes alphabetically 
-            // data.nodes.sort((a, b) => a.name.localeCompare(b.name));
         }
     }
 
+    /**
+     * Proceed from edge creation step.
+     */
     addEdgesNext = () => {
         this.props.incrementStep();
     }
@@ -74,33 +91,31 @@ export class Form extends Component {
     render() {
         return (
             <div id="form">
+                {/** Switch for titles */}
                 <h1 id="formTitle">{[
                     'GEMF State Visualization Tool',
                     'Add States (Nodes)',
                     'Add Transitions (Edges)',
                     'Finalized Data'
                 ][this.props.globals.step]}</h1>
-                {{
-                    0:
+                {/** Switch for components */}
+                {[
                     <Welcome />,
-                    1: 
                     <AddNodesContainer 
                     globals={this.props.globals} 
                     setForceCollideRadius={this.props.setForceCollideRadius} 
                     updateGraphData={this.props.updateGraphData}
                     processSTR={this.props.processSTR}
                     />,
-                    2: 
                     <AddEdgesContainer
                     globals={this.props.globals}
                     updateGraphData={this.props.updateGraphData}
                     />,
-                    3:
                     <FinalData
                     globals={this.props.globals}
                     updateGraphData={this.props.updateGraphData}
                     />
-                }[this.props.globals.step]}
+                ][this.props.globals.step]}
                 <div id="button-container">
                     <button onClick={this.handleBack} type="button" className="btn btn-secondary">Back</button>
                     <button onClick={this.handleNext} type="button" className="btn btn-success">Next</button>
