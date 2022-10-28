@@ -1,6 +1,9 @@
+high priority
 - bugtest
 - known bug: not drawing repeat links until movement
 - STR validation  
+
+lower priority (future potential ideas)
 - update preview picture, metadata, icon
 - json file download feature?
 - user accounts feature? 
