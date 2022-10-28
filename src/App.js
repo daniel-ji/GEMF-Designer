@@ -4,7 +4,7 @@ import GraphComponent from './components/Graph';
 import Form from './components/Form';
 
 import './App.scss';
-import {WIDTH_RATIO, NODE_COLLIDE_RADIUS, NODE_RADIUS, ARROW_SIZE} from './Constants';
+import {WIDTH_RATIO, NODE_COLLIDE_RADIUS, NODE_RADIUS, ARROW_SIZE, FORM_STEPS} from './Constants';
 import githubIcon from './images/githubicon.png';
 
 import Graphviz from 'graphviz-react';
@@ -56,7 +56,7 @@ export class App extends Component {
         this.setState(prevState => 
             ({globals: {
                 ...prevState.globals, 
-                step: prevState.globals.step + amount
+                step: Math.max(Math.min(prevState.globals.step + amount, FORM_STEPS - 1), 0)
             }}))
     }
 

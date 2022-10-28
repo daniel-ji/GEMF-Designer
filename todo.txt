@@ -3,3 +3,5 @@
 - known bug: not drawing repeat links until movement
 - STR validation  
 - update preview picture, metadata, icon
+- json file download feature?
+- user accounts feature? 
