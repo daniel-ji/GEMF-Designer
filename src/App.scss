@@ -16,6 +16,10 @@ body {
     height: 100%;
 }
 
+.github-button:active {
+    background-color: inherit !important;
+}
+
 #graph {
     border: 2px black;
     box-sizing: content-box;
@@ -132,7 +136,23 @@ body {
 #button-container {
     width: 100%;
     display: flex;
-    justify-content: space-between;
+}
+
+#error-popup {
+    position: absolute;
+    top: 2vw;
+    right: 50%;
+    transition: .3s;
+}
+
+.error-popup-hidden {
+    opacity: 0;
+    transform: translate(50%, -200%);
+}
+
+.error-popup-show {
+    opacity: 1;
+    transform: translate(50%, 0);
 }
 
 @media (min-width: 768px) {
@@ -163,6 +183,10 @@ body {
         width: 40vw;
         height: 100vh;
     }
+
+    #error-popup {
+        right: 20%;
+    }
 }
 
 .noselect {
@@ -173,8 +197,4 @@ body {
         -ms-user-select: none; /* Internet Explorer/Edge */
             user-select: none; /* Non-prefixed version, currently
                                 supported by Chrome, Edge, Opera and Firefox */
-}
-
-.github-button:active {
-    background-color: inherit !important;
 }

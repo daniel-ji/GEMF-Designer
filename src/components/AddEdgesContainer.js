@@ -43,9 +43,11 @@ export class AddEdgesContainer extends Component {
         }
 
         // has to have valid rate
-        if (rateInput.value.length === 0) {
+        if (rateInput.value.length === 0 || parseInt(rateInput.value) < 0) {
             valid = false;
             rateInput.className += " border border-danger";
+            this.props.updateError("Invalid rate!");
+            return; 
         } else {
             rateInput.classList.remove("border");
             rateInput.classList.remove("border-danger");
@@ -57,7 +59,6 @@ export class AddEdgesContainer extends Component {
                 && link.target.id === targetID
                 && link.inducer === (inducerID === -1 ? undefined : inducerID)
             ) === undefined) {
-            // TODO: show alert when tries to add an existing link
             // add link 
             data.links.push({
                 id: sourceID + "-" + targetID + 
@@ -75,7 +76,11 @@ export class AddEdgesContainer extends Component {
             this.props.updateGraphData(data);
 
             // create new entry based off link 
+            this.props.updateError("");
             this.createEdgeEntry([data.links[data.links.length - 1]])
+        } else {
+            // show error
+            this.props.updateError("Link already exists!");
         }
     }
 
@@ -98,7 +103,6 @@ export class AddEdgesContainer extends Component {
      */
     createEdgeEntry = (links) => {
         const data = this.props.globals.data;
-
         this.setState({edgeEntries: [...this.state.edgeEntries,
             links.map(link =>
             <div key={link.id}>

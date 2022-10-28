@@ -43,7 +43,7 @@ export class AddNodesContainer extends Component {
     createNewInput = () => {
         this.setState(prevState => ({
             nodeInputs: [...this.state.nodeInputs, 
-                this.nodeInput(this.props.globals.data.nodes.length + 1)
+                this.nodeInput(Math.floor(Math.random() * 1000000000))
             ]})
         )
     }
@@ -54,7 +54,7 @@ export class AddNodesContainer extends Component {
     componentDidMount() {
         const data = this.props.globals.data;
         this.setState({nodeInputs: [data.nodes.map(node => this.nodeInput(node.id, node.name)), 
-            this.nodeInput(data.nodes.length + 1)
+            this.nodeInput(Math.floor(Math.random() * 1000000000))
         ]})
     }
 

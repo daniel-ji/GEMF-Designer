@@ -8,13 +8,24 @@ import AddEdgesContainer from './AddEdgesContainer';
 import Welcome from './Welcome';
 import ImportSTR from './ImportSTR';
 import FinalData from './FinalData';
+import { FORM_STEPS } from '../Constants';
 
 export class Form extends Component {
     constructor(props) {
         super(props)
 
         this.state = {
+            // error message
+            error: "",
         }
+    }
+
+    /**
+     * Updates the error message
+     * @param {*} error error message to update to
+     */
+    updateError = (error) => {
+        this.setState({error})
     }
 
     /**
@@ -75,20 +86,28 @@ export class Form extends Component {
                     badNodes.add(data.nodes[j].id);
                 }
             }
+
             if (data.nodes[i].name.length === 0) {
                 badNodes.add(data.nodes[i].id);
             }
+            
+            // add / remove danger border from node entry
+            const element = document.getElementById('s-1-input-' + data.nodes[i].id);
+            if (badNodes.has(data.nodes[i].id)) {
+                element.className += " border border-danger"
+            } else {
+                element.classList.remove("border", "border-danger");
+            }
         }
 
-        // alert repeats
-        for (const badState of Array.from(badNodes)) {
-            const element = document.getElementById('s-1-input-' + badState);
-            element.className += " border border-danger"
-        }
-
-        // continue to step 2 if nodes valid
-        if (badNodes.keys.length === 0 && data.nodes.length > 0) {
+        // continue to step 2 if nodes valid, give error messages otherwise
+        if (badNodes.size === 0 && data.nodes.length > 0) {
             this.props.incrementStep();
+            this.setState({error: ""})
+        } else if (badNodes.size > 0) {
+            this.setState({error: "Nodes cannot have empty / duplicate names!"})
+        } else {
+            this.setState({error: "Please enter nodes!"})
         }
     }
 
@@ -124,16 +143,23 @@ export class Form extends Component {
                     <AddEdgesContainer
                     globals={this.props.globals}
                     updateGraphData={this.props.updateGraphData}
+                    updateError={this.updateError}
                     />,
                     <FinalData
                     globals={this.props.globals}
                     updateGraphData={this.props.updateGraphData}
                     />
                 ][this.props.globals.step]}
-                <div id="button-container">
-                    <button onClick={this.handleBack} type="button" className="btn btn-secondary">Back</button>
-                    <button onClick={this.handleNext} type="button" className="btn btn-success">Next</button>
+                <div id="button-container" className={this.props.globals.step === 0 ? "justify-content-end" : "justify-content-between"}>
+                    {this.props.globals.step !== 0 && <button onClick={this.handleBack} type="button" className="btn btn-secondary">Back</button>}
+                    {this.props.globals.step !== FORM_STEPS - 1 && <button onClick={this.handleNext} type="button" className="btn btn-success">Next</button>}
                 </div>
+                <button 
+                    id="error-popup" 
+                    className={`btn btn-danger ${this.state.error === "" ? "error-popup-hidden" : "error-popup-show"}`} 
+                    onClick={() => this.setState({error: ""})}>
+                    {this.state.error}
+                </button>
             </div>
         )
     }
