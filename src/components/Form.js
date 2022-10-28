@@ -6,6 +6,7 @@ import React, { Component } from 'react'
 import AddNodesContainer from './AddNodes/AddNodesContainer';
 import AddEdgesContainer from './AddEdgesContainer';
 import Welcome from './Welcome';
+import ImportSTR from './ImportSTR';
 import FinalData from './FinalData';
 
 export class Form extends Component {
@@ -32,9 +33,12 @@ export class Form extends Component {
                 this.welcomePageNext();
                 break;
             case 1: 
-                this.addNodesNext();
+                this.importSTRNext();
                 break;
             case 2: 
+                this.addNodesNext();
+                break;
+            case 3: 
                 this.addEdgesNext();
                 break;
             default: 
@@ -47,6 +51,13 @@ export class Form extends Component {
      * Proceed from welcome page. 
      */
     welcomePageNext = () => {
+        this.props.incrementStep();
+    }
+    
+    /**
+     * Proceed from import page. 
+     */
+    importSTRNext = () => {
         this.props.incrementStep();
     }
 
@@ -94,6 +105,7 @@ export class Form extends Component {
                 {/** Switch for titles */}
                 <h1 id="formTitle">{[
                     'GEMF State Visualization Tool',
+                    'Import STR File (Optional)',
                     'Add States (Nodes)',
                     'Add Transitions (Edges)',
                     'Finalized Data'
@@ -101,11 +113,13 @@ export class Form extends Component {
                 {/** Switch for components */}
                 {[
                     <Welcome />,
+                    <ImportSTR
+                    processSTR={this.props.processSTR}
+                    />,
                     <AddNodesContainer 
                     globals={this.props.globals} 
                     setForceCollideRadius={this.props.setForceCollideRadius} 
                     updateGraphData={this.props.updateGraphData}
-                    processSTR={this.props.processSTR}
                     />,
                     <AddEdgesContainer
                     globals={this.props.globals}

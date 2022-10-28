@@ -53,7 +53,7 @@ export class AddNodesContainer extends Component {
      */
     componentDidMount() {
         const data = this.props.globals.data;
-        this.setState({nodeInputs: [data.nodes.map(node => this.nodeInput(node.id, node.value)), 
+        this.setState({nodeInputs: [data.nodes.map(node => this.nodeInput(node.id, node.name)), 
             this.nodeInput(data.nodes.length + 1)
         ]})
     }
@@ -62,10 +62,6 @@ export class AddNodesContainer extends Component {
         return (
             <div id="add-nodes-container" className="form-step">
                 {this.state.nodeInputs}
-                <div className="w-100">
-                    <label htmlFor="formFile" className="form-label"><h4>Upload Existing State Transition Rates File</h4></label>
-                    <input type="file" id="formFile" className="form-control" accept=".tsv,.csv,.txt" onChange={this.props.processSTR}/>
-                </div>
             </div>
         )
     }

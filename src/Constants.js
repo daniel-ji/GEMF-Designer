@@ -12,4 +12,4 @@ export const NODE_RADIUS = 12;
 // arrow size of links
 export const ARROW_SIZE = 4;
 // number of form steps, including welcome
-export const FORM_STEPS = 4;
+export const FORM_STEPS = 5;
