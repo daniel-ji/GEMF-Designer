@@ -29,12 +29,14 @@ export class AddEdgesContainer extends Component {
         
         // ensure valid edge-based transition
         let valid = true;
+        let errors = [];
         
         // can't be link to self
         if (selectSource.value === selectTarget.value) {
             valid = false;
             selectSource.className += " border border-danger";
             selectTarget.className += " border border-danger";
+            errors.push("Cannot have self loop.")
         } else {
             selectSource.classList.remove("border");
             selectSource.classList.remove("border-danger");
@@ -46,19 +48,20 @@ export class AddEdgesContainer extends Component {
         if (rateInput.value.length === 0 || parseInt(rateInput.value) < 0) {
             valid = false;
             rateInput.className += " border border-danger";
-            this.props.updateError("Invalid rate!");
-            return; 
+            errors.push("Invalid rate.");
         } else {
             rateInput.classList.remove("border");
             rateInput.classList.remove("border-danger");
         }
 
+        const linkExists = data.links.find(link => 
+            link.source.id === sourceID
+            && link.target.id === targetID
+            && link.inducer === (inducerID === -1 ? undefined : inducerID)
+        ) !== undefined
+
         // if edge-based link doesn't exist already 
-        if (valid && data.links.find(link => 
-                link.source.id === sourceID
-                && link.target.id === targetID
-                && link.inducer === (inducerID === -1 ? undefined : inducerID)
-            ) === undefined) {
+        if (valid && !linkExists) {
             // add link 
             data.links.push({
                 id: sourceID + "-" + targetID + 
@@ -80,7 +83,10 @@ export class AddEdgesContainer extends Component {
             this.createEdgeEntry([data.links[data.links.length - 1]])
         } else {
             // show error
-            this.props.updateError("Link already exists!");
+            if (linkExists) {
+                errors.push("Link already exists.");
+            }
+            this.props.updateError(errors);
         }
     }
 

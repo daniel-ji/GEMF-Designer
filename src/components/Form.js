@@ -22,10 +22,20 @@ export class Form extends Component {
 
     /**
      * Updates the error message
-     * @param {*} error error message to update to
+     * @param {*} errors error messages to update to
      */
-    updateError = (error) => {
-        this.setState({error})
+    updateError = (errors) => {
+        console.log(errors);
+        if (typeof errors === 'string') {
+            this.setState({error: errors})
+        } else {
+            let error = "";
+            for (const msg of errors) {
+                error += msg + "\n\n";
+            }
+            console.log(error);
+            this.setState({error})
+        }
     }
 
     /**
@@ -105,9 +115,9 @@ export class Form extends Component {
             this.props.incrementStep();
             this.setState({error: ""})
         } else if (badNodes.size > 0) {
-            this.setState({error: "Nodes cannot have empty / duplicate names!"})
+            this.setState({error: "Nodes cannot have empty or duplicate names."})
         } else {
-            this.setState({error: "Please enter nodes!"})
+            this.setState({error: "Please enter nodes."})
         }
     }
 
