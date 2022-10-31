@@ -37,6 +37,8 @@ export class App extends Component {
             strGraphviz: undefined,
             // form error messages
             formError: "",
+            // if form error message is being hidden
+            formErrorHide: false,
         }
 
         this.state.globals.forceCollideRadius = NODE_COLLIDE_RADIUS
@@ -80,13 +82,19 @@ export class App extends Component {
     }
 
     /**
-     * Set form error message(s).
+     * Set form error message(s). Set message to empty string 
+     * to remove error message.
      * 
      * @param {*} errors error messages 
      */
     setFormError = (errors) => {
         if (typeof errors === 'string') {
-            this.setState({formError: errors})
+            if (errors === "") {
+                this.setState({formErrorHide: true})
+                setTimeout(() => this.setState({formError: "", formErrorHide: false}), 400);
+            } else {
+                this.setState({formError: errors, formErrorHide: false})
+            }
         } else {
             let error = "";
             for (const msg of errors) {
@@ -321,6 +329,7 @@ export class App extends Component {
             forceCollideRadius={this.state.forceCollideRadius}
             setForceCollideRadius={this.setForceCollideRadius}
             formError={this.state.formError}
+            formErrorHide={this.state.formErrorHide}
             setFormError={this.setFormError} 
             processSTR={this.processSTR}/>
         </div>
