@@ -13,12 +13,17 @@ import { FORM_STEPS } from '../Constants';
 export class Form extends Component {
     constructor(props) {
         super(props)
+
+        this.state = {
+            hideFormError: false
+        }
     }
 
     /**
      * Handle back button press. 
      */
     handleBack = () => {
+        this.props.setFormError("");
         this.props.incrementStep(-1);
     }
 
@@ -26,6 +31,7 @@ export class Form extends Component {
      * Handle next button press.
      */
     handleNext = () => {
+        this.props.setFormError("");
         switch (this.props.globals.step) {
             case 0: 
                 this.welcomePageNext();
@@ -105,6 +111,17 @@ export class Form extends Component {
         this.props.incrementStep();
     }
 
+    /**
+     * Hide error button.
+     */
+    hideError = () => {
+        setTimeout(() => {
+            this.props.setFormError("");
+            this.setState({hideFormError: false})
+        }, 1000);
+        this.setState({hideFormError: true})
+    }
+
     render() {
         return (
             <div id="form">
@@ -143,8 +160,8 @@ export class Form extends Component {
                 </div>
                 <button 
                     id="error-popup" 
-                    className={`btn btn-danger ${this.props.formError === "" ? "error-popup-hidden" : "error-popup-show"}`} 
-                    onClick={() => this.props.setFormError("")}>
+                    className={`btn btn-danger ${this.props.formError === "" || this.state.hideFormError ? "error-popup-hidden" : "error-popup-show"}`} 
+                    onClick={this.hideError}>
                     {this.props.formError}
                 </button>
             </div>
