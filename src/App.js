@@ -35,6 +35,8 @@ export class App extends Component {
             indicatorStyle: {},
             // stores graphviz component (dot-engine based graph rendering of user-inputted existing STR)
             strGraphviz: undefined,
+            // form error messages
+            formError: "",
         }
 
         this.state.globals.forceCollideRadius = NODE_COLLIDE_RADIUS
@@ -66,15 +68,32 @@ export class App extends Component {
     }
 
     /**
-     * Update graph data. 
+     * Set graph data. 
      * @param {*} data new data 
      * @param {*} callback callback function after update has finished
      */
-    updateGraphData = (data, callback) => {
+    setGraphData = (data, callback) => {
         this.setState(prevState => ({globals: {
             ...prevState.globals,
             data
         }}), callback)
+    }
+
+    /**
+     * Set form error message(s).
+     * 
+     * @param {*} errors error messages 
+     */
+    setFormError = (errors) => {
+        if (typeof errors === 'string') {
+            this.setState({formError: errors})
+        } else {
+            let error = "";
+            for (const msg of errors) {
+                error += msg + "\n\n";
+            }
+            this.setState({formError: error})
+        }
     }
 
     /**
@@ -122,21 +141,27 @@ export class App extends Component {
                         parsedSTR[i][2].match(STR_REGEX)) {
                             // valid link (no self-loop) check 
                             if (parsedSTR[i][0] === parsedSTR[i][1]) {
-                                !errors.contains(INVALID_STR_SELF_LOOP_ERROR) && errors.push(INVALID_STR_SELF_LOOP_ERROR);
+                                !errors.includes(INVALID_STR_SELF_LOOP_ERROR) && errors.push(INVALID_STR_SELF_LOOP_ERROR);
                             }
                     } else {
-                        !errors.contains(INVALID_STR_NODE_NAME_ERROR) && errors.push(INVALID_STR_NODE_NAME_ERROR);
+                        !errors.includes(INVALID_STR_NODE_NAME_ERROR) && errors.push(INVALID_STR_NODE_NAME_ERROR);
                     }
 
                     // valid rate check
-                    if (parseFloat(parsedSTR[i][3]) > 0) {
-                        !errors.contains(INVALID_STR_RATE_ERROR) && errors.push(INVALID_STR_RATE_ERROR);
+                    if (!(parseFloat(parsedSTR[i][3]) > 0)) {
+                        !errors.includes(INVALID_STR_RATE_ERROR) && errors.push(INVALID_STR_RATE_ERROR);
                     }
-                } else if (parsedSTR[i].equals([''])) {
+                } else if (parsedSTR[i].length === 1 && parsedSTR[i][0] === '') {
                     // do nothing
                 } else {
-                    !errors.contains(INVALID_STR_ENTRY_ERROR) && errors.push(INVALID_STR_ENTRY_ERROR);
+                    this.setFormError([INVALID_STR_ENTRY_ERROR]);
+                    return;
                 }
+            }
+
+            if (errors.length > 0) {
+                this.setFormError(errors);
+                return;
             }
 
             for (let i = 0; i < parsedSTR.length; i++) {
@@ -195,7 +220,7 @@ export class App extends Component {
                     `${getNode(link.source).name} -> ${getNode(link.target).name} [label = "${(link.inducer !== undefined ? getNode(link.inducer).name + ", " : "") + link.rate}"];\n`;
             }
 
-            this.updateGraphData(data);
+            this.setGraphData(data);
 
             this.setState({strGraphviz: 
                 <Graphviz 
@@ -219,7 +244,7 @@ export class App extends Component {
         if (event.target.files[0].type.match(/^\s*$|(text\/plain)/)) {
             reader.readAsText(event.target.files[0]);
         } else {
-            this.setState({formError: [INVALID_STR_FILE_ERROR]});
+            this.setFormError([INVALID_STR_FILE_ERROR]);
         }
     }
 
@@ -260,7 +285,7 @@ export class App extends Component {
                 }
             }
 
-            this.updateGraphData(data);
+            this.setGraphData(data);
         } else {
             // retry in 200ms if graph has not rendered yet
             setTimeout(() => this.parseGraphvizSVG(nodes, links), GRAPHVIZ_PARSE_RETRY_INTERVAL);
@@ -292,9 +317,11 @@ export class App extends Component {
             <Form
             globals={this.state.globals} 
             incrementStep={this.incrementStep}
-            updateGraphData={this.updateGraphData}
+            setGraphData={this.setGraphData}
             forceCollideRadius={this.state.forceCollideRadius}
-            setForceCollideRadius={this.setForceCollideRadius} 
+            setForceCollideRadius={this.setForceCollideRadius}
+            formError={this.state.formError}
+            setFormError={this.setFormError} 
             processSTR={this.processSTR}/>
         </div>
         );

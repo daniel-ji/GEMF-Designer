@@ -76,7 +76,7 @@ export class AddEdgesContainer extends Component {
                 rate: rateInput.value,
             })
 
-            this.props.updateGraphData(data);
+            this.props.setGraphData(data);
 
             // create new entry based off link 
             this.props.updateError("");
@@ -97,7 +97,7 @@ export class AddEdgesContainer extends Component {
     deleteEdgeEntry = (id) => {
         const newData = Object.assign({}, this.props.globals.data);
         newData.links = newData.links.filter(l => l.id !== id);
-        this.props.updateGraphData(newData);
+        this.props.setGraphData(newData);
         this.setState({edgeEntries: this.state.edgeEntries.filter(element => 
             element.key !== id
         )})

@@ -13,29 +13,6 @@ import { FORM_STEPS } from '../Constants';
 export class Form extends Component {
     constructor(props) {
         super(props)
-
-        this.state = {
-            // error message
-            error: "",
-        }
-    }
-
-    /**
-     * Updates the error message
-     * @param {*} errors error messages to update to
-     */
-    updateError = (errors) => {
-        console.log(errors);
-        if (typeof errors === 'string') {
-            this.setState({error: errors})
-        } else {
-            let error = "";
-            for (const msg of errors) {
-                error += msg + "\n\n";
-            }
-            console.log(error);
-            this.setState({error})
-        }
     }
 
     /**
@@ -113,11 +90,11 @@ export class Form extends Component {
         // continue to step 2 if nodes valid, give error messages otherwise
         if (badNodes.size === 0 && data.nodes.length > 0) {
             this.props.incrementStep();
-            this.setState({error: ""})
+            this.props.setFormError("");
         } else if (badNodes.size > 0) {
-            this.setState({error: "Nodes cannot have empty or duplicate names."})
+            this.props.setFormError("Nodes cannot have empty or duplicate names.");
         } else {
-            this.setState({error: "Please enter nodes."})
+            this.props.setFormError("Please enter nodes.");
         }
     }
 
@@ -148,16 +125,16 @@ export class Form extends Component {
                     <AddNodesContainer 
                     globals={this.props.globals} 
                     setForceCollideRadius={this.props.setForceCollideRadius} 
-                    updateGraphData={this.props.updateGraphData}
+                    setGraphData={this.props.setGraphData}
                     />,
                     <AddEdgesContainer
                     globals={this.props.globals}
-                    updateGraphData={this.props.updateGraphData}
+                    setGraphData={this.props.setGraphData}
                     updateError={this.updateError}
                     />,
                     <FinalData
                     globals={this.props.globals}
-                    updateGraphData={this.props.updateGraphData}
+                    setGraphData={this.props.setGraphData}
                     />
                 ][this.props.globals.step]}
                 <div id="button-container" className={this.props.globals.step === 0 ? "justify-content-end" : "justify-content-between"}>
@@ -166,9 +143,9 @@ export class Form extends Component {
                 </div>
                 <button 
                     id="error-popup" 
-                    className={`btn btn-danger ${this.state.error === "" ? "error-popup-hidden" : "error-popup-show"}`} 
-                    onClick={() => this.setState({error: ""})}>
-                    {this.state.error}
+                    className={`btn btn-danger ${this.props.formError === "" ? "error-popup-hidden" : "error-popup-show"}`} 
+                    onClick={() => this.props.setFormError("")}>
+                    {this.props.formError}
                 </button>
             </div>
         )

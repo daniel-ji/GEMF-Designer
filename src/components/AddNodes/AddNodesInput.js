@@ -36,7 +36,7 @@ export class AddNodesInput extends Component {
             })
             // temporarily sets the collision force to the whole node radius so that nodes do not intersect on creation
             this.props.setForceCollideRadius(this.props.globals.NODE_RADIUS * 1.2);
-            this.props.updateGraphData(data);
+            this.props.setGraphData(data);
             setTimeout(() => this.props.setForceCollideRadius(NODE_COLLIDE_RADIUS), 400)
             // set up a new blank input box 
             this.props.createNewInput();
@@ -48,7 +48,7 @@ export class AddNodesInput extends Component {
             e.target.classList.remove("border-danger");
             // updates the name to the new value in the input
             node.name = e.target.value;
-            this.props.updateGraphData(data);
+            this.props.setGraphData(data);
         }
     }
 
@@ -63,7 +63,7 @@ export class AddNodesInput extends Component {
             while (data.links.findIndex(link => link.source.id === this.state.count || link.target.id === this.state.count) !== -1) {
                 data.links.splice(data.links.findIndex(link => link.source.id === this.state.count || link.target.id === this.state.count), 1)
             }
-            this.props.updateGraphData(data);
+            this.props.setGraphData(data);
             this.setState({deleted: true})
         }
     }

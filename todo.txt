@@ -3,6 +3,7 @@ high priority
 - STR validation  
 - going back to Upload (and reuploading)
 - long node names, rates
+- error visual bug
 
 lower priority (future potential ideas)
 - update preview picture, metadata, icon

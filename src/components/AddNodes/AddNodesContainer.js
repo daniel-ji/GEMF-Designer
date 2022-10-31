@@ -31,7 +31,7 @@ export class AddNodesContainer extends Component {
                 inputCounter={key}
                 inputValue={value}
                 setForceCollideRadius={this.props.setForceCollideRadius} 
-                updateGraphData={this.props.updateGraphData}
+                setGraphData={this.props.setGraphData}
                 createNewInput={this.createNewInput}
             />
         )
