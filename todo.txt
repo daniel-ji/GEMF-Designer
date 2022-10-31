@@ -3,10 +3,7 @@ high priority
 - edit edges in graph and in form listing
 
 lower priority (future potential ideas)
-- update preview picture, metadata, icon
-- editable text box feature for STR upload? 
-- STR file saves on upload? 
 - look for magic numbers
 
 question: json file download feature? sessions feature? user accounts feature? 
-question: going back to upload? clear everything? keep previous states? what if repeats / already existing nodes? 
+question: going back to upload? editable text box feature for STR upload? clear everything? keep previous states? what if repeats / already existing nodes? 
