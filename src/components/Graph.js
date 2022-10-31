@@ -6,14 +6,11 @@ import React, { Component } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
 import {forceCollide} from 'd3-force';
 
-import { CSS_BREAKPOINT, WIDTH_RATIO } from '../Constants';
+import { CSS_BREAKPOINT, NODE_FONT_SIZE, NODE_TEXT_OVERFLOW, RATE_FONT_SIZE, RATE_TEXT_OVERFLOW, WIDTH_RATIO } from '../Constants';
 
 export class Graph extends Component {
     constructor(props) {
         super(props)
-
-        this.state = {     
-        }
 
         this.ref = React.createRef();
     }
@@ -207,16 +204,19 @@ export class Graph extends Component {
         ctx.beginPath();
         ctx.lineWidth = 2;
         ctx.strokeStyle = link.inducer === undefined ? "green" : "red";
-        ctx.arc(arcMx, arcMy, this.props.globals.NODE_RADIUS * 0.5, 0, 2 * Math.PI);
+        ctx.arc(arcMx, arcMy, this.props.globals.NODE_RADIUS * 0.75, 0, 2 * Math.PI);
         ctx.stroke();
         ctx.strokeStyle = "black";
         ctx.fillStyle = "white";
         ctx.fill();
-        // // TODO: make global variable
-        // // TODO: font-sizing so that the text fits in the circle
         ctx.fillStyle = "black";
-        ctx.font = "bold 4px sans-serif";
-        ctx.fillText((link.rate === undefined ? "" : link.rate) + (link.inducer === undefined ? "" : (", " + data.nodes.find(node => node.id === link.inducer).name)), arcMx, arcMy);
+        let adjustedRateFontSize = RATE_FONT_SIZE;
+        const rateText = (link.rate === undefined ? "" : link.rate) + (link.inducer === undefined ? "" : ("," + data.nodes.find(node => node.id === link.inducer).name));
+        if (rateText.length > RATE_TEXT_OVERFLOW) {
+            adjustedRateFontSize *= RATE_TEXT_OVERFLOW / rateText.length;
+        }
+        ctx.font = "bold " + adjustedRateFontSize + "px monospace";
+        ctx.fillText(rateText, arcMx, arcMy);
     }
 
     /**
@@ -228,12 +228,15 @@ export class Graph extends Component {
     drawNode = (node, ctx, globalScale) => {
         // draw label
         const label = node.name;
-        const fontSize = 6;
+        let fontSizeAdjusted = NODE_FONT_SIZE;
         ctx.lineWidth = 1;
         ctx.fillStyle = "black";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.font = `${fontSize}px Sans-Serif`
+        if (label.length > NODE_TEXT_OVERFLOW) {
+            fontSizeAdjusted *= NODE_TEXT_OVERFLOW / label.length;
+        }
+        ctx.font = `${fontSizeAdjusted}px monospace`
         ctx.fillText(label, node.x, node.y);
         // draw circle
         ctx.beginPath();

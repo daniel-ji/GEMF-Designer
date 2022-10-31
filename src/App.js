@@ -128,8 +128,7 @@ export class App extends Component {
         const data = Object.assign({}, this.state.globals.data);
         const nodes = data.nodes;
         const links = data.links;
-        
-        // TODO: validate str file
+
         reader.onload = (e) => {
             let errors = [];            
             let nodeID = this.state.globals.data.nodes.length === 0 ? 
@@ -238,9 +237,9 @@ export class App extends Component {
                     height: window.innerHeight
                 }}
                 dot={`digraph finite_state_machine {
-                    fontname="Helvetica,Arial,sans-serif"
-                    node [fontname="Helvetica,Arial,sans-serif"]; ${dotNodeContent};
-                    edge [fontname="Helvetica,Arial,sans-serif"]
+                    fontname="monospace"
+                    node [fontname="monospace"]; ${dotNodeContent};
+                    edge [fontname="monospace"]
                     rankdir=LR;
                     node [shape = circle];
                     ${dotContent}

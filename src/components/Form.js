@@ -141,7 +141,7 @@ export class Form extends Component {
                     <AddEdgesContainer
                     globals={this.props.globals}
                     setGraphData={this.props.setGraphData}
-                    updateError={this.updateError}
+                    setFormError={this.props.setFormError}
                     />,
                     <FinalData
                     globals={this.props.globals}

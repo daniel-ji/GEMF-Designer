@@ -36,7 +36,7 @@ export class AddEdgesContainer extends Component {
             valid = false;
             selectSource.className += " border border-danger";
             selectTarget.className += " border border-danger";
-            errors.push("Cannot have self loop.")
+            errors.push("Cannot have self-loop.")
         } else {
             selectSource.classList.remove("border");
             selectSource.classList.remove("border-danger");
@@ -79,14 +79,14 @@ export class AddEdgesContainer extends Component {
             this.props.setGraphData(data);
 
             // create new entry based off link 
-            this.props.updateError("");
+            this.props.setFormError("");
             this.createEdgeEntry([data.links[data.links.length - 1]])
         } else {
             // show error
             if (linkExists) {
                 errors.push("Link already exists.");
             }
-            this.props.updateError(errors);
+            this.props.setFormError(errors);
         }
     }
 
@@ -110,7 +110,7 @@ export class AddEdgesContainer extends Component {
     createEdgeEntry = (links) => {
         const data = this.props.globals.data;
         this.setState({edgeEntries: [...this.state.edgeEntries,
-            links.map(link =>
+            ...links.map(link =>
             <div key={link.id}>
                 <div className="d-flex flex-wrap justify-content-between mt-4 w-100">
                     <div style={{width: "60%"}}>

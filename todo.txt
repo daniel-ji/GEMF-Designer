@@ -1,13 +1,12 @@
 high priority
 - bugtest (STR validation, STR load in)
-- long node names, rates
+- edit edges in graph and in form listing
 
 lower priority (future potential ideas)
 - update preview picture, metadata, icon
-- json file download feature?
-- user accounts feature? 
 - editable text box feature for STR upload? 
 - STR file saves on upload? 
 - look for magic numbers
 
+question: json file download feature? sessions feature? user accounts feature? 
 question: going back to upload? clear everything? keep previous states? what if repeats / already existing nodes? 
