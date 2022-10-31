@@ -1,13 +1,18 @@
 import React, {Component} from 'react';
+import Graphviz from 'graphviz-react';
 
 import GraphComponent from './components/Graph';
 import Form from './components/Form';
 
-import './App.scss';
-import {WIDTH_RATIO, NODE_COLLIDE_RADIUS, NODE_RADIUS, ARROW_SIZE, FORM_STEPS} from './Constants';
+import './App.scss';    
 import githubIcon from './images/githubicon.png';
 
-import Graphviz from 'graphviz-react';
+import {
+    WIDTH_RATIO, NODE_COLLIDE_RADIUS, NODE_RADIUS, ARROW_SIZE, FORM_STEPS,
+    GRAPHVIZ_PARSE_DELAY, GRAPHVIZ_PARSE_RETRY_INTERVAL, STR_REGEX, INVALID_STR_FILE_ERROR,
+    INVALID_STR_ENTRY_ERROR, INVALID_STR_SELF_LOOP_ERROR, INVALID_STR_NODE_NAME_ERROR,
+    INVALID_STR_RATE_ERROR
+} from './Constants';
 
 export class App extends Component {
     constructor(props) {
@@ -89,17 +94,17 @@ export class App extends Component {
      * Ensures file is in valid STR format and creates corresponding 
      * node and link object arrays for graphviz and force-graph use.
      * Generates graphviz svg visualization of nodes and edges as well.  
-     * @param {*} e event that contains file contents
+     * @param {*} event event that contains file contents
      */
-    processSTR = (e) => {
+    processSTR = (event) => {
         const reader = new FileReader();
         const data = Object.assign({}, this.state.globals.data);
         const nodes = data.nodes;
         const links = data.links;
-
+        
         // TODO: validate str file
         reader.onload = (e) => {
-            
+            let errors = [];            
             let nodeID = this.state.globals.data.nodes.length === 0 ? 
                 0 : Math.max(...this.state.globals.data.nodes.map(node => parseInt(node.id))) + 1;
 
@@ -108,9 +113,33 @@ export class App extends Component {
             const getNodeID = (i, j) => nodes.find(node => node.name === parsedSTR[i][j]).id;
             const getNode = (id) => nodes.find(node => node.id === id);
 
+            // STR validation
             for (let i = 0; i < parsedSTR.length; i++) {
-                // TODO: more validation here? 
-                // TODO: what if nodes have same name
+                // entry format check
+                if (parsedSTR[i].length === 4) {
+                    // valid node name check
+                    if (parsedSTR[i][0].match(STR_REGEX) && parsedSTR[i][1].match(STR_REGEX) &&
+                        parsedSTR[i][2].match(STR_REGEX)) {
+                            // valid link (no self-loop) check 
+                            if (parsedSTR[i][0] === parsedSTR[i][1]) {
+                                !errors.contains(INVALID_STR_SELF_LOOP_ERROR) && errors.push(INVALID_STR_SELF_LOOP_ERROR);
+                            }
+                    } else {
+                        !errors.contains(INVALID_STR_NODE_NAME_ERROR) && errors.push(INVALID_STR_NODE_NAME_ERROR);
+                    }
+
+                    // valid rate check
+                    if (parseFloat(parsedSTR[i][3]) > 0) {
+                        !errors.contains(INVALID_STR_RATE_ERROR) && errors.push(INVALID_STR_RATE_ERROR);
+                    }
+                } else if (parsedSTR[i].equals([''])) {
+                    // do nothing
+                } else {
+                    !errors.contains(INVALID_STR_ENTRY_ERROR) && errors.push(INVALID_STR_ENTRY_ERROR);
+                }
+            }
+
+            for (let i = 0; i < parsedSTR.length; i++) {
                 if (parsedSTR[i].length === 4) {
                     for (let j = 0; j < parsedSTR[i].length; j++) {
                         const foundNode = nodes.map(node => node.name).indexOf(parsedSTR[i][j]) !== -1;
@@ -138,7 +167,7 @@ export class App extends Component {
                             source: getNodeID(i, 0),
                             target: getNodeID(i, 1),
                             inducer: undefined,
-                            rate: parseInt(parsedSTR[i][3])
+                            rate: parseFloat(parsedSTR[i][3])
                         })
                     } else {
                         links.push({
@@ -148,7 +177,7 @@ export class App extends Component {
                             source: getNodeID(i, 0),
                             target: getNodeID(i, 1),
                             inducer: getNodeID(i, 2),
-                            rate: parseInt(parsedSTR[i][3])
+                            rate: parseFloat(parsedSTR[i][3])
                         })
                     }
                 }
@@ -183,9 +212,15 @@ export class App extends Component {
                     node [shape = circle];
                     ${dotContent}
                 }`}/>
-            }, () => setTimeout(() => this.parseGraphvizSVG(nodes, links), 250));
+            }, () => setTimeout(() => this.parseGraphvizSVG(nodes, links), GRAPHVIZ_PARSE_DELAY));
         }
-        reader.readAsText(e.target.files[0]);
+
+        // valid plaintext file
+        if (event.target.files[0].type.match(/^\s*$|(text\/plain)/)) {
+            reader.readAsText(event.target.files[0]);
+        } else {
+            this.setState({formError: [INVALID_STR_FILE_ERROR]});
+        }
     }
 
     /**
@@ -227,8 +262,8 @@ export class App extends Component {
 
             this.updateGraphData(data);
         } else {
-        // retry in 200ms if graph has not rendered yet
-            setTimeout(() => this.parseGraphvizSVG(nodes, links), 200);
+            // retry in 200ms if graph has not rendered yet
+            setTimeout(() => this.parseGraphvizSVG(nodes, links), GRAPHVIZ_PARSE_RETRY_INTERVAL);
         }
     }
 

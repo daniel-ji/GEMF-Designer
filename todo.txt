@@ -2,6 +2,7 @@ high priority
 - bugtest
 - STR validation  
 - going back to Upload (and reuploading)
+- long node names, rates
 
 lower priority (future potential ideas)
 - update preview picture, metadata, icon
@@ -9,3 +10,4 @@ lower priority (future potential ideas)
 - user accounts feature? 
 - editable text box feature for STR upload? 
 - STR file saves on upload? 
+- look for magic numbers
