@@ -132,14 +132,17 @@ export class Graph extends Component {
         // get count of which "repeat" this link is
         const repeatCount = repeats.findIndex(e => e === link) + 1;
 
-        ctx.lineWidth = 1;
         const scaledLink = this.scaleLinkToNodeRadius(link);
         const dx = (scaledLink.targetX - scaledLink.sourceX);
         const dy = (scaledLink.targetY - scaledLink.sourceY);
         const dist = Math.sqrt(dx * dx + dy * dy);
         // to prevent arrow from protruding into node radius border
         const x99 = (scaledLink.targetX - scaledLink.sourceX) * 0.99;
-        const y99 = (scaledLink.targetY - scaledLink.sourceY) * 0.99;
+        let y99 = (scaledLink.targetY - scaledLink.sourceY) * 0.99;
+        // can't let y99 be near 0 or line doesn't get drawn
+        if (Math.abs(y99) < 1) {
+            y99 = y99 < 0 ? y99 - 0.5 : y99 + 0.5;
+        }
         const src = Math.min(link.source.id, link.target.id);
         const tgt = Math.max(link.source.id, link.target.id);
         // middle point of link
@@ -151,6 +154,7 @@ export class Graph extends Component {
         // straight edge 
         if (repeats.length === 1) {
             ctx.beginPath();
+            ctx.lineWidth = 1;
             ctx.strokeStyle = "black";
             ctx.moveTo(scaledLink.sourceX, scaledLink.sourceY);
             ctx.lineTo(scaledLink.targetX, scaledLink.targetY);
@@ -176,9 +180,10 @@ export class Graph extends Component {
             const ang1 = Math.atan2(scaledLink.sourceY - fitCircle.y, scaledLink.sourceX - fitCircle.x);
             const ang2 = Math.atan2(scaledLink.targetY - fitCircle.y, scaledLink.targetX - fitCircle.x);
             ctx.beginPath();
+            ctx.lineWidth = 1;
             // draw arc
-            ctx.arc(fitCircle.x, fitCircle.y, fitCircle.radius, ang1, ang2, fitCircle.CCW);
             ctx.strokeStyle = "black";
+            ctx.arc(fitCircle.x, fitCircle.y, fitCircle.radius, ang1, ang2, fitCircle.CCW);
             ctx.stroke();
 
             // find perpendicular of line to know how to angle arrow
@@ -200,9 +205,9 @@ export class Graph extends Component {
 
         // draw rate label circle
         ctx.beginPath();
-        ctx.arc(arcMx, arcMy, this.props.globals.NODE_RADIUS * 0.5, 0, 2 * Math.PI);
-        ctx.strokeStyle = link.inducer === undefined ? "green" : "red";
         ctx.lineWidth = 2;
+        ctx.strokeStyle = link.inducer === undefined ? "green" : "red";
+        ctx.arc(arcMx, arcMy, this.props.globals.NODE_RADIUS * 0.5, 0, 2 * Math.PI);
         ctx.stroke();
         ctx.strokeStyle = "black";
         ctx.fillStyle = "white";

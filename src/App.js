@@ -93,8 +93,9 @@ export class App extends Component {
      */
     processSTR = (e) => {
         const reader = new FileReader();
-        const nodes = [];
-        const links = [];
+        const data = Object.assign({}, this.state.globals.data);
+        const nodes = data.nodes;
+        const links = data.links;
 
         // TODO: validate str file
         reader.onload = (e) => {
@@ -153,12 +154,19 @@ export class App extends Component {
                 }
             }
 
+            let dotNodeContent = '';
+            for (const node of nodes) {
+                dotNodeContent += node.name + ' ';
+            }
+
             // create graphviz 
             let dotContent = '';
             for (const link of links) {
                 dotContent += 
                     `${getNode(link.source).name} -> ${getNode(link.target).name} [label = "${(link.inducer !== undefined ? getNode(link.inducer).name + ", " : "") + link.rate}"];\n`;
             }
+
+            this.updateGraphData(data);
 
             this.setState({strGraphviz: 
                 <Graphviz 
@@ -169,7 +177,7 @@ export class App extends Component {
                 }}
                 dot={`digraph finite_state_machine {
                     fontname="Helvetica,Arial,sans-serif"
-                    node [fontname="Helvetica,Arial,sans-serif"]
+                    node [fontname="Helvetica,Arial,sans-serif"]; ${dotNodeContent};
                     edge [fontname="Helvetica,Arial,sans-serif"]
                     rankdir=LR;
                     node [shape = circle];
@@ -209,19 +217,12 @@ export class App extends Component {
                     const normalizedR = rect.width / graphDimensions.width;
                     const scaleRatio = 1 / normalizedR * this.state.globals.NODE_RADIUS;
                     // add node with proper coordinate scaling
-                    data.nodes.push({
-                        id: nodes.find(node => node.name === child.getElementsByTagName('title')[0].innerHTML).id,
-                        name: child.getElementsByTagName('title')[0].innerHTML,
-                        fx: normalizedX * scaleRatio,
-                        fy: normalizedY * scaleRatio,
-                        x: normalizedX * scaleRatio,
-                        y: normalizedY * scaleRatio,
-                    })
+                    const node = data.nodes.find(node => node.name === child.getElementsByTagName('title')[0].innerHTML);
+                    node.fx = normalizedX * scaleRatio;
+                    node.fy = normalizedY * scaleRatio;
+                    node.x = normalizedX * scaleRatio;
+                    node.y = normalizedY * scaleRatio;
                 }
-            }
-
-            for (const link of links) {
-                data.links.push(link);
             }
 
             this.updateGraphData(data);
