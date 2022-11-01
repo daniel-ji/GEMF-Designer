@@ -1,9 +1,13 @@
 high priority
 - bugtest (STR validation, STR load in)
 - edit edges in graph and in form listing
+- non overlapping graph, space out
+- multiple STR file import 
+    - only new nodes
+    - override existing rates
 
 lower priority (future potential ideas)
 - look for magic numbers
 
-question: json file download feature? sessions feature? user accounts feature? 
+question: json file download feature? (select both options) sessions feature? user accounts feature? 
 question: going back to upload? editable text box feature for STR upload? clear everything? keep previous states? what if repeats / already existing nodes? 

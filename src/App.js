@@ -282,7 +282,7 @@ export class App extends Component {
                     const normalizedX = (rect.left - graphMiddleX) / graphMiddleX;
                     const normalizedY = (rect.top - graphMiddleY) / graphMiddleY;
                     const normalizedR = rect.width / graphDimensions.width;
-                    const scaleRatio = 1 / normalizedR * this.state.globals.NODE_RADIUS;
+                    const scaleRatio = 2 / normalizedR * this.state.globals.NODE_RADIUS;
                     // add node with proper coordinate scaling
                     const node = data.nodes.find(node => node.name === child.getElementsByTagName('title')[0].innerHTML);
                     node.fx = normalizedX * scaleRatio;
@@ -316,7 +316,7 @@ export class App extends Component {
                     <span style={{color: "green"}}>Green</span> Links: Node-based Transition<br/>
                     <span style={{color: "red"}}>Red</span> Links: Edge-based Transition
                 </p>
-                <a href="https://github.com/daniel-ji/GEMF-State-Visualization-Tool" target="_blank" rel="noreferrer" aria-label="github repo link">
+                <a href="https://github.com/daniel-ji/GEMF-Designer" target="_blank" rel="noreferrer" aria-label="github repo link">
                     <button className="btn btn-outline-dark p-0 github-button" aria-label="github repo button"><img src={githubIcon} alt="" /></button>
                 </a>
                 <GraphComponent globals={this.state.globals}/> 

@@ -7,8 +7,6 @@ export class Welcome extends Component {
   render() {
     return (
         <div id="welcome-container" className="form-step">
-            <h5 className="text-center">State Visualization Tool for Dr. Niema Moshiri's GEMF_FAVITES.py (Generalized Epidemic Modeling Framework)</h5>
-            <br></br>
             <h6>State Transition Rates (STR) File Generation Process:</h6>
             <ul>
                 <li>Import existing STR (optional)</li>

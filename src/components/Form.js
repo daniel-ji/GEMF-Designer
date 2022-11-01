@@ -121,8 +121,8 @@ export class Form extends Component {
             <div id="form">
                 {/** Switch for titles */}
                 <h1 id="formTitle">{[
-                    'GEMF State Visualization Tool',
-                    'Import STR File (Optional)',
+                    'GEMF Designer',
+                    'Import STR Files (Optional)',
                     'Add States (Nodes)',
                     'Add Transitions (Edges)',
                     'Finalized Data'

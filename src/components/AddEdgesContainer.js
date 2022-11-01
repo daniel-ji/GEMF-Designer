@@ -69,7 +69,8 @@ export class AddEdgesContainer extends Component {
                 shortName: 
                     selectSource.options[selectSource.selectedIndex].text[0] + "-" + 
                     selectTarget.options[selectTarget.selectedIndex].text[0] + 
-                    (inducerID !== -1 ? ", " + selectInducer.options[selectInducer.selectedIndex].text[0] : ""),
+                    (inducerID !== -1 ? ", " + selectInducer.options[selectInducer.selectedIndex].text[0] : "") + 
+                    ": " + parseFloat(parseFloat(rateInput.value).toFixed(3)),
                 source: sourceID,
                 target: targetID,
                 inducer: inducerID === -1 ? undefined : inducerID,
