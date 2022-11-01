@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/GEMF-State-Visualization-Tool/static/css/main.463239e0.css",
-    "main.js": "/GEMF-State-Visualization-Tool/static/js/main.4c3a606b.js",
-    "static/media/bootstrap-icons.woff?": "/GEMF-State-Visualization-Tool/static/media/bootstrap-icons.e559bf06bc84fd9525e6.woff",
-    "static/media/bootstrap-icons.woff2?": "/GEMF-State-Visualization-Tool/static/media/bootstrap-icons.ea98e12d2d58747f9fc5.woff2",
-    "index.html": "/GEMF-State-Visualization-Tool/index.html",
-    "main.463239e0.css.map": "/GEMF-State-Visualization-Tool/static/css/main.463239e0.css.map",
-    "main.4c3a606b.js.map": "/GEMF-State-Visualization-Tool/static/js/main.4c3a606b.js.map"
+    "main.css": "/GEMF-Designer/static/css/main.306052d8.css",
+    "main.js": "/GEMF-Designer/static/js/main.4c3a606b.js",
+    "static/media/bootstrap-icons.woff?": "/GEMF-Designer/static/media/bootstrap-icons.e559bf06bc84fd9525e6.woff",
+    "static/media/bootstrap-icons.woff2?": "/GEMF-Designer/static/media/bootstrap-icons.ea98e12d2d58747f9fc5.woff2",
+    "index.html": "/GEMF-Designer/index.html",
+    "main.306052d8.css.map": "/GEMF-Designer/static/css/main.306052d8.css.map",
+    "main.4c3a606b.js.map": "/GEMF-Designer/static/js/main.4c3a606b.js.map"
   },
   "entrypoints": [
-    "static/css/main.463239e0.css",
+    "static/css/main.306052d8.css",
     "static/js/main.4c3a606b.js"
   ]
 }
