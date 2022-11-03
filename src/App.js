@@ -39,6 +39,9 @@ export class App extends Component {
             formError: "",
             // if form error message is being hidden
             formErrorHide: false,
+            // if form error was actually solved
+            // TODO: implement
+            formErrorSolved: true,
         }
 
         this.state.globals.forceCollideRadius = NODE_COLLIDE_RADIUS
