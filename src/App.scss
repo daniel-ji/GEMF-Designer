@@ -129,8 +129,19 @@ body {
     overflow-y: scroll;
 }
 
-#add-edges-container select {
-    margin-bottom: 2vh;
+#add-edges-container {
+    select {
+        margin-bottom: 2vh;
+    }
+
+    .link-collapse-container {
+        overflow: hidden;
+
+        .link-collapse {
+            transition: all 0s;
+        }
+    }
+
 }
 
 #button-container {

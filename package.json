@@ -1,7 +1,7 @@
 {
   "name": "gemf-vis-tool",
   "version": "0.1.0",
-  "homepage": "https://daniel-ji.github.io/GEMF-State-Visualization-Tool",
+  "homepage": "https://daniel-ji.github.io/GEMF-Designer",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",

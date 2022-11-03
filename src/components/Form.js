@@ -4,7 +4,7 @@
 import React, { Component } from 'react'
 
 import AddNodesContainer from './AddNodes/AddNodesContainer';
-import AddEdgesContainer from './AddEdgesContainer';
+import AddEdgesContainer from './AddEdges/AddEdgesContainer';
 import Welcome from './Welcome';
 import ImportSTR from './ImportSTR';
 import FinalData from './FinalData';

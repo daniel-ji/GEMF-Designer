@@ -3,13 +3,16 @@
  */
 import React, { Component } from 'react'
 
+import AddEdgesEntry from './AddEdgesEntry'
+
 export class AddEdgesContainer extends Component {
     constructor(props) {
         super(props)
 
         this.state = {
             // existing edges 
-            edgeEntries: []
+            edgeEntries: [],
+            mounted: false,
         }
     }
 
@@ -63,19 +66,16 @@ export class AddEdgesContainer extends Component {
         // if edge-based link doesn't exist already 
         if (valid && !linkExists) {
             // add link 
-            data.links.push({
+            const newLink = {
                 id: sourceID + "-" + targetID + 
                 (inducerID === -1 ? "" : "-" + inducerID),
-                shortName: 
-                    selectSource.options[selectSource.selectedIndex].text[0] + "-" + 
-                    selectTarget.options[selectTarget.selectedIndex].text[0] + 
-                    (inducerID !== -1 ? ", " + selectInducer.options[selectInducer.selectedIndex].text[0] : "") + 
-                    ": " + parseFloat(parseFloat(rateInput.value).toFixed(3)),
                 source: sourceID,
                 target: targetID,
                 inducer: inducerID === -1 ? undefined : inducerID,
                 rate: rateInput.value,
-            })
+            }
+            newLink.shortName = this.createShortName(newLink);
+            data.links.push(newLink)
 
             this.props.setGraphData(data);
 
@@ -92,6 +92,21 @@ export class AddEdgesContainer extends Component {
     }
 
     /**
+     * Create shortened name from link object.
+     * @param {*} link link object 
+     * @returns shortened name
+     */
+    createShortName = (link) => {
+        const data = this.props.globals.data;
+        return (
+        data.nodes.find(node => node.id === (link.source?.id ?? link.source)).name[0] + "-" + 
+        data.nodes.find(node => node.id === (link.target?.id ?? link.target)).name[0] +
+        (link.inducer === undefined ? (", " + 
+            data.nodes.find(node => node.id === (link.inducer?.id ?? link.inducer)).name[0]) : "") + 
+        " : " + parseFloat(parseFloat(link.rate).toFixed(3)))
+    }
+
+    /**
      * Delete link (edge) from both graph data and form component. 
      * @param {*} id id of link to delete
      */
@@ -99,89 +114,40 @@ export class AddEdgesContainer extends Component {
         const newData = Object.assign({}, this.props.globals.data);
         newData.links = newData.links.filter(l => l.id !== id);
         this.props.setGraphData(newData);
-        this.setState({edgeEntries: this.state.edgeEntries.filter(element => 
-            element.key !== id
-        )})
+        this.setState({
+            edgeEntries: this.state.edgeEntries.filter(element => element.key !== id),
+        })
     }
+    
+    setEdgeRate = (value, id) => {
+        const data = Object.assign({}, this.props.globals.data);
+        const link = data.links.find(link => link.id === id);
+        link.rate = parseFloat(value);
+        link.shortName = this.createShortName(link);
+        this.props.setGraphData(data);
+    } 
     
     /**
      * Updates form component with provided links (edges).
      * @param {*} links links to update form with
      */
     createEdgeEntry = (links) => {
-        const data = this.props.globals.data;
-        this.setState({edgeEntries: [...this.state.edgeEntries,
-            ...links.map(link =>
-            <div key={link.id}>
-                <div className="d-flex flex-wrap justify-content-between mt-4 w-100">
-                    <div style={{width: "60%"}}>
-                        <button
-                        type="button"
-                        className="btn btn-primary mb-3 w-100"
-                        data-bs-toggle="collapse"
-                        data-bs-target={"#collapseWidth-" + link.id}
-                        aria-controls={"collapseWidth-" + link.id}
-                        aria-expanded="false">
-                            State Transition Edge {link.shortName}
-                        </button>
-                    </div>
-                    <button 
-                    className="btn btn-danger p-0 mb-3" 
-                    style={{width: "10%"}}
-                    onClick={() => this.deleteEdgeEntry(link.id)}>
-                        <i className="bi bi-trash" />
-                    </button>
-                </div>
-                <div 
-                className="collapse"
-                id={"collapseWidth-" + link.id}>
-                    <div className="card card-body w-100">
-                        <p className="mb-1">Source: </p>
-                        <input 
-                        type="text" 
-                        className="form-control mb-2"
-                        disabled
-                        readOnly
-                        style={{width: "30%"}}
-                        value={typeof link.source === 'number' ? 
-                            data.nodes.find(n => n.id === link.source).name
-                            : link.source.name}/>
-
-                        <p className="mb-1">Target: </p>
-                        <input 
-                        type="text" 
-                        className="form-control mb-2"
-                        disabled
-                        readOnly
-                        style={{width: "30%"}}
-                        value={typeof link.target === 'number' ? 
-                            data.nodes.find(n => n.id === link.target).name
-                            : link.target.name}/>
-
-                        <p className="mb-1">Inducer: </p>
-                        <input 
-                        type="text" 
-                        className="form-control mb-2"
-                        disabled
-                        readOnly
-                        style={{width: "25%"}}
-                        value={link.inducer === undefined ? "None" : data.nodes.find(n => n.id === link.inducer).name}/>
-
-                        <p className="mb-1">Rate: </p>
-                        <input 
-                        type="text" 
-                        className="form-control mb-2"
-                        disabled
-                        readOnly
-                        style={{width: "20%"}}
-                        value={link.rate}/>
-                    </div>
-                </div>
-            </div>
-            )
+        this.setState({
+            edgeEntries: [...this.state.edgeEntries,
+            ...links.map(link => 
+                <AddEdgesEntry 
+                key={link.id}
+                data={this.props.globals.data} 
+                link={link}
+                deleteEdgeEntry={this.deleteEdgeEntry}
+                setEdgeRate={this.setEdgeRate}
+                />)
         ]})
     }
 
+    /**
+     * Create entries for all pre-existing edge.
+     */
     componentDidMount() {
         this.createEdgeEntry(this.props.globals.data.links);
     }
