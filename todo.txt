@@ -3,7 +3,6 @@ high priority
 - edit edges in graph and in form listing
     - for graph: go to add edges page, automatically open up edge entry for editing
         - only if there's no error (need to implement, check TODO)
-    - for form listing: fix transition bug, implement edit (dropdowns for source, target, inducer) 
 - multiple STR file import 
     - only new nodes
     - override existing rates
