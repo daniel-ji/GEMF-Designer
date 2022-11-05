@@ -10,9 +10,28 @@ export class AddEdgesEntry extends Component {
         this.state = {
             edit: false,
             show: false,
+            sourceID: this.props.link.source.id ?? this.props.link.source,
+            targetID: this.props.link.target.id ?? this.props.link.target,
+            inducerID: this.props.link.inducer === undefined ? -1 : 
+                (this.props.link.inducer.id ?? this.props.link.inducer),
             rate: this.props.link.rate,
             entryHeight: 0,
         }
+    }
+
+    setSourceID = (e) => {
+        this.setState({sourceID: parseInt(e.target.value)})
+        this.props.setLink({source: parseInt(e.target.value)}, this.props.link.id);
+    }
+
+    setTargetID = (e) => {
+        this.setState({targetID: parseInt(e.target.value)})
+        this.props.setLink({target: parseInt(e.target.value)}, this.props.link.id);
+    }
+
+    setInducerID = (e) => {
+        this.setState({inducerID: parseInt(e.target.value)})
+        this.props.setLink({inducer: parseInt(e.target.value)}, this.props.link.id);
     }
 
     /**
@@ -20,8 +39,8 @@ export class AddEdgesEntry extends Component {
      * @param {*} e event
      */
     setRate = (e) => {
-        this.setState({rate: e.target.value})
-        this.props.setEdgeRate(e.target.value, this.props.link.id);
+        this.setState({rate: parseFloat(e.target.value)})
+        this.props.setLink({rate: parseFloat(e.target.value)}, this.props.link.id);
     }
 
     /**
@@ -84,35 +103,53 @@ export class AddEdgesEntry extends Component {
                         // TODO: get rid of component-load in transition (currently transition is just set to 0 as temp fix)  
                         style={{marginTop: this.state.show ? "0" : "-" + this.state.entryHeight + "px"}}>
                         <p className="mb-1">Source: </p>
-                        <input 
-                        type="text" 
-                        className="form-control mb-2"
-                        disabled
-                        readOnly
+                        <select
+                        className="form-select mb-2"
+                        aria-label="Source Node"
+                        id="sourceNode"
                         style={{width: "30%"}}
-                        value={typeof link.source === 'number' ? 
-                            data.nodes.find(n => n.id === link.source).name
-                            : link.source.name}/>
+                        value={this.state.sourceID}
+                        onChange={this.setSourceID}
+                        disabled={!this.state.edit}>
+                            {data.nodes.map(node => {
+                                return (
+                                    <option key={node.id} value={node.id} id={"source-node-" + node.id}>{node.name}</option>
+                                )
+                            })}
+                        </select> 
 
                         <p className="mb-1">Target: </p>
-                        <input 
-                        type="text" 
-                        className="form-control mb-2"
-                        disabled
-                        readOnly
+                        <select
+                        className="form-select mb-2"
+                        aria-label="Target Node"
+                        id="targetNode"
                         style={{width: "30%"}}
-                        value={typeof link.target === 'number' ? 
-                            data.nodes.find(n => n.id === link.target).name
-                            : link.target.name}/>
+                        value={this.state.targetID}
+                        onChange={this.setTargetID}
+                        disabled={!this.state.edit}>
+                            {data.nodes.map(node => {
+                                return (
+                                    <option key={node.id} value={node.id} id={"target-node-" + node.id}>{node.name}</option>
+                                )
+                            })}
+                        </select> 
 
                         <p className="mb-1">Inducer: </p>
-                        <input 
-                        type="text" 
-                        className="form-control mb-2"
-                        disabled
-                        readOnly
+                        <select
+                        className="form-select mb-2"
+                        aria-label="Inducer Node"
+                        id="inducerNode"
                         style={{width: "25%"}}
-                        value={link.inducer === undefined ? "None" : data.nodes.find(n => n.id === link.inducer).name}/>
+                        value={this.state.inducerID}
+                        onChange={this.setInducerID}
+                        disabled={!this.state.edit}>
+                            <option key={-1} value={-1} id={"inducer-node-none"}>None</option>
+                            {data.nodes.map(node => {
+                                return (
+                                    <option key={node.id} value={node.id} id={"inducer-node-" + node.id}>{node.name}</option>
+                                )
+                            })}
+                        </select> 
 
                         <p className="mb-1">Rate: </p>
                         <input 

@@ -10,7 +10,5 @@ high priority
     - entry for each stl file import
 
 lower priority (future potential ideas)
-- look for magic numbers
-
 question: json file download feature? (select both options) sessions feature (indexeddb https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)? user accounts feature? 
 question: going back to upload? editable text box feature for STR upload? clear everything? keep previous states? what if repeats / already existing nodes? 

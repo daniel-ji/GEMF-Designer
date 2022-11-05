@@ -101,8 +101,7 @@ export class AddEdgesContainer extends Component {
         return (
         data.nodes.find(node => node.id === (link.source?.id ?? link.source)).name[0] + "-" + 
         data.nodes.find(node => node.id === (link.target?.id ?? link.target)).name[0] +
-        (link.inducer === undefined ? (", " + 
-            data.nodes.find(node => node.id === (link.inducer?.id ?? link.inducer)).name[0]) : "") + 
+        (link.inducer !== undefined ? (", " + data.nodes.find(node => node.id === (link.inducer?.id ?? link.inducer)).name[0]) : "") + 
         " : " + parseFloat(parseFloat(link.rate).toFixed(3)))
     }
 
@@ -119,10 +118,27 @@ export class AddEdgesContainer extends Component {
         })
     }
     
-    setEdgeRate = (value, id) => {
+    setLink = (values, id) => {
         const data = Object.assign({}, this.props.globals.data);
         const link = data.links.find(link => link.id === id);
-        link.rate = parseFloat(value);
+        
+        if (values.rate !== undefined) {
+            link.rate = parseFloat(values.rate);
+        }
+
+        if (values.source !== undefined) {
+            link.source = values.source;
+        }
+
+        if (values.target !== undefined) {
+            link.target = values.target;
+        }
+
+        if (values.inducer !== undefined) {
+            console.log(values.inducer);
+            link.inducer = values.inducer === -1 ? undefined : values.inducer;
+        }
+
         link.shortName = this.createShortName(link);
         this.props.setGraphData(data);
     } 
@@ -140,7 +156,7 @@ export class AddEdgesContainer extends Component {
                 data={this.props.globals.data} 
                 link={link}
                 deleteEdgeEntry={this.deleteEdgeEntry}
-                setEdgeRate={this.setEdgeRate}
+                setLink={this.setLink}
                 />)
         ]})
     }
@@ -159,7 +175,7 @@ export class AddEdgesContainer extends Component {
             <div id="add-edges-container" className="form-step">
                 <p>Select Source Node</p>
                 <select
-                className="form-select"
+                className="form-select main-node-select"
                 aria-label="Select Source Node"
                 id="selectSource">
                     {data.nodes.map(node => {
@@ -170,7 +186,7 @@ export class AddEdgesContainer extends Component {
                 </select>
                 <p>Select Target Node</p>
                 <select
-                className="form-select"
+                className="form-select main-node-select"
                 aria-label="Select Target Node"
                 id="selectTarget">
                     {data.nodes.map(node => {
@@ -181,7 +197,7 @@ export class AddEdgesContainer extends Component {
                 </select>
                 <p>Select Inducer Node</p>
                 <select
-                className="form-select"
+                className="form-select main-node-select"
                 aria-label="Select Inducer Node"
                 id="selectInducer">
                     <option key={-1} value={-1} id={"select-inducer-none"}>None</option>
