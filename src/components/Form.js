@@ -19,8 +19,18 @@ export class Form extends Component {
      * Handle back button press. 
      */
     handleBack = () => {
-        this.props.setFormError("");
-        this.props.incrementStep(-1);
+        switch (this.props.globals.step) {
+            case 3: 
+                if (document.getElementsByClassName("finish-edit-btn").length > 0) {
+                    this.props.setFormError("Please finish or cancel all link edits first.");
+                } else {
+                    this.props.incrementStep(-1);
+                }
+                break;
+            default: 
+                this.props.incrementStep(-1);
+                break;
+        }
     }
 
     /**
@@ -51,15 +61,17 @@ export class Form extends Component {
      */
     welcomePageNext = () => {
         this.props.incrementStep();
-        this.props.setFormError("");
     }
     
     /**
      * Proceed from import page. 
      */
     importSTRNext = () => {
-        this.props.incrementStep();
-        this.props.setFormError("");
+        if (this.props.formError === "") {
+            this.props.incrementStep();
+        } else {
+            this.props.showFormError();
+        }
     }
 
     /**
@@ -92,8 +104,8 @@ export class Form extends Component {
 
         // continue to step 2 if nodes valid, give error messages otherwise
         if (badNodes.size === 0 && data.nodes.length > 0) {
-            this.props.incrementStep();
             this.props.setFormError("");
+            this.props.incrementStep(1, true);
         } else if (badNodes.size > 0) {
             this.props.setFormError("Nodes cannot have empty or duplicate names.");
         } else {
@@ -105,15 +117,13 @@ export class Form extends Component {
      * Proceed from edge creation step.
      */
     addEdgesNext = () => {
-        this.props.incrementStep();
-        this.props.setFormError("");
-    }
-
-    /**
-     * Hide error button.
-     */
-    hideError = () => {
-        this.props.setFormError("");
+        if (document.getElementsByClassName("finish-edit-btn").length > 0) {
+            this.props.setFormError("Please finish or cancel all link edits first.");
+        } else if (this.props.formError === "") {
+            this.props.incrementStep();
+        } else {
+            this.props.showFormError();
+        }
     }
 
     render() {
@@ -142,6 +152,8 @@ export class Form extends Component {
                     globals={this.props.globals}
                     setGraphData={this.props.setGraphData}
                     setFormError={this.props.setFormError}
+                    formError={this.props.formError}
+                    showFormError={this.props.showFormError}
                     />,
                     <FinalData
                     globals={this.props.globals}
@@ -154,8 +166,9 @@ export class Form extends Component {
                 </div>
                 <button 
                     id="error-popup" 
-                    className={`btn btn-danger ${this.props.formError === "" || this.props.formErrorHide ? "error-popup-hidden" : "error-popup-show"}`} 
-                    onClick={this.hideError}>
+                    className={`btn btn-danger ${(this.props.formErrorTrans || 
+                        (this.props.formError === "" || this.props.formErrorHide)) ? "error-popup-hidden" : "error-popup-show"}`} 
+                    onClick={this.props.hideFormError}>
                     {this.props.formError}
                 </button>
             </div>

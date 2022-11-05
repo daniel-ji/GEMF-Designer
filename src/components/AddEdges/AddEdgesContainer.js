@@ -87,7 +87,7 @@ export class AddEdgesContainer extends Component {
             if (linkExists) {
                 errors.push("Link already exists.");
             }
-            this.props.setFormError(errors);
+            this.props.setFormError(errors, true);
         }
     }
 
@@ -135,7 +135,6 @@ export class AddEdgesContainer extends Component {
         }
 
         if (values.inducer !== undefined) {
-            console.log(values.inducer);
             link.inducer = values.inducer === -1 ? undefined : values.inducer;
         }
 
@@ -157,6 +156,7 @@ export class AddEdgesContainer extends Component {
                 link={link}
                 deleteEdgeEntry={this.deleteEdgeEntry}
                 setLink={this.setLink}
+                setFormError={this.props.setFormError}
                 />)
         ]})
     }
@@ -165,6 +165,12 @@ export class AddEdgesContainer extends Component {
      * Create entries for all pre-existing edge.
      */
     componentDidMount() {
+        const data = Object.assign({}, this.props.globals.data);
+        for (const link of data.links) {
+            link.shortName = this.createShortName(link);
+        }
+
+        this.props.setGraphData(data);
         this.createEdgeEntry(this.props.globals.data.links);
     }
 

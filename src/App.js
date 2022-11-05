@@ -37,11 +37,10 @@ export class App extends Component {
             strGraphviz: undefined,
             // form error messages
             formError: "",
-            // if form error message is being hidden
+            // if form error message is being hidden by user
+            formErrorTrans: false,
+            // if form error message is hidden
             formErrorHide: false,
-            // if form error was actually solved
-            // TODO: implement
-            formErrorSolved: true,
         }
 
         this.state.globals.forceCollideRadius = NODE_COLLIDE_RADIUS
@@ -64,12 +63,16 @@ export class App extends Component {
      * 
      * @param {*} amount to increment step by 
      */
-    incrementStep = (amount = 1) => {
-        this.setState(prevState => 
-            ({globals: {
-                ...prevState.globals, 
-                step: Math.max(Math.min(prevState.globals.step + amount, FORM_STEPS - 1), 0)
-            }}))
+    incrementStep = (amount = 1, override = false) => {
+        if (this.state.formError === "" || override) {
+            this.setState(prevState => 
+                ({globals: {
+                    ...prevState.globals, 
+                    step: Math.max(Math.min(prevState.globals.step + amount, FORM_STEPS - 1), 0)
+                }}))
+        } else {
+            this.showFormError();
+        }
     }
 
     /**
@@ -89,12 +92,12 @@ export class App extends Component {
      * to remove error message.
      * 
      * @param {*} errors error messages 
+     * @param {*} warn whether to just warn or actually err
      */
-    setFormError = (errors) => {
+    setFormError = (errors, warn = false) => {
         if (typeof errors === 'string') {
             if (errors === "") {
-                this.setState({formErrorHide: true})
-                setTimeout(() => this.setState({formError: "", formErrorHide: false}), 400);
+                this.hideFormError(true);
             } else {
                 this.setState({formError: errors, formErrorHide: false})
             }
@@ -103,8 +106,21 @@ export class App extends Component {
             for (const msg of errors) {
                 error += msg + "\n\n";
             }
-            this.setState({formError: error})
+            this.setState({formError: error, formErrorHide: false})
         }
+
+        if (warn) {
+            setTimeout(() => this.setFormError(""), 3000)
+        }
+    }
+
+    hideFormError = (clear = false) => {
+        this.setState({formErrorTrans: true});
+        setTimeout(() => this.setState({formErrorHide: true, formErrorTrans: false, formError: clear ? "" : this.state.formError}), 400);
+    }
+
+    showFormError = () => {
+        this.setState({formErrorHide: false})
     }
 
     /**
@@ -332,7 +348,10 @@ export class App extends Component {
             setForceCollideRadius={this.setForceCollideRadius}
             formError={this.state.formError}
             formErrorHide={this.state.formErrorHide}
-            setFormError={this.setFormError} 
+            formErrorTrans={this.state.formErrorTrans}
+            hideFormError={this.hideFormError}
+            showFormError={this.showFormError}
+            setFormError={this.setFormError}
             processSTR={this.processSTR}/>
         </div>
         );
