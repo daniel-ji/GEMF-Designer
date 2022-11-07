@@ -6,7 +6,7 @@ import React, { Component } from 'react'
 import AddNodesContainer from './AddNodes/AddNodesContainer';
 import AddEdgesContainer from './AddEdges/AddEdgesContainer';
 import Welcome from './Welcome';
-import ImportSTR from './ImportSTR';
+import ImportSTR from './Import/ImportSTR';
 import FinalData from './FinalData';
 import { FORM_STEPS } from '../Constants';
 
@@ -142,6 +142,8 @@ export class Form extends Component {
                     <Welcome />,
                     <ImportSTR
                     processSTR={this.props.processSTR}
+                    STRdata={this.props.STRdata}
+                    data={this.props.globals.data}
                     />,
                     <AddNodesContainer 
                     globals={this.props.globals} 

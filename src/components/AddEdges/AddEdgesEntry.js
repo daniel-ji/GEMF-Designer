@@ -20,6 +20,8 @@ export class AddEdgesEntry extends Component {
                 (this.props.link.inducer.id ?? this.props.link.inducer),
             rate: this.props.link.rate,
             entryHeight: 0,
+            // to not display card on mount
+            transition: "0s",
         }
 
         this.state.oldSourceID = this.state.sourceID;
@@ -159,6 +161,7 @@ export class AddEdgesEntry extends Component {
         this.setState({entryHeight: 
             document.getElementById("collapseWidth-" + this.props.link.id).
                 getBoundingClientRect().height});
+        setTimeout(() => this.setState({transition: "1s"}), 50);
     }
 
     render() {
@@ -201,9 +204,8 @@ export class AddEdgesEntry extends Component {
                 <div 
                 className="link-collapse-container"
                 id={"collapseWidth-" + link.id}>
-                    <div className={`card card-body w-100 link-collapse ${this.state.show ? "link-show" : ""}`}
-                        // TODO: get rid of component-load in transition (currently transition is just set to 0 as temp fix)  
-                        style={{marginTop: this.state.show ? "0" : "-" + this.state.entryHeight + "px"}}>
+                    <div className={`card card-body w-100 link-collapse`}
+                        style={{marginTop: this.state.show ? "0" : "-" + this.state.entryHeight + "px", transition: this.state.transition}}>
                         <p className="mb-1">Source: </p>
                         <select
                         className="form-select mb-2"

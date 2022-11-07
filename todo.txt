@@ -1,13 +1,16 @@
 high priority
-- bugtest (STR validation, STR load in)
-- edit edges in graph and in form listing
-    - for graph: go to add edges page, automatically open up edge entry for editing
-        - only if there's no error (need to implement, check TODO)
-- multiple STR file import 
-    - only new nodes
-    - override existing rates
-    - entry for each stl file import
+- multiple STR file import
+    - TEST: only new nodes
+    - TEST: override existing rates
+    - TEST: entry for each stl file import
+    - TODO: better spacing
+    - TODO: file merging on multiple entry
+    - TODO: strikethrough, deleted node link from strs
 
 lower priority (future potential ideas)
-question: json file download feature? (select both options) sessions feature (indexeddb https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)? user accounts feature? 
-question: going back to upload? editable text box feature for STR upload? clear everything? keep previous states? what if repeats / already existing nodes? 
+- sort / rearrangement of links / nodes
+- select multiple and move
+- edit edges in graph
+    - automatically open up edge entry for editing
+    - only if there's no error (need to implement, check TODO)
+- session feature w/ indexeddb:  https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API

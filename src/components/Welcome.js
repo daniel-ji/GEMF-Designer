@@ -9,7 +9,12 @@ export class Welcome extends Component {
         <div id="welcome-container" className="form-step">
             <h6>State Transition Rates (STR) File Generation Process:</h6>
             <ul>
-                <li>Import existing STR (optional)</li>
+                <li>Import existing STR (optional)
+                    <ul>
+                        <li>Only imports new nodes</li>
+                        <li>Overrides existing links</li>
+                    </ul>
+                </li>
                 <li>Add states (nodes)</li>
                 <li>Add transitions (either edge-based and node-based)</li>
                 <li>Adjust nodes and edges through graph or auto-format feature</li>

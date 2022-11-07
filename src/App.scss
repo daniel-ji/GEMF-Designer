@@ -125,6 +125,14 @@ body {
     }
 }
 
+.link-collapse-container, .str-collapse-container {
+    overflow: hidden;
+
+    .link-collapse, .str-collapse {
+        transition: all 1s;
+    }
+}
+
 #add-nodes-container {
     overflow-y: scroll;
 }
@@ -133,15 +141,6 @@ body {
     .main-node-select {
         margin-bottom: 2vh;
     }
-
-    .link-collapse-container {
-        overflow: hidden;
-
-        .link-collapse {
-            transition: all 0s;
-        }
-    }
-
 }
 
 #button-container {

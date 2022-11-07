@@ -3,6 +3,8 @@
  */
 import React, { Component } from 'react'
 
+import STREntry from './STREntry';
+
 export class ImportSTR extends Component {
     constructor(props) {
         super(props)
@@ -16,6 +18,15 @@ export class ImportSTR extends Component {
             <div id="import-str-container" className="form-step">
                 <div className="w-100">
                     <input type="file" id="formFile" className="form-control" accept=".tsv,.csv,.txt" onChange={this.props.processSTR}/>
+                    {this.props.STRdata.map(entry => 
+                        <STREntry
+                        key={entry.id}
+                        data={this.props.data}
+                        id={entry.id}
+                        nodes={entry.nodes}
+                        links={entry.links}
+                        name={entry.name}/>
+                    )}
                 </div>
             </div>
         )

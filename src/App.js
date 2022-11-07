@@ -35,6 +35,8 @@ export class App extends Component {
             indicatorStyle: {},
             // stores graphviz component (dot-engine based graph rendering of user-inputted existing STR)
             strGraphviz: undefined,
+            // stores STR data,
+            STRdata: [],
             // form error messages
             formError: "",
             // if form error message is being hidden by user
@@ -153,6 +155,9 @@ export class App extends Component {
             let nodeID = this.state.globals.data.nodes.length === 0 ? 
                 0 : Math.max(...this.state.globals.data.nodes.map(node => parseInt(node.id))) + 1;
 
+            const newNodes = [];
+            const newLinks = [];
+
             // parse STR for both graphviz and force-graph use
             const parsedSTR = e.target.result.split(/\r?\n/).map(row => row.split(/\t/));
             const getNodeID = (i, j) => nodes.find(node => node.name === parsedSTR[i][j]).id;
@@ -195,82 +200,113 @@ export class App extends Component {
                     for (let j = 0; j < parsedSTR[i].length; j++) {
                         const foundNode = nodes.map(node => node.name).indexOf(parsedSTR[i][j]) !== -1;
                         // source and target node
+                        const nodeObject = {id: nodeID, name: parsedSTR[i][j]}
                         if (j <= 1 && !foundNode) {
-                            nodes.push({
-                                id: nodeID++,
-                                name: parsedSTR[i][j],
-                            });
+                            newNodes.push(nodeObject);
+                            nodes.push(nodeObject);
+                            nodeID++;
                         // inducer node
                         } else if (j === 2) {
                             if (parsedSTR[i][j] !== "None" && !foundNode) {
-                                nodes.push({
-                                    id: nodeID++,
-                                    name: parsedSTR[i][j],
-                                });
+                                newNodes.push(nodeObject);
+                                nodes.push(nodeObject);
+                                nodeID++;
                             }
                         }
                     }
+                    
+                    
                     // add edge / node-based transition to links 
                     if (parsedSTR[i][2] === "None") {
-                        links.push({
-                            id: getNodeID(i, 0) + "-" + getNodeID(i, 1),
-                            shortName: parsedSTR[i][0] + "-" + parsedSTR[i][1],
-                            source: getNodeID(i, 0),
-                            target: getNodeID(i, 1),
-                            inducer: undefined,
-                            rate: parseFloat(parsedSTR[i][3])
-                        })
+                        const linkExists = links.find(link => 
+                            (link.source.id ?? link.source) === getNodeID(i, 0) && 
+                            (link.target.id ?? link.target) === getNodeID(i, 1) && 
+                            link.inducer === undefined);
+                        if (linkExists === undefined) {                            
+                            const linkObject = {
+                                id: getNodeID(i, 0) + "-" + getNodeID(i, 1),
+                                shortName: parsedSTR[i][0] + "-" + parsedSTR[i][1],
+                                source: getNodeID(i, 0),
+                                target: getNodeID(i, 1),
+                                inducer: undefined,
+                                rate: parseFloat(parsedSTR[i][3])
+                            }
+                            newLinks.push(linkObject);
+                            links.push(linkObject);
+                        }
                     } else {
-                        links.push({
-                            id: getNodeID(i, 0) + "-" + getNodeID(i, 1) + "-" 
-                                + getNodeID(i, 2),
-                            shortName: parsedSTR[i][0] + "-" + parsedSTR[i][1] + "-" + parsedSTR[i][2],
-                            source: getNodeID(i, 0),
-                            target: getNodeID(i, 1),
-                            inducer: getNodeID(i, 2),
-                            rate: parseFloat(parsedSTR[i][3])
-                        })
+                        console.log(links);
+                        const linkExists = links.find(link => 
+                            (link.source.id ?? link.source) === getNodeID(i, 0) &&
+                            (link.target.id ?? link.target) === getNodeID(i, 1) && 
+                            (link.inducer?.id ?? link.inducer) === getNodeID(i, 2));
+                        if (linkExists === undefined) {
+                            const linkObject = {
+                                id: getNodeID(i, 0) + "-" + getNodeID(i, 1) + "-" 
+                                    + getNodeID(i, 2),
+                                shortName: parsedSTR[i][0] + "-" + parsedSTR[i][1] + "-" + parsedSTR[i][2],
+                                source: getNodeID(i, 0),
+                                target: getNodeID(i, 1),
+                                inducer: getNodeID(i, 2),
+                                rate: parseFloat(parsedSTR[i][3])
+                            }
+                            newLinks.push(linkObject);
+                            links.push(linkObject);
+                        }
                     }
                 }
             }
 
             let dotNodeContent = '';
-            for (const node of nodes) {
+            for (const node of newNodes) {
                 dotNodeContent += node.name + ' ';
             }
 
             // create graphviz 
             let dotContent = '';
-            for (const link of links) {
+            for (const link of newLinks) {
                 dotContent += 
                     `${getNode(link.source).name} -> ${getNode(link.target).name} [label = "${(link.inducer !== undefined ? getNode(link.inducer).name + ", " : "") + link.rate}"];\n`;
             }
 
+            // add data to strdata
+            this.setState({STRdata: [...this.state.STRdata, {
+                id: Math.floor(Math.random() * 1000000000),
+                nodes: newNodes.map(node => node.id),
+                links: newLinks.map(link => link.id),
+                name: event.target.files[0].name
+            }]})
+
             this.setGraphData(data);
 
-            this.setState({strGraphviz: 
-                <Graphviz 
-                className="graph-overlay graph-viz"
-                options={{
-                    width: window.innerWidth * WIDTH_RATIO,
-                    height: window.innerHeight
-                }}
-                dot={`digraph finite_state_machine {
-                    fontname="monospace"
-                    node [fontname="monospace"]; ${dotNodeContent};
-                    edge [fontname="monospace"]
-                    rankdir=LR;
-                    node [shape = circle];
-                    ${dotContent}
-                }`}/>
-            }, () => setTimeout(() => this.parseGraphvizSVG(nodes, links), GRAPHVIZ_PARSE_DELAY));
+            if (newNodes.length > 0) {
+                this.setState({strGraphviz: 
+                    <Graphviz 
+                    className="graph-overlay graph-viz"
+                    options={{
+                        width: window.innerWidth * WIDTH_RATIO,
+                        height: window.innerHeight
+                    }}
+                    dot={`digraph finite_state_machine {
+                        fontname="monospace"
+                        node [fontname="monospace"]; ${dotNodeContent};
+                        edge [fontname="monospace"]
+                        rankdir=LR;
+                        node [shape = circle];
+                        ${dotContent}
+                    }`}/>
+                }, () => setTimeout(() => this.parseGraphvizSVG(nodes, links), GRAPHVIZ_PARSE_DELAY));
+            }
         }
 
         // valid plaintext file
-        if (event.target.files[0].type.match(/^\s*$|(text\/plain)/)) {
-            reader.readAsText(event.target.files[0]);
-        } else {
-            this.setFormError([INVALID_STR_FILE_ERROR]);
+        for (let i = 0; i < event.target.files.length; i++) {
+            if (event.target.files[i].type.match(/^\s*$|(text\/plain)/)) {
+                reader.readAsText(event.target.files[0]);
+            } else {
+                this.setFormError([INVALID_STR_FILE_ERROR]);
+                break;
+            }
         }
     }
 
@@ -352,7 +388,8 @@ export class App extends Component {
             hideFormError={this.hideFormError}
             showFormError={this.showFormError}
             setFormError={this.setFormError}
-            processSTR={this.processSTR}/>
+            processSTR={this.processSTR}
+            STRdata={this.state.STRdata}/>
         </div>
         );
     }
