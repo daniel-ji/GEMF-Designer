@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { LINK_SHORT_NAME } from '../../Constants'
 
 export class STREntry extends Component {
     constructor(props) {
@@ -39,7 +40,7 @@ export class STREntry extends Component {
                     <button 
                     className="btn btn-danger p-0 mb-3" 
                     style={{minWidth: "10%"}}
-                    onClick={() => this.props.deleteSTR(this.props.key)}>
+                    onClick={() => this.props.deleteSTR(this.props.id)}>
                         <i className="bi bi-trash" />
                     </button>
                 </div>
@@ -66,10 +67,7 @@ export class STREntry extends Component {
                                 {this.props.links.map(linkID => {
                                     const link = data.links.find(link => link.id === linkID);
                                     if (link !== undefined) {
-                                        return <li key={link.id} className="list-group-item">{link.source.name + "-" + 
-                                            link.target.name + 
-                                            (link.inducer === undefined ? "" : "-" + 
-                                                data.nodes.find(node => node.id === link.inducer).name)}</li>;
+                                        return <li key={link.id} className="list-group-item">{LINK_SHORT_NAME(link, data)}</li>;
                                     }
                                     return "";
                                 })}

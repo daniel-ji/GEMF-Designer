@@ -33,3 +33,16 @@ export const INVALID_STR_ENTRY_ERROR = 'Invalid STR file entry. Please ensure co
 export const INVALID_STR_NODE_NAME_ERROR = 'Invalid state name. Please ensure valid characters.';
 export const INVALID_STR_SELF_LOOP_ERROR = 'Invalid link entry. Please ensure no self-loops.';
 export const INVALID_STR_RATE_ERROR = 'Invalid rate. Please ensure numeric, positive transition rate.';
+/**
+ * Create shortened name from link object.
+ * @param {*} link link object 
+ * @param {*} data graph data
+ * @returns shortened name
+ */
+export const LINK_SHORT_NAME = (link, data) => {
+    return (
+    data.nodes.find(node => node.id === (link.source?.id ?? link.source)).name + " to " + 
+    data.nodes.find(node => node.id === (link.target?.id ?? link.target)).name +
+    (link.inducer !== undefined ? (" by " + data.nodes.find(node => node.id === (link.inducer?.id ?? link.inducer)).name) : " (nodal)") + 
+    ", " + parseFloat(parseFloat(link.rate).toFixed(3)))
+}

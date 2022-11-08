@@ -25,7 +25,8 @@ export class ImportSTR extends Component {
                         id={entry.id}
                         nodes={entry.nodes}
                         links={entry.links}
-                        name={entry.name}/>
+                        name={entry.name}
+                        deleteSTR={this.props.deleteSTR}/>
                     )}
                 </div>
             </div>

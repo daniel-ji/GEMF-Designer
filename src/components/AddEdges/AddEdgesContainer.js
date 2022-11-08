@@ -5,6 +5,8 @@ import React, { Component } from 'react'
 
 import AddEdgesEntry from './AddEdgesEntry'
 
+import { LINK_SHORT_NAME } from '../../Constants';
+
 export class AddEdgesContainer extends Component {
     constructor(props) {
         super(props)
@@ -23,20 +25,16 @@ export class AddEdgesContainer extends Component {
         const data = Object.assign({}, this.props.globals.data);
         const selectSource = document.getElementById("selectSource");
         const selectTarget = document.getElementById("selectTarget");
-        const selectInducer = document.getElementById("selectInducer");
         const rateInput = document.getElementById("rateInput");
 
         const sourceID = parseInt(document.getElementById("selectSource").value);
         const targetID = parseInt(document.getElementById("selectTarget").value);
         const inducerID = parseInt(document.getElementById("selectInducer").value);
-        
-        // ensure valid edge-based transition
-        let valid = true;
+
         let errors = [];
         
         // can't be link to self
         if (selectSource.value === selectTarget.value) {
-            valid = false;
             selectSource.className += " border border-danger";
             selectTarget.className += " border border-danger";
             errors.push("Cannot have self-loop.")
@@ -49,12 +47,16 @@ export class AddEdgesContainer extends Component {
 
         // has to have valid rate
         if (rateInput.value.length === 0 || parseInt(rateInput.value) < 0) {
-            valid = false;
             rateInput.className += " border border-danger";
             errors.push("Invalid rate.");
         } else {
             rateInput.classList.remove("border");
             rateInput.classList.remove("border-danger");
+        }
+
+        if (errors.length > 0) {
+            this.props.setFormError(errors, true);
+            return;
         }
 
         const linkExists = data.links.find(link => 
@@ -64,7 +66,7 @@ export class AddEdgesContainer extends Component {
         ) !== undefined
 
         // if edge-based link doesn't exist already 
-        if (valid && !linkExists) {
+        if (!linkExists) {
             // add link 
             const newLink = {
                 id: sourceID + "-" + targetID + 
@@ -74,7 +76,7 @@ export class AddEdgesContainer extends Component {
                 inducer: inducerID === -1 ? undefined : inducerID,
                 rate: rateInput.value,
             }
-            newLink.shortName = this.createShortName(newLink);
+            newLink.shortName = LINK_SHORT_NAME(newLink, data);
             data.links.push(newLink)
 
             this.props.setGraphData(data);
@@ -84,25 +86,8 @@ export class AddEdgesContainer extends Component {
             this.createEdgeEntry([data.links[data.links.length - 1]])
         } else {
             // show error
-            if (linkExists) {
-                errors.push("Link already exists.");
-            }
-            this.props.setFormError(errors, true);
+            this.props.setFormError("Link already exists.", true);
         }
-    }
-
-    /**
-     * Create shortened name from link object.
-     * @param {*} link link object 
-     * @returns shortened name
-     */
-    createShortName = (link) => {
-        const data = this.props.globals.data;
-        return (
-        data.nodes.find(node => node.id === (link.source?.id ?? link.source)).name[0] + "-" + 
-        data.nodes.find(node => node.id === (link.target?.id ?? link.target)).name[0] +
-        (link.inducer !== undefined ? (", " + data.nodes.find(node => node.id === (link.inducer?.id ?? link.inducer)).name[0]) : "") + 
-        " : " + parseFloat(parseFloat(link.rate).toFixed(3)))
     }
 
     /**
@@ -138,7 +123,7 @@ export class AddEdgesContainer extends Component {
             link.inducer = values.inducer === -1 ? undefined : values.inducer;
         }
 
-        link.shortName = this.createShortName(link);
+        link.shortName = LINK_SHORT_NAME(link, data);
         this.props.setGraphData(data);
     } 
     
@@ -167,7 +152,7 @@ export class AddEdgesContainer extends Component {
     componentDidMount() {
         const data = Object.assign({}, this.props.globals.data);
         for (const link of data.links) {
-            link.shortName = this.createShortName(link);
+            link.shortName = LINK_SHORT_NAME(link, data);
         }
 
         this.props.setGraphData(data);

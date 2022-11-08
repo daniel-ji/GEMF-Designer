@@ -104,10 +104,7 @@ export class App extends Component {
                 this.setState({formError: errors, formErrorHide: false})
             }
         } else {
-            let error = "";
-            for (const msg of errors) {
-                error += msg + "\n\n";
-            }
+            const error = errors.map(msg => <div>{msg}<br /></div>)
             this.setState({formError: error, formErrorHide: false})
         }
 
@@ -225,7 +222,7 @@ export class App extends Component {
                         if (linkExists === undefined) {                            
                             const linkObject = {
                                 id: getNodeID(i, 0) + "-" + getNodeID(i, 1),
-                                shortName: parsedSTR[i][0] + "-" + parsedSTR[i][1],
+                                shortName: parsedSTR[i][0] + " to " + parsedSTR[i][1] + " (nodal) ",
                                 source: getNodeID(i, 0),
                                 target: getNodeID(i, 1),
                                 inducer: undefined,
@@ -244,7 +241,7 @@ export class App extends Component {
                             const linkObject = {
                                 id: getNodeID(i, 0) + "-" + getNodeID(i, 1) + "-" 
                                     + getNodeID(i, 2),
-                                shortName: parsedSTR[i][0] + "-" + parsedSTR[i][1] + "-" + parsedSTR[i][2],
+                                shortName: parsedSTR[i][0] + " to " + parsedSTR[i][1] + " by " + parsedSTR[i][2],
                                 source: getNodeID(i, 0),
                                 target: getNodeID(i, 1),
                                 inducer: getNodeID(i, 2),
@@ -357,6 +354,10 @@ export class App extends Component {
         }
     }
 
+    deleteSTR = (id) => {
+        this.setState({STRdata: this.state.STRdata.filter(entry => entry.id !== id)}, () => console.log(this.state.STRdata))
+    }
+
     render() {        
         return (
         <div className="App">
@@ -392,6 +393,7 @@ export class App extends Component {
             showFormError={this.showFormError}
             setFormError={this.setFormError}
             processSTR={this.processSTR}
+            deleteSTR={this.deleteSTR}
             STRdata={this.state.STRdata}/>
         </div>
         );

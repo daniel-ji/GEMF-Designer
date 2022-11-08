@@ -120,14 +120,7 @@ export class AddEdgesEntry extends Component {
             edit: !prevState.edit, 
             show: prevState.edit ? prevState.show : true
         }}, () => {
-            if (this.state.edit) {
-                this.setState({
-                    oldSourceID: this.state.sourceID, 
-                    oldTargetID: this.state.targetID, 
-                    oldInducerID: this.state.inducerID,
-                    oldRate: this.state.rate,
-                })
-            } else {
+            if (!this.state.edit) {
                 this.props.setLink({
                     source: this.state.sourceID,
                     target: this.state.oldTargetID,

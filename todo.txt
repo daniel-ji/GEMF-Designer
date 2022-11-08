@@ -3,8 +3,6 @@ high priority
     - TEST: only new nodes
     - TEST: override existing rates
     - TEST: entry for each stl file import
-    - TODO: better spacing
-    - TODO: file merging on multiple entry
     - TODO: strikethrough, deleted node link from strs
 
 lower priority (future potential ideas)
@@ -14,5 +12,10 @@ lower priority (future potential ideas)
     - automatically open up edge entry for editing
     - only if there's no error (need to implement, check TODO)
 - session feature w/ indexeddb:  https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
+- download vis graphic
+- delete confirmation
+- undo node delete
+- auto-draw feature
+- error prompts for target, source, rate addedgeentry
 
 question: destructive nature of importing STRs (overriding)

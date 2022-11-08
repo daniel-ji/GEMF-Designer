@@ -20,6 +20,9 @@ export class Form extends Component {
      */
     handleBack = () => {
         switch (this.props.globals.step) {
+            case 2: 
+                this.props.incrementStep(-1, true);
+                this.props.setFormError("");
             case 3: 
                 if (document.getElementsByClassName("finish-edit-btn").length > 0) {
                     this.props.setFormError("Please finish or cancel all link edits first.");
@@ -144,6 +147,7 @@ export class Form extends Component {
                     processSTR={this.props.processSTR}
                     STRdata={this.props.STRdata}
                     data={this.props.globals.data}
+                    deleteSTR={this.props.deleteSTR}
                     />,
                     <AddNodesContainer 
                     globals={this.props.globals} 
