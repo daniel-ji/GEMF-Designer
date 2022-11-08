@@ -161,7 +161,7 @@ export class App extends Component {
             // parse STR for both graphviz and force-graph use
             const parsedSTR = e.target.result.split(/\r?\n/).map(row => row.split(/\t/));
             const getNodeID = (i, j) => nodes.find(node => node.name === parsedSTR[i][j]).id;
-            const getNode = (id) => nodes.find(node => node.id === id);
+            const getNode = (id) => nodes.find(node => (node.id === id || node === id));
 
             // STR validation
             for (let i = 0; i < parsedSTR.length; i++) {
@@ -258,13 +258,15 @@ export class App extends Component {
             }
 
             let dotNodeContent = '';
-            for (const node of newNodes) {
+            for (const node of nodes) {
                 dotNodeContent += node.name + ' ';
             }
 
             // create graphviz 
             let dotContent = '';
-            for (const link of newLinks) {
+            for (const link of links) {
+                console.log(link.source);
+                console.log(getNode(link.source));
                 dotContent += 
                     `${getNode(link.source).name} -> ${getNode(link.target).name} [label = "${(link.inducer !== undefined ? getNode(link.inducer).name + ", " : "") + link.rate}"];\n`;
             }
@@ -337,6 +339,7 @@ export class App extends Component {
                     const normalizedX = (rect.left - graphMiddleX) / graphMiddleX;
                     const normalizedY = (rect.top - graphMiddleY) / graphMiddleY;
                     const normalizedR = rect.width / graphDimensions.width;
+                    // 2 instead of 1 for spacing out more
                     const scaleRatio = 2 / normalizedR * this.state.globals.NODE_RADIUS;
                     // add node with proper coordinate scaling
                     const node = data.nodes.find(node => node.name === child.getElementsByTagName('title')[0].innerHTML);
