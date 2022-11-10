@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/GEMF-Designer/static/css/main.69d97e2d.css",
-    "main.js": "/GEMF-Designer/static/js/main.120322fd.js",
+    "main.css": "/GEMF-Designer/static/css/main.f44cefa6.css",
+    "main.js": "/GEMF-Designer/static/js/main.ca5a9d3c.js",
     "static/media/bootstrap-icons.woff?": "/GEMF-Designer/static/media/bootstrap-icons.e559bf06bc84fd9525e6.woff",
     "static/media/bootstrap-icons.woff2?": "/GEMF-Designer/static/media/bootstrap-icons.ea98e12d2d58747f9fc5.woff2",
     "index.html": "/GEMF-Designer/index.html",
-    "main.69d97e2d.css.map": "/GEMF-Designer/static/css/main.69d97e2d.css.map",
-    "main.120322fd.js.map": "/GEMF-Designer/static/js/main.120322fd.js.map"
+    "main.f44cefa6.css.map": "/GEMF-Designer/static/css/main.f44cefa6.css.map",
+    "main.ca5a9d3c.js.map": "/GEMF-Designer/static/js/main.ca5a9d3c.js.map"
   },
   "entrypoints": [
-    "static/css/main.69d97e2d.css",
-    "static/js/main.120322fd.js"
+    "static/css/main.f44cefa6.css",
+    "static/js/main.ca5a9d3c.js"
   ]
 }
