@@ -27,7 +27,8 @@ export class Form extends Component {
                 if (document.getElementsByClassName("finish-edit-btn").length > 0) {
                     this.props.setFormError("Please finish or cancel all link edits first.");
                 } else {
-                    this.props.incrementStep(-1);
+                    this.props.setFormError("");
+                    this.props.incrementStep(-1, true);
                 }
                 break;
             default: 
@@ -122,10 +123,9 @@ export class Form extends Component {
     addEdgesNext = () => {
         if (document.getElementsByClassName("finish-edit-btn").length > 0) {
             this.props.setFormError("Please finish or cancel all link edits first.");
-        } else if (this.props.formError === "") {
-            this.props.incrementStep();
         } else {
-            this.props.showFormError();
+            this.props.setFormError("");
+            this.props.incrementStep(1, true);
         }
     }
 

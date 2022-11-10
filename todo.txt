@@ -4,6 +4,7 @@ high priority
     - TEST: override existing rates
     - TEST: entry for each stl file import
     - TODO: strikethrough, deleted node link from strs
+- refactor form error
 
 lower priority (future potential ideas)
 - sort / rearrangement of links / nodes
