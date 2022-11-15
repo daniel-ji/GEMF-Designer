@@ -22,7 +22,7 @@ export const RATE_TEXT_OVERFLOW = 6;
 // number of form steps, including welcome
 export const FORM_STEPS = 5;
 // time to delay graphiz parse procedure, ms
-export const GRAPHVIZ_PARSE_DELAY = 250;
+export const GRAPHVIZ_PARSE_DELAY = 500;
 // interval to retry graphviz parse procedure, ms
 export const GRAPHVIZ_PARSE_RETRY_INTERVAL = 200;
 // regex for str file node values

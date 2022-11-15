@@ -134,6 +134,31 @@ export class App extends Component {
             }}))
     }
 
+    downloadGraph = (fileType) => {
+        
+    }
+
+    autoDraw = () => {
+        const nodes = this.state.globals.data.nodes;
+        const links = this.state.globals.data.links;
+
+        if (nodes.length > 0) {
+            // create graphviz from current data
+            let dotNodeContent = '';
+            for (const node of nodes) {
+                dotNodeContent += node.name + ' ';
+            }
+
+            let dotLinkContent = '';
+            for (const link of links) {
+                dotLinkContent += 
+                    `${link.source.name} -> ${link.target.name} [label = "${(link.inducer !== undefined ? nodes.find(node => node.id === link.inducer).name + ", " : "") + link.rate}"];\n`;
+            }
+
+            this.generateGraphviz(dotNodeContent, dotLinkContent);
+        }
+    }
+
     /**
      * Callback function for when user uploads existing STR file. 
      * Ensures file is in valid STR format and creates corresponding 
@@ -253,15 +278,15 @@ export class App extends Component {
                 }
             }
 
+            // create graphviz 
             let dotNodeContent = '';
             for (const node of nodes) {
                 dotNodeContent += node.name + ' ';
             }
 
-            // create graphviz 
-            let dotContent = '';
+            let dotLinkContent = '';
             for (const link of links) {
-                dotContent += 
+                dotLinkContent += 
                     `${getNode(link.source).name} -> ${getNode(link.target).name} [label = "${(link.inducer !== undefined ? getNode(link.inducer).name + ", " : "") + link.rate}"];\n`;
             }
 
@@ -276,22 +301,7 @@ export class App extends Component {
             this.setGraphData(data);
 
             if (newNodes.length > 0) {
-                this.setState({strGraphviz: 
-                    <Graphviz 
-                    className="graph-overlay graph-viz"
-                    options={{
-                        width: window.innerWidth * WIDTH_RATIO,
-                        height: window.innerHeight
-                    }}
-                    dot={`digraph finite_state_machine {
-                        fontname="monospace"
-                        node [fontname="monospace"]; ${dotNodeContent};
-                        edge [fontname="monospace"]
-                        rankdir=LR;
-                        node [shape = circle];
-                        ${dotContent}
-                    }`}/>
-                }, () => setTimeout(() => this.parseGraphvizSVG(nodes, links), GRAPHVIZ_PARSE_DELAY));
+                this.generateGraphviz(dotNodeContent, dotLinkContent);
             }
         }
 
@@ -304,6 +314,24 @@ export class App extends Component {
                 break;
             }
         }
+    }
+
+    generateGraphviz = (dotNodeContent, dotLinkContent) => {
+        this.setState({strGraphviz: 
+            <Graphviz 
+            className="graph-overlay graph-viz"
+            options={{
+                width: window.innerWidth * WIDTH_RATIO,
+                height: window.innerHeight
+            }}
+            dot={`digraph finite_state_machine {
+                fontname="monospace"
+                node [fontname="monospace" shape=circle fixedsize=shape]; ${dotNodeContent};
+                edge [fontname="monospace"]
+                rankdir=LR;
+                ${dotLinkContent}
+            }`}/>
+        }, () => setTimeout(() => this.parseGraphvizSVG(this.state.globals.nodes, this.state.globals.links), GRAPHVIZ_PARSE_DELAY));
     }
 
     /**
@@ -380,16 +408,29 @@ export class App extends Component {
             </div>
             {this.state.strGraphviz}
             <div id="graph-cover">
-                <h1 className="noselect">Graph View </h1>
-                <p className="noselect">
-                    Legend:<br/>
-                    <span style={{color: "green"}}>Green</span> Links: Node-based Transition<br/>
-                    <span style={{color: "red"}}>Red</span> Links: Edge-based Transition
-                </p>
-                <a href="https://github.com/daniel-ji/GEMF-Designer" target="_blank" rel="noreferrer" aria-label="github repo link">
-                    <button className="btn btn-outline-dark p-0 github-button" aria-label="github repo button"><img src={githubIcon} alt="" /></button>
+                <div className="graph-tl">
+                    <h1 className="noselect">Graph View </h1>
+                    <p className="noselect">
+                        <span style={{color: "green"}}>Green</span> Links: Node-based Transition<br/>
+                        <span style={{color: "red"}}>Red</span> Links: Edge-based Transition<br/>
+                    </p>
+                </div>
+                <div className="graph-buttons">
+                    <button className="btn btn-success auto-draw me-3" onClick={this.autoDraw}>Auto-Draw</button>
+                    <div className="dropdown">
+                        <button className="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Download Graph
+                        </button>
+                        <ul className="dropdown-menu">
+                            <li><button className="dropdown-item" onClick={() => this.downloadGraph('SVG')}>SVG</button></li>
+                            <li><button className="dropdown-item" onClick={() => this.downloadGraph('PNG')}>PNG</button></li>
+                        </ul>
+                    </div>
+                </div>
+                <a className="github-button" href="https://github.com/daniel-ji/GEMF-Designer" target="_blank" rel="noreferrer" aria-label="github repo link">
+                    <button className="btn btn-outline-dark p-0" aria-label="github repo button"><img src={githubIcon} alt="" /></button>
                 </a>
-                <GraphComponent globals={this.state.globals}/> 
+                <GraphComponent globals={this.state.globals} STRdata={this.state.STRdata}/> 
             </div>
             <Form
             globals={this.state.globals} 

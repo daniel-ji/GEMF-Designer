@@ -1,3 +1,8 @@
+11/14:
+bug testing
+code documentation
+move entries
+
 high priority
 - multiple STR file import
     - TEST: only new nodes

@@ -177,8 +177,8 @@ export class AddEdgesEntry extends Component {
 
     componentDidMount() {
         this.setState({entryHeight: 
-            document.getElementById("collapseWidth-" + this.props.link.id).
-                getBoundingClientRect().height});
+            document.getElementById("collapseWidth-" + this.props.link.id)
+            .getBoundingClientRect().height});
         setTimeout(() => this.setState({transition: "1s"}), 50);
     }
 

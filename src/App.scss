@@ -16,7 +16,7 @@ body {
     height: 100%;
 }
 
-.github-button:active {
+.github-button button:active {
     background-color: inherit !important;
 }
 
@@ -29,23 +29,24 @@ body {
 }
 
 #graph-cover {
-    h1 {
+    .graph-tl {
         position: absolute;
         top: 0;
         left: 0;
-        margin: 2vw;
+        display: flex;
+    }
+
+    h1 {
+        margin: 2vw 1vw 2vw 2vw;
     }
 
     p {
-        position: absolute;
-        top: 0;
-        right: 0;
-        padding: 2vw;
+        padding: 2vw 2vw 2vw 1vw;
         margin: 0;
         font-weight: bold;
     }
 
-    a {
+    .github-button {
         position: absolute;
         top: 0;
         right: 0;
@@ -60,6 +61,15 @@ body {
             background-color: rgb(220, 220, 220) !important;
             border-color: black !important;
         }
+    }
+
+    .graph-buttons {
+        position: absolute;
+        top: 0;
+        right: 0;
+        display: flex;
+        margin: 2vw;
+        z-index: 2;
     }
 }
 
@@ -212,9 +222,16 @@ body {
         height: 100vh;
     }
 
-    #graph-cover p {
-        top: 0;
-        right: 40vw;
+    #graph-cover {
+        p {
+            top: 0;
+            right: 40vw;
+        }
+
+        .graph-buttons {
+            top: 0;
+            right: 40vw;
+        }
     }
 
     .graph-overlay {

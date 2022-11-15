@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
 import {forceCollide} from 'd3-force';
 
-import { CSS_BREAKPOINT, NODE_FONT_SIZE, NODE_TEXT_OVERFLOW, RATE_FONT_SIZE, RATE_TEXT_OVERFLOW, WIDTH_RATIO } from '../Constants';
+import { CSS_BREAKPOINT, GRAPHVIZ_PARSE_DELAY, NODE_FONT_SIZE, NODE_TEXT_OVERFLOW, RATE_FONT_SIZE, RATE_TEXT_OVERFLOW, WIDTH_RATIO } from '../Constants';
 
 export class Graph extends Component {
     constructor(props) {
@@ -28,7 +28,13 @@ export class Graph extends Component {
     /**
      * Update collision force on graph update. 
      */
-    componentDidUpdate() {
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.STRdata.length !== this.props.STRdata.length) {
+            setTimeout(() => {
+                console.log("zoom");
+                this.ref.current.zoomToFit(0, 50);
+            }, 2 * GRAPHVIZ_PARSE_DELAY);
+        }
         this.ref.current.d3Force('collide', forceCollide(this.props.globals.forceCollideRadius))
     }
 
