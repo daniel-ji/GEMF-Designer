@@ -169,6 +169,7 @@ export class Form extends Component {
                     STRdata={this.props.STRdata}
                     data={this.props.globals.data}
                     deleteSTR={this.props.deleteSTR}
+                    deletePrompt={this.deletePrompt}
                     />,
                     <AddNodesContainer 
                     globals={this.props.globals} 
@@ -182,6 +183,7 @@ export class Form extends Component {
                     setFormError={this.props.setFormError}
                     formError={this.props.formError}
                     showFormError={this.props.showFormError}
+                    deletePrompt={this.deletePrompt}
                     />,
                     <FinalData
                     globals={this.props.globals}

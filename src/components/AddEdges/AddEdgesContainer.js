@@ -90,6 +90,10 @@ export class AddEdgesContainer extends Component {
         }
     }
 
+    deletePrompt = (id) => {
+        this.props.deletePrompt(() => this.deleteEdgeEntry(id));
+    }
+    
     /**
      * Delete link (edge) from both graph data and form component. 
      * @param {*} id id of link to delete
@@ -139,7 +143,7 @@ export class AddEdgesContainer extends Component {
                 key={link.id}
                 data={this.props.globals.data} 
                 link={link}
-                deleteEdgeEntry={this.deleteEdgeEntry}
+                deletePrompt={this.deletePrompt}
                 setLink={this.setLink}
                 setFormError={this.props.setFormError}
                 />)

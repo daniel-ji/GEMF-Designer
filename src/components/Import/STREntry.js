@@ -14,6 +14,10 @@ export class STREntry extends Component {
     toggleShowEntry = () => {
         this.setState({show: !this.state.show})
     }
+
+    deletePrompt = (id) => {
+        this.props.deletePrompt(() => this.props.deleteSTR(id));
+    } 
     
     componentDidMount() {
         this.setState({entryHeight: 
@@ -40,7 +44,7 @@ export class STREntry extends Component {
                     <button 
                     className="btn btn-danger p-0 mb-3" 
                     style={{minWidth: "10%"}}
-                    onClick={() => this.props.deleteSTR(this.props.id)}>
+                    onClick={() => this.deletePrompt(this.props.id)}>
                         <i className="bi bi-trash" />
                     </button>
                 </div>

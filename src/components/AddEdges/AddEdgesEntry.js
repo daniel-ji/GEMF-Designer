@@ -215,7 +215,7 @@ export class AddEdgesEntry extends Component {
                     <button 
                     className="btn btn-danger p-0 mb-3" 
                     style={{minWidth: "10%"}}
-                    onClick={() => this.props.deleteEdgeEntry(link.id)}>
+                    onClick={() => this.props.deletePrompt(link.id)}>
                         <i className="bi bi-trash" />
                     </button>
                 </div>
