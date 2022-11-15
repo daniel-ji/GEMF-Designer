@@ -91,6 +91,7 @@ body {
 }
 
 #form {
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -100,6 +101,40 @@ body {
     width: 100vw;
     height: 60vh;
     cursor: default;
+
+    .form-error-prompt {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: 100%; 
+        background-color: rgba(0, 0, 0, 0.15);
+        z-index: 2;
+
+        .card {
+
+            .card-body {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+
+                .form-error-prompt-buttons {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-top: 3vh;
+                    width: 100%;
+                }
+            }
+        }
+    }
+
+    .form-error-prompt-hidden {
+        opacity: 0;
+        z-index: -1;
+    }
 }
 
 .form-step {
@@ -192,10 +227,6 @@ body {
         border-top: 0;
         width: 40vw;
         height: 100vh;
-    }
-
-    #error-popup {
-        right: 20%;
     }
 }
 

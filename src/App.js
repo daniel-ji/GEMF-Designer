@@ -232,7 +232,6 @@ export class App extends Component {
                             links.push(linkObject);
                         }
                     } else {
-                        console.log(links);
                         const linkExists = links.find(link => 
                             (link.source.id ?? link.source) === getNodeID(i, 0) &&
                             (link.target.id ?? link.target) === getNodeID(i, 1) && 
@@ -262,8 +261,6 @@ export class App extends Component {
             // create graphviz 
             let dotContent = '';
             for (const link of links) {
-                console.log(link.source);
-                console.log(getNode(link.source));
                 dotContent += 
                     `${getNode(link.source).name} -> ${getNode(link.target).name} [label = "${(link.inducer !== undefined ? getNode(link.inducer).name + ", " : "") + link.rate}"];\n`;
             }
@@ -355,7 +352,7 @@ export class App extends Component {
     }
 
     deleteSTR = (id) => {
-        this.setState({STRdata: this.state.STRdata.filter(entry => entry.id !== id)}, () => console.log(this.state.STRdata))
+        this.setState({STRdata: this.state.STRdata.filter(entry => entry.id !== id)});
     }
 
     render() {        

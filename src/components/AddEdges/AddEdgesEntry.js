@@ -19,6 +19,10 @@ export class AddEdgesEntry extends Component {
             inducerID: this.props.link.inducer === undefined ? -1 : 
                 (this.props.link.inducer.id ?? this.props.link.inducer),
             rate: this.props.link.rate,
+            linkError: false,
+            sourceError: false,
+            targetError: false,
+            rateError: false,
             entryHeight: 0,
             // to not display card on mount
             transition: "0s",
@@ -71,6 +75,9 @@ export class AddEdgesEntry extends Component {
     }
 
     validLink = (changedProperty, newValue) => {
+        let valid = true;
+        let errorMsg = [];
+
         const newLink = {
             source: this.state.sourceID,
             target: this.state.targetID,
@@ -88,17 +95,31 @@ export class AddEdgesEntry extends Component {
         );
 
         if (linkExists) {
-            this.props.setFormError("Link already exists.", true);
-            return false; 
-        } else if (newLink.source === newLink.target) {
-            this.props.setFormError("Cannot have self-loop.", true);
-            return false;
-        } else if (isNaN(newLink.rate) || newLink.rate < 0) {
-            this.props.setFormError("Invalid transition rate.");
-            return false;
+            this.setState({linkError: true});
+            errorMsg.push("Link already exists.");
+            valid = false;
+        } else {
+            this.setState({linkError: false});
         }
         
-        return true;
+        if (newLink.source === newLink.target) {
+            this.setState({sourceError: true, targetError: true});
+            errorMsg.push("Cannot have self-loop.");
+            valid = false;
+        } else {
+            this.setState({sourceError: false, targetError: false});
+        }
+        
+        if (isNaN(newLink.rate) || newLink.rate < 0) {
+            this.setState({rateError: true});
+            errorMsg.push("Invalid transition rate.");
+            valid = false;
+        } else {
+            this.setState({rateError: false});
+        }
+
+        this.props.setFormError(errorMsg, true);
+        return valid;
     }
 
     /**
@@ -122,16 +143,20 @@ export class AddEdgesEntry extends Component {
         }}, () => {
             if (!this.state.edit) {
                 this.props.setLink({
-                    source: this.state.sourceID,
+                    source: this.state.oldSourceID,
                     target: this.state.oldTargetID,
                     inducer: this.state.oldInducerID,
-                    rate: this.state.oldRate
+                    rate: this.state.oldRate,
                 }, this.props.link.id);
                 this.setState({
                     sourceID: this.state.oldSourceID, 
                     targetID: this.state.oldTargetID, 
                     inducerID: this.state.oldInducerID,
                     rate: this.state.oldRate,
+                    sourceError: false,
+                    targetError: false,
+                    rateError: false,
+                    linkError: false
                 })
             }
         })
@@ -170,7 +195,7 @@ export class AddEdgesEntry extends Component {
                         className="btn btn-primary mb-3 w-100"
                         onClick={this.toggleShowEntry}
                         >
-                            State Transition Edge {link.shortName}
+                            Transition {link.shortName}
                         </button>
                     </div>
                     {this.state.edit && 
@@ -197,11 +222,11 @@ export class AddEdgesEntry extends Component {
                 <div 
                 className="link-collapse-container"
                 id={"collapseWidth-" + link.id}>
-                    <div className={`card card-body w-100 link-collapse`}
+                    <div className={`card card-body w-100 link-collapse ${this.state.linkError ? "border-danger" : ""}`}
                         style={{marginTop: this.state.show ? "0" : "-" + this.state.entryHeight + "px", transition: this.state.transition}}>
                         <p className="mb-1">Source: </p>
                         <select
-                        className="form-select mb-2"
+                        className={`form-select mb-2 ${this.state.sourceError ? "border-danger" : ""}`}
                         aria-label="Source Node"
                         id="sourceNode"
                         style={{width: "30%"}}
@@ -217,7 +242,7 @@ export class AddEdgesEntry extends Component {
 
                         <p className="mb-1">Target: </p>
                         <select
-                        className="form-select mb-2"
+                        className={`form-select mb-2 ${this.state.targetError ? "border-danger" : ""}`}
                         aria-label="Target Node"
                         id="targetNode"
                         style={{width: "30%"}}
@@ -251,7 +276,7 @@ export class AddEdgesEntry extends Component {
                         <p className="mb-1">Rate: </p>
                         <input 
                         type="number" 
-                        className="form-control mb-2"
+                        className={`form-control mb-2 ${this.state.rateError ? "border-danger" : ""}`}
                         disabled={!this.state.edit}
                         readOnly={!this.state.edit}
                         onChange={(e) => this.setRate(e)}

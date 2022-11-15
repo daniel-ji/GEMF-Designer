@@ -33,6 +33,7 @@ export class AddNodesContainer extends Component {
                 setForceCollideRadius={this.props.setForceCollideRadius} 
                 setGraphData={this.props.setGraphData}
                 createNewInput={this.createNewInput}
+                deletePrompt={this.props.deletePrompt}
             />
         )
     }

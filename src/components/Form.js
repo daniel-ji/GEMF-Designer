@@ -13,6 +13,12 @@ import { FORM_STEPS } from '../Constants';
 export class Form extends Component {
     constructor(props) {
         super(props)
+
+        this.state = {
+            deletePrompt: false,
+            deleteCancelCallback: undefined,
+            deleteConfirmCallback: undefined,
+        }
     }
 
     /**
@@ -129,6 +135,20 @@ export class Form extends Component {
         }
     }
 
+    deletePrompt = (deleteConfirmCallback, deleteCancelCallback = () => {}) => {
+        this.setState({deletePrompt: true, deleteCancelCallback, deleteConfirmCallback})
+    }
+
+    deleteCancelCallback = () => {
+        this.setState({deletePrompt: false});
+        this.state.deleteCancelCallback();
+    }
+
+    deleteConfirmCallback = () => {
+        this.setState({deletePrompt: false});
+        this.state.deleteConfirmCallback();
+    }
+
     render() {
         return (
             <div id="form">
@@ -153,6 +173,7 @@ export class Form extends Component {
                     globals={this.props.globals} 
                     setForceCollideRadius={this.props.setForceCollideRadius} 
                     setGraphData={this.props.setGraphData}
+                    deletePrompt={this.deletePrompt}
                     />,
                     <AddEdgesContainer
                     globals={this.props.globals}
@@ -177,6 +198,17 @@ export class Form extends Component {
                     onClick={this.props.hideFormError}>
                     {this.props.formError}
                 </button>
+                <div className={`form-error-prompt ${!this.state.deletePrompt ? "form-error-prompt-hidden" : ""}`}>
+                    <div className="card">
+                        <div className="card-body">
+                            <p className="mx-3 my-0">Delete entry?</p> 
+                            <div className="form-error-prompt-buttons">
+                                <button className="btn btn-secondary me-3" onClick={this.deleteCancelCallback}>Cancel</button>
+                                <button className="btn btn-danger" onClick={this.deleteConfirmCallback}>Confirm</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         )
     }

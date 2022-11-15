@@ -52,20 +52,24 @@ export class AddNodesInput extends Component {
         }
     }
 
+    deleteInputPrompt = () => {
+        if (this.state.inputCreated) {
+            this.props.deletePrompt(this.deleteInput);
+        }
+    }
+
     /**
      * Delete corresponding nodes and links of input value from global data object. 
      */
     deleteInput = () => {
         const data = Object.assign({}, this.props.globals.data);
-        if (this.state.inputCreated) {
-            data.nodes.splice(data.nodes.findIndex(node => node.id === this.state.count), 1);
-            // have to do it this way because of weird React should-update interaction and the lack of deepness of the comparison check 
-            while (data.links.findIndex(link => link.source.id === this.state.count || link.target.id === this.state.count) !== -1) {
-                data.links.splice(data.links.findIndex(link => link.source.id === this.state.count || link.target.id === this.state.count), 1)
-            }
-            this.props.setGraphData(data);
-            this.setState({deleted: true})
+        data.nodes.splice(data.nodes.findIndex(node => node.id === this.state.count), 1);
+        // have to do it this way because of weird React should-update interaction and the lack of deepness of the comparison check 
+        while (data.links.findIndex(link => link.source.id === this.state.count || link.target.id === this.state.count) !== -1) {
+            data.links.splice(data.links.findIndex(link => link.source.id === this.state.count || link.target.id === this.state.count), 1)
         }
+        this.props.setGraphData(data);
+        this.setState({deleted: true})
     }
 
     render() {
@@ -74,7 +78,9 @@ export class AddNodesInput extends Component {
                 {this.state.deleted ? <div></div> : 
                 <div className="input-group mb-3 w-100">
                     <input id={'s-1-input-' + this.state.count} className='form-control' type="text" placeholder='State Name' aria-label='State Name' value={this.state.inputValue} onChange={this.updateInput}></input>
-                    <button id={"button-addon-" + this.state.count} className="btn btn-danger" type="button" onClick={this.deleteInput}>Delete</button>
+                    <button id={"button-addon-" + this.state.count} className="btn btn-danger" type="button" onClick={this.deleteInputPrompt}>
+                        <i className="bi bi-trash" />
+                    </button>
                 </div>}
             </Fragment>
         )

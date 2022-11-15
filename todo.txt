@@ -3,7 +3,8 @@ high priority
     - TEST: only new nodes
     - TEST: override existing rates
     - TEST: entry for each stl file import
-    - TODO: strikethrough, deleted node link from strs
+    - TODO: strikethrough, deleted node link from 
+    - TODO: delete from graph data
 - refactor form error
 
 lower priority (future potential ideas)
