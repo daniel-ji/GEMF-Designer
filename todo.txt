@@ -4,7 +4,6 @@ high priority
     - TEST: override existing rates
     - TEST: entry for each stl file import
     - TODO: strikethrough, deleted node link from 
-    - TODO: delete from graph data
 - refactor form error
 
 lower priority (future potential ideas)
@@ -18,6 +17,5 @@ lower priority (future potential ideas)
 - delete confirmation
 - undo node delete
 - auto-draw feature
-- error prompts for target, source, rate addedgeentry
 
 question: destructive nature of importing STRs (overriding)

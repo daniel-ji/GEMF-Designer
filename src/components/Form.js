@@ -29,6 +29,7 @@ export class Form extends Component {
             case 2: 
                 this.props.incrementStep(-1, true);
                 this.props.setFormError("");
+                break;
             case 3: 
                 if (document.getElementsByClassName("finish-edit-btn").length > 0) {
                     this.props.setFormError("Please finish or cancel all link edits first.");

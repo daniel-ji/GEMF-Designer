@@ -352,6 +352,20 @@ export class App extends Component {
     }
 
     deleteSTR = (id) => {
+        const data = Object.assign({}, this.state.globals.data);
+        const entryData = this.state.STRdata.find(entry => entry.id === id);
+        for (const linkID of entryData.links) {
+            data.links.splice(data.links.findIndex(entry => entry.id === linkID), 1);
+        }
+        for (const nodeID of entryData.nodes) {
+            const otherLinks = data.links.filter(link => (link.source.id === nodeID || 
+                link.target.id === nodeID || link.inducer === nodeID) && !entryData.links.includes(link.id))
+
+            if (otherLinks.length === 0) {
+                data.nodes.splice(data.nodes.findIndex(entry => entry.id === nodeID), 1);
+            }
+        }
+        this.setGraphData(data);
         this.setState({STRdata: this.state.STRdata.filter(entry => entry.id !== id)});
     }
 
