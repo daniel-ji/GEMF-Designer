@@ -1,6 +1,3 @@
-svg download
-sort entries
-
 bug testing
 code documentation
 

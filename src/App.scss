@@ -34,6 +34,8 @@ body {
         top: 0;
         left: 0;
         display: flex;
+        width: 50vw;
+        flex-direction: column;
     }
 
     h1 {
@@ -43,6 +45,7 @@ body {
     p {
         padding: 2vw 2vw 2vw 1vw;
         margin: 0;
+        font-size: 0.75rem;
         font-weight: bold;
     }
 
@@ -52,6 +55,7 @@ body {
         right: 0;
         margin: 0.5vw;
         height: auto;
+        display: none;
 
         img {
             width: max(5vw, 40px);
@@ -68,8 +72,14 @@ body {
         top: 0;
         right: 0;
         display: flex;
+        flex-direction: column;
+        align-items: flex-end;
         margin: 2vw;
         z-index: 2;
+
+        button {
+            margin-bottom: 2vh;
+        }
     }
 }
 
@@ -226,11 +236,22 @@ body {
         p {
             top: 0;
             right: 40vw;
+            font-size: 1rem;
         }
 
         .graph-buttons {
             top: 0;
             right: 40vw;
+            flex-direction: row;
+
+            .auto-draw {
+                margin-right: 1rem;
+            }
+        }
+
+        .graph-tl {
+            width: fit-content;
+            flex-direction: row;
         }
     }
 
@@ -244,6 +265,10 @@ body {
         border-top: 0;
         width: 40vw;
         height: 100vh;
+    }
+
+    .github-button {
+        display: block !important;
     }
 }
 

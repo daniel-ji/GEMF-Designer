@@ -437,12 +437,12 @@ export class App extends Component {
                 <div className="graph-tl">
                     <h1 className="noselect">Graph View </h1>
                     <p className="noselect">
-                        <span style={{color: "green"}}>Green</span> Links: Node-based Transition<br/>
-                        <span style={{color: "red"}}>Red</span> Links: Edge-based Transition<br/>
+                        <span style={{color: "green"}}>Green</span> Transitions: Node-based<br/>
+                        <span style={{color: "red"}}>Red</span> Transitions: Edge-based <br/>
                     </p>
                 </div>
                 <div className="graph-buttons">
-                    <button className="btn btn-success auto-draw me-3" onClick={this.autoDraw}>Auto-Draw</button>
+                    <button className="btn btn-success auto-draw" onClick={this.autoDraw}>Auto-Draw</button>
                     <div className="dropdown">
                         <button className="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Download Graph
