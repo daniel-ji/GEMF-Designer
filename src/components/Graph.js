@@ -29,11 +29,10 @@ export class Graph extends Component {
      * Update collision force on graph update. 
      */
     componentDidUpdate(prevProps, prevState) {
-        if (prevProps.STRdata.length !== this.props.STRdata.length) {
+        if (prevProps.STRdata.length !== this.props.STRdata.length || prevProps.downloading) {
             setTimeout(() => {
-                console.log("zoom");
-                this.ref.current.zoomToFit(0, 50);
-            }, 2 * GRAPHVIZ_PARSE_DELAY);
+                this.ref.current.zoomToFit(0, prevProps.downloading ? 50 : 150);
+            }, prevProps.downloading ? 0 : 2 * GRAPHVIZ_PARSE_DELAY);
         }
         this.ref.current.d3Force('collide', forceCollide(this.props.globals.forceCollideRadius))
     }
@@ -232,6 +231,12 @@ export class Graph extends Component {
      * @param {*} globalScale zoom / scale of graph
      */
     drawNode = (node, ctx, globalScale) => {
+        // draw circle
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, this.props.globals.NODE_RADIUS, 0, 2 * Math.PI);
+        ctx.fillStyle = "white";
+        ctx.fill();
+        ctx.stroke();
         // draw label
         const label = node.name;
         let fontSizeAdjusted = NODE_FONT_SIZE;
@@ -244,10 +249,6 @@ export class Graph extends Component {
         }
         ctx.font = `${fontSizeAdjusted}px monospace`
         ctx.fillText(label, node.x, node.y);
-        // draw circle
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, this.props.globals.NODE_RADIUS, 0, 2 * Math.PI);
-        ctx.stroke();
     }
 
     render() {

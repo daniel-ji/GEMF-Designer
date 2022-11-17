@@ -7,6 +7,9 @@ import Form from './components/Form';
 import './App.scss';    
 import githubIcon from './images/githubicon.png';
 
+import domtoimage from 'dom-to-image';
+import { saveAs } from 'file-saver';
+
 import {
     WIDTH_RATIO, NODE_COLLIDE_RADIUS, NODE_RADIUS, ARROW_SIZE, FORM_STEPS,
     GRAPHVIZ_PARSE_DELAY, GRAPHVIZ_PARSE_RETRY_INTERVAL, STR_REGEX, INVALID_STR_FILE_ERROR,
@@ -43,6 +46,8 @@ export class App extends Component {
             formErrorTrans: false,
             // if form error message is hidden
             formErrorHide: false,
+            // flag for downloading graph
+            downloading: false,
         }
 
         this.state.globals.forceCollideRadius = NODE_COLLIDE_RADIUS
@@ -135,7 +140,29 @@ export class App extends Component {
     }
 
     downloadGraph = (fileType) => {
-        
+        if (this.state.globals.data.nodes.length > 0) {
+            const canvas = document.getElementsByClassName("force-graph-container")[0].firstChild;
+    
+            this.setState({downloading: true}, () => {
+                setTimeout(() => {
+                    switch (fileType) {
+                        case 'png':
+                            canvas.toBlob(blob => {
+                                saveAs(blob, "STRGraph.png");
+                            })
+                            break;
+                        case 'svg':
+                        default: 
+                        console.log(canvas.innerHTML);
+                            domtoimage.toSvg(canvas).then((dataUrl) => {
+                                console.log(dataUrl);
+                                saveAs(dataUrl, "STRGraph.svg");
+                            })
+                    }
+                }, 1500)
+            })
+            setTimeout(() => this.setState({downloading: false}), 500);
+        }
     }
 
     autoDraw = () => {
@@ -422,15 +449,15 @@ export class App extends Component {
                             Download Graph
                         </button>
                         <ul className="dropdown-menu">
-                            <li><button className="dropdown-item" onClick={() => this.downloadGraph('SVG')}>SVG</button></li>
-                            <li><button className="dropdown-item" onClick={() => this.downloadGraph('PNG')}>PNG</button></li>
+                            <li><button className="dropdown-item" onClick={() => this.downloadGraph('svg')}>SVG</button></li>
+                            <li><button className="dropdown-item" onClick={() => this.downloadGraph('png')}>PNG</button></li>
                         </ul>
                     </div>
                 </div>
                 <a className="github-button" href="https://github.com/daniel-ji/GEMF-Designer" target="_blank" rel="noreferrer" aria-label="github repo link">
                     <button className="btn btn-outline-dark p-0" aria-label="github repo button"><img src={githubIcon} alt="" /></button>
                 </a>
-                <GraphComponent globals={this.state.globals} STRdata={this.state.STRdata}/> 
+                <GraphComponent globals={this.state.globals} STRdata={this.state.STRdata} downloading={this.state.downloading}/> 
             </div>
             <Form
             globals={this.state.globals} 

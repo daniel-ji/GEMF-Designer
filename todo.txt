@@ -1,26 +1,10 @@
-11/14:
+svg download
+sort entries
+
 bug testing
 code documentation
-move entries
-
-high priority
-- multiple STR file import
-    - TEST: only new nodes
-    - TEST: override existing rates
-    - TEST: entry for each stl file import
-    - TODO: strikethrough, deleted node link from 
-- refactor form error
 
 lower priority (future potential ideas)
-- sort / rearrangement of links / nodes
-- select multiple and move
-- edit edges in graph
-    - automatically open up edge entry for editing
-    - only if there's no error (need to implement, check TODO)
 - session feature w/ indexeddb:  https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
-- download vis graphic
-- delete confirmation
-- undo node delete
-- auto-draw feature
 
 question: destructive nature of importing STRs (overriding)
