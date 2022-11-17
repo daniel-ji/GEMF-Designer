@@ -7,7 +7,7 @@ import Form from './components/Form';
 import './App.scss';    
 import githubIcon from './images/githubicon.png';
 
-import domtoimage from 'dom-to-image';
+import canvasToSvg from "canvas-to-svg";
 import { saveAs } from 'file-saver';
 
 import {
@@ -153,11 +153,10 @@ export class App extends Component {
                             break;
                         case 'svg':
                         default: 
-                        console.log(canvas.innerHTML);
-                            domtoimage.toSvg(canvas).then((dataUrl) => {
-                                console.log(dataUrl);
-                                saveAs(dataUrl, "STRGraph.svg");
-                            })
+                            const ctx = new canvasToSvg(2 * canvas.offsetWidth, 2 * canvas.offsetHeight);
+                            ctx.drawImage(canvas, 0, 0, 2 * canvas.offsetWidth, 2 * canvas.offsetHeight);
+                            const serializedSVG = ctx.getSerializedSvg();
+                            saveAs(new Blob([serializedSVG], {type:"image/svg+xml;charset=utf-8"}), "STRGraph.svg");
                     }
                 }, 1500)
             })
