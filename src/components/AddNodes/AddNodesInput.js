@@ -52,6 +52,9 @@ export class AddNodesInput extends Component {
         }
     }
 
+    /**
+     * Prompt delete node entry. 
+     */
     deleteInputPrompt = () => {
         if (this.state.inputCreated) {
             this.props.deletePrompt(this.deleteInput);

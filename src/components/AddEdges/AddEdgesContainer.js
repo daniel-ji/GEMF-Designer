@@ -90,6 +90,11 @@ export class AddEdgesContainer extends Component {
         }
     }
 
+    /**
+     * Prompt delete edge entry.
+     * 
+     * @param {*} id id to pass into actual delete function
+     */
     deletePrompt = (id) => {
         this.props.deletePrompt(() => this.deleteEdgeEntry(id));
     }
@@ -107,6 +112,18 @@ export class AddEdgesContainer extends Component {
         })
     }
     
+    /**
+     * Set values of link as well as generate new link name.
+     * Helper function for methods in AddEdgesEntry.js
+     * See:
+     * {@link AddEdgesEntry#setSourceID}
+     * {@link AddEdgesEntry#setTargetID}
+     * {@link AddEdgesEntry#setInducerID}
+     * {@link AddEdgesEntry#setRate}
+     * 
+     * @param {*} values values to assign 
+     * @param {*} id id of link to assign to
+     */
     setLink = (values, id) => {
         const data = Object.assign({}, this.props.globals.data);
         const link = data.links.find(link => link.id === id);

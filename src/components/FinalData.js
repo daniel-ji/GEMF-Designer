@@ -2,6 +2,7 @@
  * Final data output component. Part of Form component.  
  */
 import React, { Component } from 'react'
+import { saveAs } from 'file-saver'
 
 export class FinalData extends Component {
     constructor(props) {
@@ -14,7 +15,9 @@ export class FinalData extends Component {
         }
     }
 
-    // display finished str tsv results
+    /**
+     * Display final TSV results parsed from data. Creates both UI table data and data to download.
+     */
     renderData = () => {
         const data = this.props.globals.data;
         let tsvData = ""; 
@@ -25,8 +28,7 @@ export class FinalData extends Component {
             const inducerState = data.nodes.find(node => node.id === link.inducer)?.name ?? "None";
             const rate = link.rate;
 
-            // use url encoding for tabs / new lines 
-            tsvData += fromState + "%09" + toState + "%09" + inducerState + "%09" + rate + "%0D%0A";
+            tsvData += fromState + "\t" + toState + "\t" + inducerState + "\t" + rate + "\n";
             return (
                 <tr key={fromState + "-" + toState + "-" + inducerState}>
                     <td>{fromState}</td>
@@ -61,16 +63,10 @@ export class FinalData extends Component {
                         {this.state.tableData}
                     </tbody>
                 </table>
-                <button className="w-100 btn btn-primary" id="btn" onClick={() => {
-                    // create temporary element for download 
-                    const element = document.createElement('a');
-                    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + this.state.tsvData);
-                    element.setAttribute('download', "STR.tsv");
-                    element.style.display = 'none';
-                    document.body.appendChild(element);
-                    element.click();
-                    document.body.removeChild(element);
-                }}>Download</button>
+                <button className="w-100 btn btn-primary" id="btn" 
+                    onClick={() => saveAs(new Blob([this.state.tsvData], {type: "text/plain;charset=utf-8"}), "STR.tsv")}>
+                    Download
+                </button>
             </div>
         )
     }

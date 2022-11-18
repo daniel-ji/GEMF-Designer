@@ -10,6 +10,7 @@ export class AddEdgesEntry extends Component {
         this.state = {
             edit: false,
             show: false,
+            // store old link data for cancel feature
             oldSourceID: undefined,
             oldTargetID: undefined,
             oldInducerID: undefined,
@@ -23,6 +24,7 @@ export class AddEdgesEntry extends Component {
             sourceError: false,
             targetError: false,
             rateError: false,
+            // for transition
             entryHeight: 0,
             // to not display card on mount
             transition: "0s",
@@ -34,38 +36,42 @@ export class AddEdgesEntry extends Component {
         this.state.oldRate = this.state.rate;
     }
 
+    /**
+     * Setter for source ID of entry.
+     * 
+     * @param {*} e event 
+     */
     setSourceID = (e) => {
         const parsedValue =  parseInt(e.target.value);
-        // if (this.validLink('source', parsedValue)) {
-        //     this.setState({sourceID: parsedValue})
-        //     this.props.setLink({source: parsedValue}, this.props.link.id);
-        // }
         this.setState({sourceID: parsedValue})
         this.props.setLink({source: parsedValue}, this.props.link.id);
     }
 
+    /**
+     * Setter for target ID of entry.
+     * 
+     * @param {*} e event
+     */
     setTargetID = (e) => {
         const parsedValue =  parseInt(e.target.value);
-        // if (this.validLink('target', parsedValue)) {
-        //     this.setState({targetID: parsedValue})
-        //     this.props.setLink({target: parsedValue}, this.props.link.id);
-        // }
         this.setState({targetID: parsedValue})
         this.props.setLink({target: parsedValue}, this.props.link.id);
     }
 
+    /**
+     * Setter for inducer ID of entry. 
+     * 
+     * @param {*} e event
+     */
     setInducerID = (e) => {
         const parsedValue =  parseInt(e.target.value);
-        // if (this.validLink('inducer', parsedValue)) {
-        //     this.setState({inducerID: parsedValue})
-        //     this.props.setLink({inducer: parsedValue}, this.props.link.id);
-        // }
         this.setState({inducerID: parsedValue})
         this.props.setLink({inducer: parsedValue}, this.props.link.id);
     }
 
     /**
-     * Sets the rate of the entry and updates graph data.
+     * Setter for rate of the entry.
+     * 
      * @param {*} e event
      */
     setRate = (e) => {
@@ -74,6 +80,13 @@ export class AddEdgesEntry extends Component {
         this.props.setLink({rate: parsedValue}, this.props.link.id);
     }
 
+    /**
+     * Check if link is valid given a changed value.
+     * 
+     * @param {*} changedProperty property changed 
+     * @param {*} newValue  new value
+     * @returns true or false given link validness
+     */
     validLink = (changedProperty, newValue) => {
         let valid = true;
         let errorMsg = [];
@@ -162,8 +175,12 @@ export class AddEdgesEntry extends Component {
         })
     }
     
+    /**
+     * Handle entry finish button user input. 
+     */
     finishEdit = () => {
-        // only rate can be invalid
+        // only needs to check if new rate is invalid 
+        // since other new values are checked automatically
         if (this.validLink('rate', this.state.rate)) {
             this.setState({
                 edit: false,
@@ -175,6 +192,9 @@ export class AddEdgesEntry extends Component {
         }
     }
 
+    /**
+     * Prevent entry card transition from occuring on render.
+     */
     componentDidMount() {
         this.setState({entryHeight: 
             document.getElementById("collapseWidth-" + this.props.link.id)

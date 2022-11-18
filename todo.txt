@@ -1,5 +1,6 @@
 bug testing
 code documentation
+magic numbers
 
 lower priority (future potential ideas)
 - session feature w/ indexeddb:  https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API

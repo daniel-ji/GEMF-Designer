@@ -11,14 +11,25 @@ export class STREntry extends Component {
         }
     }
 
+    /**
+     * Toggle entry visibility. 
+     */
     toggleShowEntry = () => {
         this.setState({show: !this.state.show})
     }
 
+    /**
+     * Prompt delete for STR entry.
+     * 
+     * @param {*} id id of entry
+     */
     deletePrompt = (id) => {
         this.props.deletePrompt(() => this.props.deleteSTR(id));
     } 
     
+    /**
+     * Prevent transition from occuring on first render.
+     */
     componentDidMount() {
         this.setState({entryHeight: 
             document.getElementById("collapseWidth-" + this.props.id)

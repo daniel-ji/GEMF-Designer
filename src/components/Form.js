@@ -31,6 +31,7 @@ export class Form extends Component {
                 this.props.setFormError("");
                 break;
             case 3: 
+                // prevent user from leaving half-finished links
                 if (document.getElementsByClassName("finish-edit-btn").length > 0) {
                     this.props.setFormError("Please finish or cancel all link edits first.");
                 } else {
@@ -136,15 +137,27 @@ export class Form extends Component {
         }
     }
 
+    /**
+     * Delete prompt shared across edges, nodes, and STR import entries.
+     * 
+     * @param {*} deleteConfirmCallback callback on confirm
+     * @param {*} deleteCancelCallback callback on cancel
+     */
     deletePrompt = (deleteConfirmCallback, deleteCancelCallback = () => {}) => {
         this.setState({deletePrompt: true, deleteCancelCallback, deleteConfirmCallback})
     }
 
+    /**
+     * Handle delete prompt cancel input. 
+     */
     deleteCancelCallback = () => {
         this.setState({deletePrompt: false});
         this.state.deleteCancelCallback();
     }
 
+    /**
+     * Handle delete prompt confirm input.
+     */
     deleteConfirmCallback = () => {
         this.setState({deletePrompt: false});
         this.state.deleteConfirmCallback();

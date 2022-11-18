@@ -26,7 +26,8 @@ export class Graph extends Component {
     }
 
     /**
-     * Update collision force on graph update. 
+     * Update collision force on graph update. Also re-fit graph through 
+     * zoom function on import if new STR has been imported / image is being downloaded.
      */
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.STRdata.length !== this.props.STRdata.length || prevProps.downloading) {

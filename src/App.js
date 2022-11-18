@@ -99,30 +99,41 @@ export class App extends Component {
      * to remove error message.
      * 
      * @param {*} errors error messages 
-     * @param {*} warn whether to just warn or actually err
+     * @param {*} warn whether to just warn or actually error, default is to error
      */
     setFormError = (errors, warn = false) => {
+        // if the error is just a string
         if (typeof errors === 'string') {
             if (errors === "") {
                 this.hideFormError(true);
             } else {
                 this.setState({formError: errors, formErrorHide: false})
             }
+        // if the error is an array of errors
         } else {
             const error = errors.map(msg => <div>{msg}<br /></div>)
             this.setState({formError: error, formErrorHide: false})
         }
 
+        // clear error if the error is only a warning
         if (warn) {
             setTimeout(() => this.setFormError(""), 3000)
         }
     }
 
+    /**
+     * Hide form error. Does not remove the error unless specified.  
+     * 
+     * @param {*} clear whether or not to remove / clear the error.
+     */
     hideFormError = (clear = false) => {
         this.setState({formErrorTrans: true});
         setTimeout(() => this.setState({formErrorHide: true, formErrorTrans: false, formError: clear ? "" : this.state.formError}), 400);
     }
 
+    /**
+     * Show form error.
+     */
     showFormError = () => {
         this.setState({formErrorHide: false})
     }
@@ -139,11 +150,19 @@ export class App extends Component {
             }}))
     }
 
+    /**
+     * Download graph in given file type. Utilizes Canvas.toBlob (built-in) for PNG
+     * and canvasToSvg (external library) for SVG. SVG is flawed, just a PNG in svg. 
+     * 
+     * @param {*} fileType file type of image to download 
+     */
     downloadGraph = (fileType) => {
         if (this.state.globals.data.nodes.length > 0) {
             const canvas = document.getElementsByClassName("force-graph-container")[0].firstChild;
     
+            // set downloading to true immediately to call force-graph zoom to fit
             this.setState({downloading: true}, () => {
+                // wait 1500ms before starting download process
                 setTimeout(() => {
                     switch (fileType) {
                         case 'png':
@@ -160,10 +179,14 @@ export class App extends Component {
                     }
                 }, 1500)
             })
+            // set download back to false to reset flag for next download
             setTimeout(() => this.setState({downloading: false}), 500);
         }
     }
 
+    /**
+     * Automatically draw graph from current nodes / links.
+     */
     autoDraw = () => {
         const nodes = this.state.globals.data.nodes;
         const links = this.state.globals.data.links;
@@ -405,6 +428,13 @@ export class App extends Component {
         }
     }
 
+    /**
+     * Delete STR entry. Removes from graph data as well. 
+     * Only removes nodes if it is no longer a target, source, or inducer node.
+     * Removes all STR entry links that still exist and were imported from given file.
+     *  
+     * @param {*} id id of STR entry
+     */
     deleteSTR = (id) => {
         const data = Object.assign({}, this.state.globals.data);
         const entryData = this.state.STRdata.find(entry => entry.id === id);
