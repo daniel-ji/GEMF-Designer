@@ -474,7 +474,7 @@ export class App extends Component {
                 <div className="graph-buttons">
                     <button className="btn btn-success auto-draw" onClick={this.autoDraw}>Auto-Draw</button>
                     <div className="dropdown">
-                        <button className="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button className="btn btn-primary dropdown-toggle download-graph" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Download Graph
                         </button>
                         <ul className="dropdown-menu">
