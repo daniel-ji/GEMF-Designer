@@ -131,7 +131,9 @@ export class AddEdgesEntry extends Component {
             this.setState({rateError: false});
         }
 
-        this.props.setFormError(errorMsg, true);
+        if (errorMsg.length > 0) {
+            this.props.setFormError(errorMsg, true);
+        }
         return valid;
     }
 
