@@ -12,6 +12,13 @@ export class Graph extends Component {
     constructor(props) {
         super(props)
 
+        this.state = {
+            snapMode: false,
+            snapModeDelayed: false,
+            shortcutMode: false,
+            graphFocused: false,
+        }
+
         this.ref = React.createRef();
     }
 
@@ -23,6 +30,37 @@ export class Graph extends Component {
         this.ref.current.d3Force('center', null)
         this.ref.current.d3Force('collide', forceCollide(this.props.globals.forceCollideRadius))
         this.ref.current.d3Force('link', null)
+
+        // Snap feature for graph
+        document.onkeydown = (e) => {
+            if (this.state.graphFocused && e.key === "Shift") {
+                this.setState({shortcutMode: true})
+            }
+
+            if (this.state.graphFocused && this.state.shortcutMode) {
+                if (e.key === "G") {
+                    if (!this.state.snapModeDelayed) {
+                        this.setState({snapMode: !this.state.snapMode, snapModeDelayed: true})
+                        setTimeout(() => this.setState({snapModeDelayed: false}), 100)
+                    }
+                }
+            }
+        }
+
+        document.onkeyup = (e) => {
+            if (this.state.graphFocused && e.key === "Shift") {
+                this.setState({shortcutMode: false})
+            }
+        }
+
+        document.onmousemove = (e) => {
+            console.log(e.target.nodeName);
+            if (e.target.nodeName === "CANVAS") {
+                this.setState({graphFocused: true})
+            } else {
+                this.setState({graphFocused: false})
+            }
+        }
     }
 
     /**
@@ -233,6 +271,7 @@ export class Graph extends Component {
      */
     drawNode = (node, ctx, globalScale) => {
         // draw circle
+        ctx.strokeStyle = "black";
         ctx.beginPath();
         ctx.arc(node.x, node.y, this.props.globals.NODE_RADIUS, 0, 2 * Math.PI);
         ctx.fillStyle = "white";
@@ -252,6 +291,35 @@ export class Graph extends Component {
         ctx.fillText(label, node.x, node.y);
     }
 
+    /**
+     * Draws canvas.
+     * @param {*} ctx canvas to draw on
+     * @param {*} scale scale of canvas (zoom)
+     */
+    drawCanvas = (ctx, scale) => {
+        if (this.state.snapMode) {
+            const size = 50;
+            const bh = Math.ceil(ctx.canvas.clientWidth / size) * size;
+            const bw = Math.ceil(ctx.canvas.clientHeight / size) * size
+            ctx.strokeStyle = "#b3b3b3";
+
+            for (let x = -bw; x <= bw; x += size) {
+                ctx.beginPath();
+                ctx.moveTo(x, -bh);
+                ctx.lineTo(x, bh);
+                ctx.stroke();
+            }
+        
+        
+            for (let x = -bh; x <= bh; x += size) {
+                ctx.beginPath();
+                ctx.moveTo(-bw, x);
+                ctx.lineTo(bw, x);
+                ctx.stroke();
+            }
+        }
+    }
+
     render() {
         return (
             <ForceGraph2D 
@@ -261,15 +329,24 @@ export class Graph extends Component {
             nodeVal={this.props.globals.NODE_RADIUS}
             nodeLabel=''
             nodeAutoColorBy='group'
+            nodeCanvasObject={this.drawNode}
+            onNodeDragEnd={(node, translate) => {
+                if (this.state.snapMode) {
+                    node.fx = Math.round(node.x / 50) * 50;
+                    node.fy = Math.round(node.y / 50) * 50;
+                    node.x = Math.round(node.x / 50) * 50;
+                    node.y = Math.round(node.y / 50) * 50;
+                }
+            }}
+            onNodeHover={(node) => {document.body.style.cursor = (node === null ? "pointer" : "grab")}}
+            linkCanvasObject={this.drawLinks}
             width={window.innerWidth >= CSS_BREAKPOINT ? window.innerWidth * WIDTH_RATIO : window.innerWidth}
             height={window.innerWidth >= CSS_BREAKPOINT ? window.innerHeight : window.innerHeight * WIDTH_RATIO}
             maxZoom={5}
             minZoom={1}
-            nodeCanvasObject={this.drawNode}
-            onNodeHover={(node) => {document.body.style.cursor = (node === null ? "pointer" : "grab")}}
-            linkCanvasObject={this.drawLinks}
+            onRenderFramePre={this.drawCanvas}
             onMouseOver={() => {document.body.style.cursor = "pointer"}}
-            onMouseLeave={() => {document.body.style.cursor = "default"}} />
+            onMouseLeave={() => {document.body.style.cursor = "default"}}/>
         )
     }
 }
