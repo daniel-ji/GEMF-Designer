@@ -2,7 +2,15 @@ bug testing
 code documentation
 magic numbers
 
+Shortcuts: Any suggestions (better than shift + g)
+
 session feature w/ indexeddb:  https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API (1)
-multiple graphs (2)
+    - Learn About IndexedDB and how to store data (JSON)
+    - Figure out JSON equivalent of graphs
+    - Figure out parsing the JSON
+multiple graphs (2) 
+    - Figure out where the multiple graph management should be displayed (Sidebar? Navbar? Along with Other Buttons?)
+    - Then just a matter of saving and rendering JSON
 rearrange entries (3)
+    - Create arrows to move up and down? Make it a keyboard shortcut as well? Difficulty of draggables? 
 
