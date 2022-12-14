@@ -20,7 +20,7 @@ export class Welcome extends Component {
                 <li>Adjust nodes and edges through graph or auto-format feature</li>
                 <li>Download finished STR file</li>
             </ul>
-            <h6>Graph Shortcuts (After creating nodes & while hovering over graph): </h6>
+            <h6>Graph Shortcuts (after creating nodes & while hovering over graph): </h6>
             <ul>
                 <li>Shift + G: Snap Mode with Gridlines.</li>
                 {/**<li>Shift + A: Auto-Draw.</li>

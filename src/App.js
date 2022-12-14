@@ -318,7 +318,8 @@ export class App extends Component {
                                 source: getNodeID(i, 0),
                                 target: getNodeID(i, 1),
                                 inducer: getNodeID(i, 2),
-                                rate: parseFloat(parsedSTR[i][3])
+                                rate: parseFloat(parsedSTR[i][3]), 
+                                color: '#000',
                             }
                             newLinks.push(linkObject);
                             links.push(linkObject);

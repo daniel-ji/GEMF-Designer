@@ -54,7 +54,6 @@ export class Graph extends Component {
         }
 
         document.onmousemove = (e) => {
-            console.log(e.target.nodeName);
             if (e.target.nodeName === "CANVAS") {
                 this.setState({graphFocused: true})
             } else {
@@ -138,7 +137,7 @@ export class Graph extends Component {
      * @param {*} x2 end x coordinate (the end that the arrow gets drawn on)
      * @param {*} y2 end y coordinate (the end that the arrow gets drawn on)
      */
-    drawArrow = (ctx, x1, y1, x2, y2) => {
+    drawArrow = (ctx, x1, y1, x2, y2, link) => {
         const adx = x2 - x1;           // arrow dx
         const ady = y2 - y1;           // arrow dy
         const dist = Math.sqrt(adx * adx + ady * ady);
@@ -154,7 +153,8 @@ export class Graph extends Component {
         ctx.lineTo(x2, y2);
         ctx.closePath();
         ctx.stroke();
-        ctx.fillStyle = "black";
+        console.log(link);
+        ctx.fillStyle = link.color;
         ctx.fill();
     };
 
@@ -196,11 +196,11 @@ export class Graph extends Component {
         if (repeats.length === 1) {
             ctx.beginPath();
             ctx.lineWidth = 1;
-            ctx.strokeStyle = "black";
+            ctx.strokeStyle = link.color;
             ctx.moveTo(scaledLink.sourceX, scaledLink.sourceY);
             ctx.lineTo(scaledLink.targetX, scaledLink.targetY);
             ctx.stroke();
-            this.drawArrow(ctx, scaledLink.sourceX, scaledLink.sourceY, scaledLink.sourceX + x99, scaledLink.sourceY + y99, .9);
+            this.drawArrow(ctx, scaledLink.sourceX, scaledLink.sourceY, scaledLink.sourceX + x99, scaledLink.sourceY + y99, link);
         // curved edge
         } else {
             // vertical height of edge based on distance and repeatedness of edge
@@ -223,7 +223,7 @@ export class Graph extends Component {
             ctx.beginPath();
             ctx.lineWidth = 1;
             // draw arc
-            ctx.strokeStyle = "black";
+            ctx.strokeStyle = link.color;
             ctx.arc(fitCircle.x, fitCircle.y, fitCircle.radius, ang1, ang2, fitCircle.CCW);
             ctx.stroke();
 
@@ -241,7 +241,7 @@ export class Graph extends Component {
             const arrdfy = arrdfx * prm
             const arrfx = arrdfx + scaledLink.targetX
             const arrfy = arrdfy + scaledLink.targetY
-            this.drawArrow(ctx, arrfx, arrfy, scaledLink.targetX, scaledLink.targetY, .9);
+            this.drawArrow(ctx, arrfx, arrfy, scaledLink.targetX, scaledLink.targetY, link);
         }
 
         // draw rate label circle
@@ -250,7 +250,7 @@ export class Graph extends Component {
         ctx.strokeStyle = link.inducer === undefined ? "green" : "red";
         ctx.arc(arcMx, arcMy, this.props.globals.NODE_RADIUS * 0.75, 0, 2 * Math.PI);
         ctx.stroke();
-        ctx.strokeStyle = "black";
+        ctx.strokeStyle = link.color;
         ctx.fillStyle = "white";
         ctx.fill();
         ctx.fillStyle = "black";
@@ -271,7 +271,7 @@ export class Graph extends Component {
      */
     drawNode = (node, ctx, globalScale) => {
         // draw circle
-        ctx.strokeStyle = "black";
+        ctx.strokeStyle = node.color;
         ctx.beginPath();
         ctx.arc(node.x, node.y, this.props.globals.NODE_RADIUS, 0, 2 * Math.PI);
         ctx.fillStyle = "white";
@@ -326,6 +326,7 @@ export class Graph extends Component {
             ref={this.ref}
             id="graph" 
             graphData={this.props.globals.data}
+            nodeColor='#000'
             nodeVal={this.props.globals.NODE_RADIUS}
             nodeLabel=''
             nodeAutoColorBy='group'

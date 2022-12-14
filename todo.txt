@@ -2,8 +2,7 @@ bug testing
 code documentation
 magic numbers
 
-session feature w/ indexeddb:  https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API (2)
-snap feature (0-30-45-60-90) (1)
-multiple graphs (3)
-rearrange entries (4)
+session feature w/ indexeddb:  https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API (1)
+multiple graphs (2)
+rearrange entries (3)
 

@@ -24,6 +24,7 @@ export class AddEdgesEntry extends Component {
             sourceError: false,
             targetError: false,
             rateError: false,
+            color: this.props.link.color,
             // for transition
             entryHeight: 0,
             // to not display card on mount
@@ -67,6 +68,16 @@ export class AddEdgesEntry extends Component {
         const parsedValue =  parseInt(e.target.value);
         this.setState({inducerID: parsedValue})
         this.props.setLink({inducer: parsedValue}, this.props.link.id);
+    }
+
+    /**
+     * Setter for link color entry.
+     * 
+     * @param {*} e event
+     */
+    setColor = (e) => {
+        this.setState({color: e.target.value});
+        this.props.setLink({color: e.target.value}, this.props.link.id);
     }
 
     /**
@@ -283,7 +294,7 @@ export class AddEdgesEntry extends Component {
                         className="form-select mb-2"
                         aria-label="Inducer Node"
                         id="inducerNode"
-                        style={{width: "25%"}}
+                        style={{width: "30%"}}
                         value={this.state.inducerID}
                         onChange={this.setInducerID}
                         disabled={!this.state.edit}>
@@ -302,8 +313,20 @@ export class AddEdgesEntry extends Component {
                         disabled={!this.state.edit}
                         readOnly={!this.state.edit}
                         onChange={(e) => this.setRate(e)}
-                        style={{width: "20%"}}
+                        style={{width: "30%"}}
                         value={this.state.rate}/>
+                        
+                        <p className="mb-1">Color: </p>
+                        <input
+                        type="color" 
+                        className="form-control form-control-color mb-2 edge-color-edit"
+                        id={"button-color-" + this.state.count}
+                        disabled={!this.state.edit}
+                        readOnly={!this.state.edit}
+                        value={this.state.color}
+                        onChange={this.setColor}
+                        style={{width: "15%"}}
+                        title="Choose node color" />                        
                     </div>
                 </div>
             </div>

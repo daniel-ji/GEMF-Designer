@@ -13,6 +13,7 @@ export class AddNodesInput extends Component {
         deleted: false,
         inputCreated: this.props.inputValue === undefined ? false : true,
         inputValue: this.props.inputValue ?? '',
+        color: this.props.color ?? "#000",
         count: this.props.inputCounter,
       }
     }
@@ -22,7 +23,7 @@ export class AddNodesInput extends Component {
      * existing input. 
      * @param {*} e event
      */
-    updateInput = (e) => {
+    setInput = (e) => {
         this.setState({inputValue: e.target.value})
         const data = Object.assign({}, this.props.globals.data);
         if (!this.state.inputCreated) {
@@ -32,7 +33,8 @@ export class AddNodesInput extends Component {
                 id: this.state.count,
                 name: e.target.value,
                 x: 0,
-                y: 0
+                y: 0,
+                color: this.state.color
             })
             // temporarily sets the collision force to the whole node radius so that nodes do not intersect on creation
             this.props.setForceCollideRadius(this.props.globals.NODE_RADIUS * 1.2);
@@ -42,7 +44,7 @@ export class AddNodesInput extends Component {
             this.props.createNewInput();
         // if the node already exists
         } else {
-            let node = data.nodes.find(x => x.id === this.state.count);
+            const node = data.nodes.find(x => x.id === this.state.count);
             // remove any error border
             e.target.classList.remove("border");
             e.target.classList.remove("border-danger");
@@ -50,6 +52,18 @@ export class AddNodesInput extends Component {
             node.name = e.target.value;
             this.props.setGraphData(data);
         }
+    }
+
+    /**
+     * Updates color of node based on color picker.
+     * @param {*} e 
+     */
+    setColor = (e) => {
+        this.setState({color: e.target.value});
+        const data = Object.assign({}, this.props.globals.data);
+        const node = data.nodes.find(x => x.id === this.state.count);
+        node.color = e.target.value;
+        this.props.setGraphData(data);
     }
 
     /**
@@ -80,8 +94,23 @@ export class AddNodesInput extends Component {
             <Fragment>
                 {this.state.deleted ? <div></div> : 
                 <div className="input-group mb-3 w-100">
-                    <input id={'s-1-input-' + this.state.count} className='form-control' type="text" placeholder='State Name' aria-label='State Name' value={this.state.inputValue} onChange={this.updateInput}></input>
-                    <button id={"button-addon-" + this.state.count} className="btn btn-danger" type="button" onClick={this.deleteInputPrompt}>
+                    <input
+                    type="color" 
+                    className="form-control form-control-color node-color-edit"
+                    id={"button-color-" + this.state.count}
+                    value={this.state.color}
+                    onChange={this.setColor}
+                    title="Choose node color" />
+
+                    <input
+                    id={'s-1-input-' + this.state.count}
+                    className='form-control'
+                    type="text"
+                    placeholder='State Name'
+                    aria-label='State Name'
+                    value={this.state.inputValue}
+                    onChange={this.setInput} />
+                    <button id={"button-trash-" + this.state.count} className="btn btn-danger" type="button" onClick={this.deleteInputPrompt}>
                         <i className="bi bi-trash" />
                     </button>
                 </div>}
