@@ -13,7 +13,7 @@ export class AddNodesInput extends Component {
         deleted: false,
         inputCreated: this.props.inputValue === undefined ? false : true,
         inputValue: this.props.inputValue ?? '',
-        color: this.props.color ?? "#000",
+        color: this.props.globals.data.nodes.find(node => node.id === this.props.inputCounter)?.color ?? '#000000',
         count: this.props.inputCounter,
       }
     }
@@ -90,6 +90,9 @@ export class AddNodesInput extends Component {
     }
 
     render() {
+        console.log(this.props.globals.data.nodes);
+        console.log();
+
         return (
             <Fragment>
                 {this.state.deleted ? <div></div> : 

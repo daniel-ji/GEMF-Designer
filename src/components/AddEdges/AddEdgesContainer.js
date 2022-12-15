@@ -75,7 +75,7 @@ export class AddEdgesContainer extends Component {
                 target: targetID,
                 inducer: inducerID === -1 ? undefined : inducerID,
                 rate: rateInput.value,
-                color: '#000',
+                color: '#000000',
             }
             newLink.shortName = LINK_SHORT_NAME(newLink, data);
             data.links.push(newLink)

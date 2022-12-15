@@ -15,16 +15,17 @@ export class AddEdgesEntry extends Component {
             oldTargetID: undefined,
             oldInducerID: undefined,
             oldRate: undefined,
+            oldColor: undefined,
             sourceID: this.props.link.source.id ?? this.props.link.source,
             targetID: this.props.link.target.id ?? this.props.link.target,
             inducerID: this.props.link.inducer === undefined ? -1 : 
                 (this.props.link.inducer.id ?? this.props.link.inducer),
             rate: this.props.link.rate,
+            color: this.props.link.color,
             linkError: false,
             sourceError: false,
             targetError: false,
             rateError: false,
-            color: this.props.link.color,
             // for transition
             entryHeight: 0,
             // to not display card on mount
@@ -35,6 +36,7 @@ export class AddEdgesEntry extends Component {
         this.state.oldTargetID = this.state.targetID;
         this.state.oldInducerID = this.state.inducerID;
         this.state.oldRate = this.state.rate;
+        this.state.oldColor = this.state.color;
     }
 
     /**
@@ -173,12 +175,14 @@ export class AddEdgesEntry extends Component {
                     target: this.state.oldTargetID,
                     inducer: this.state.oldInducerID,
                     rate: this.state.oldRate,
+                    color: this.state.oldColor
                 }, this.props.link.id);
                 this.setState({
                     sourceID: this.state.oldSourceID, 
                     targetID: this.state.oldTargetID, 
                     inducerID: this.state.oldInducerID,
                     rate: this.state.oldRate,
+                    color: this.state.oldColor,
                     sourceError: false,
                     targetError: false,
                     rateError: false,
@@ -201,6 +205,7 @@ export class AddEdgesEntry extends Component {
                 oldTargetID: this.state.targetID, 
                 oldInducerID: this.state.inducerID,
                 oldRate: this.state.rate,
+                oldColor: this.state.color
             })
         }
     }

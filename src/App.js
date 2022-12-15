@@ -27,6 +27,7 @@ export class App extends Component {
                 NODE_RADIUS: NODE_RADIUS,
                 ARROW_SIZE: ARROW_SIZE,
                 data: {
+                    id: Math.floor(Math.random() * 1000000000),
                     nodes: [],
                     links: [],
                     linkCounter: {},
@@ -51,6 +52,44 @@ export class App extends Component {
         }
 
         this.state.globals.forceCollideRadius = NODE_COLLIDE_RADIUS
+    }
+
+    componentDidMount() {
+        const openRequest = indexedDB.open('data');
+
+        openRequest.onupgradeneeded = () => {
+            const db = openRequest.result;
+
+            if (!db.objectStoreNames.contains('graphs')) {
+                db.createObjectStore('graphs', {keyPath: 'id'});
+            }
+        }
+
+        openRequest.onsuccess = () => {
+            const db = openRequest.result;
+
+            db.onversionchange = () => {
+                db.close();
+            }
+
+            db.transaction('graphs')
+            .objectStore('graphs')
+            .getAll().onsuccess = (e) => {
+                if (e.target.result.length !== 0) {
+                    this.setGraphData(e.target.result[0]);
+                }
+            }
+
+            setInterval(() => {
+                db.transaction('graphs', 'readwrite')
+                .objectStore('graphs')
+                .put(this.state.globals.data)
+            }, 2000)
+        }
+
+        openRequest.onerror = () => {
+            console.error(openRequest.error);
+        }
     }
 
     /**
@@ -271,7 +310,7 @@ export class App extends Component {
                     for (let j = 0; j < parsedSTR[i].length; j++) {
                         const foundNode = nodes.map(node => node.name).indexOf(parsedSTR[i][j]) !== -1;
                         // source and target node
-                        const nodeObject = {id: nodeID, name: parsedSTR[i][j]}
+                        const nodeObject = {id: nodeID, name: parsedSTR[i][j], color: '#000000'}
                         if (j <= 1 && !foundNode) {
                             newNodes.push(nodeObject);
                             nodes.push(nodeObject);
@@ -319,7 +358,7 @@ export class App extends Component {
                                 target: getNodeID(i, 1),
                                 inducer: getNodeID(i, 2),
                                 rate: parseFloat(parsedSTR[i][3]), 
-                                color: '#000',
+                                color: '#000000',
                             }
                             newLinks.push(linkObject);
                             links.push(linkObject);

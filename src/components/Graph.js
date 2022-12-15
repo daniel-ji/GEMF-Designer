@@ -33,7 +33,7 @@ export class Graph extends Component {
 
         // Snap feature for graph
         document.onkeydown = (e) => {
-            if (this.state.graphFocused && e.key === "Shift") {
+            if (e.key === "Shift") {
                 this.setState({shortcutMode: true})
             }
 
@@ -43,6 +43,11 @@ export class Graph extends Component {
                         this.setState({snapMode: !this.state.snapMode, snapModeDelayed: true})
                         setTimeout(() => this.setState({snapModeDelayed: false}), 100)
                     }
+                }
+            }
+
+            if (this.state.shortcutMode) {
+                if (e.key === "S") {
                 }
             }
         }
@@ -153,7 +158,6 @@ export class Graph extends Component {
         ctx.lineTo(x2, y2);
         ctx.closePath();
         ctx.stroke();
-        console.log(link);
         ctx.fillStyle = link.color;
         ctx.fill();
     };
@@ -326,7 +330,6 @@ export class Graph extends Component {
             ref={this.ref}
             id="graph" 
             graphData={this.props.globals.data}
-            nodeColor='#000'
             nodeVal={this.props.globals.NODE_RADIUS}
             nodeLabel=''
             nodeAutoColorBy='group'
