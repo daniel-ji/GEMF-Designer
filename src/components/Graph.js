@@ -37,6 +37,7 @@ export class Graph extends Component {
                 this.setState({shortcutMode: true})
             }
 
+            // toggling snap mode with delay
             if (this.state.graphFocused && this.state.shortcutMode) {
                 if (e.key === "G") {
                     if (!this.state.snapModeDelayed) {
@@ -45,19 +46,16 @@ export class Graph extends Component {
                     }
                 }
             }
-
-            if (this.state.shortcutMode) {
-                if (e.key === "S") {
-                }
-            }
         }
 
+        // turning off shortcut mode 
         document.onkeyup = (e) => {
             if (this.state.graphFocused && e.key === "Shift") {
                 this.setState({shortcutMode: false})
             }
         }
 
+        // detecting if graph is focused
         document.onmousemove = (e) => {
             if (e.target.nodeName === "CANVAS") {
                 this.setState({graphFocused: true})
@@ -314,7 +312,6 @@ export class Graph extends Component {
                 ctx.stroke();
             }
         
-        
             for (let x = -bh; x <= bh; x += size) {
                 ctx.beginPath();
                 ctx.moveTo(-bw, x);
@@ -334,6 +331,7 @@ export class Graph extends Component {
             nodeLabel=''
             nodeAutoColorBy='group'
             nodeCanvasObject={this.drawNode}
+            // snap mode feature
             onNodeDragEnd={(node, translate) => {
                 if (this.state.snapMode) {
                     node.fx = Math.round(node.x / 50) * 50;

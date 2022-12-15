@@ -55,8 +55,10 @@ export class App extends Component {
     }
 
     componentDidMount() {
+        // IndexedDB for Graph Loading / Saving
         const openRequest = indexedDB.open('data');
 
+        // for when object store is updated, in this case initializing graphs object store if not created
         openRequest.onupgradeneeded = () => {
             const db = openRequest.result;
 
@@ -72,21 +74,33 @@ export class App extends Component {
                 db.close();
             }
 
+            // load in graph data from object store
             db.transaction('graphs')
             .objectStore('graphs')
             .getAll().onsuccess = (e) => {
                 if (e.target.result.length !== 0) {
                     this.setGraphData(e.target.result[0]);
+                    this.indicatorFadeOut();
                 }
             }
-
+            
+            // set interval to update graph data every two seconds
             setInterval(() => {
                 db.transaction('graphs', 'readwrite')
                 .objectStore('graphs')
                 .put(this.state.globals.data)
             }, 2000)
+            
+            // save before close
+            onbeforeunload = (e) => {
+                e.preventDefault();
+                db.transaction('graphs', 'readwrite')
+                .objectStore('graphs')
+                .put(this.state.globals.data)
+            }
         }
 
+        // on indexeddb load error
         openRequest.onerror = () => {
             console.error(openRequest.error);
         }
