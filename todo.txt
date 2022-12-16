@@ -1,4 +1,6 @@
-bug testing
+bug testing!!! (especially indexeddb, modal, loading in graphs, graph saving, graph deletion)
+
+
 code documentation
 magic numbers
 
