@@ -6,14 +6,14 @@ import React, { Component } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
 import {forceCollide} from 'd3-force';
 
-import { CSS_BREAKPOINT, GRAPHVIZ_PARSE_DELAY, NODE_FONT_SIZE, NODE_TEXT_OVERFLOW, RATE_FONT_SIZE, RATE_TEXT_OVERFLOW, WIDTH_RATIO } from '../Constants';
+import { CSS_BREAKPOINT, GRAPHVIZ_PARSE_DELAY, NODE_FONT_SIZE, NODE_TEXT_OVERFLOW, RATE_FONT_SIZE, RATE_TEXT_OVERFLOW, WIDTH_RATIO, GRID_GAP } from '../Constants';
 
 export class Graph extends Component {
     constructor(props) {
         super(props)
 
         this.state = {
-            snapMode: false,
+            snapMode: true,
             snapModeDelayed: false,
             shortcutMode: false,
             graphFocused: false,
@@ -30,6 +30,9 @@ export class Graph extends Component {
         this.ref.current.d3Force('center', null)
         this.ref.current.d3Force('collide', forceCollide(this.props.globals.forceCollideRadius))
         this.ref.current.d3Force('link', null)
+        setTimeout(() => {
+            this.ref.current.zoomToFit(0, 150);
+        }, 500)
 
         // Snap feature for graph
         document.onkeydown = (e) => {
@@ -300,19 +303,18 @@ export class Graph extends Component {
      */
     drawCanvas = (ctx, scale) => {
         if (this.state.snapMode) {
-            const size = 50;
-            const bh = Math.ceil(ctx.canvas.clientWidth / size) * size;
-            const bw = Math.ceil(ctx.canvas.clientHeight / size) * size
+            const bh = Math.ceil(ctx.canvas.clientWidth / GRID_GAP) * GRID_GAP;
+            const bw = Math.ceil(ctx.canvas.clientHeight / GRID_GAP) * GRID_GAP
             ctx.strokeStyle = "#b3b3b3";
 
-            for (let x = -bw; x <= bw; x += size) {
+            for (let x = -bw; x <= bw; x += GRID_GAP) {
                 ctx.beginPath();
                 ctx.moveTo(x, -bh);
                 ctx.lineTo(x, bh);
                 ctx.stroke();
             }
         
-            for (let x = -bh; x <= bh; x += size) {
+            for (let x = -bh; x <= bh; x += GRID_GAP) {
                 ctx.beginPath();
                 ctx.moveTo(-bw, x);
                 ctx.lineTo(bw, x);
@@ -334,10 +336,10 @@ export class Graph extends Component {
             // snap mode feature
             onNodeDragEnd={(node, translate) => {
                 if (this.state.snapMode) {
-                    node.fx = Math.round(node.x / 50) * 50;
-                    node.fy = Math.round(node.y / 50) * 50;
-                    node.x = Math.round(node.x / 50) * 50;
-                    node.y = Math.round(node.y / 50) * 50;
+                    node.fx = Math.round(node.x / GRID_GAP) * GRID_GAP;
+                    node.fy = Math.round(node.y / GRID_GAP) * GRID_GAP;
+                    node.x = Math.round(node.x / GRID_GAP) * GRID_GAP;
+                    node.y = Math.round(node.y / GRID_GAP) * GRID_GAP;
                 }
             }}
             onNodeHover={(node) => {document.body.style.cursor = (node === null ? "pointer" : "grab")}}

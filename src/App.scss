@@ -79,7 +79,7 @@ body {
         margin: 2vw;
         z-index: 2;
 
-        .auto-draw, .download-graph {
+        .btn, .download-graph {
             margin-bottom: 2vh;
         }
     }
@@ -253,8 +253,12 @@ body {
             right: 40vw;
             flex-direction: row;
 
-            .auto-draw {
+            .btn {
                 margin-right: 1rem;
+            }
+
+            .dropdown-menu {
+                min-width: 0;
             }
         }
 

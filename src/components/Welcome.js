@@ -22,7 +22,7 @@ export class Welcome extends Component {
             </ul>
             <h6>Graph Shortcuts (after creating nodes & while hovering over graph): </h6>
             <ul>
-                <li>Shift + G: Snap Mode with Gridlines.</li>
+                <li>Shift + G: Toggle Snap Mode with Gridlines.</li>
                 {/**<li>Shift + A: Auto-Draw.</li>
                 <li>Shift + S: Download Graph as SVG.</li>
                 <li>Shift + P: Download Graph as PNG.</li>**/}

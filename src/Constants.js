@@ -11,6 +11,8 @@ export const NODE_COLLIDE_RADIUS = 0;
 export const NODE_RADIUS = 12;
 // arrow size of links
 export const ARROW_SIZE = 4;
+// gap between gridlines
+export const GRID_GAP = 40;
 // default font size of node text label
 export const NODE_FONT_SIZE = 6;
 // length for which node text overflows

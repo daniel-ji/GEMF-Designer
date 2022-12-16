@@ -1,14 +1,14 @@
 import React, {Component} from 'react';
 import Graphviz from 'graphviz-react';
 
-import GraphComponent from './components/Graph';
-import Form from './components/Form';
-
-import './App.scss';    
-import githubIcon from './images/githubicon.png';
-
 import canvasToSvg from "canvas-to-svg";
 import { saveAs } from 'file-saver';
+
+import Form from './components/Form';
+import GraphOverlay from './components/GraphOverlay';
+import SiteModal from './components/SiteModal';
+
+import './App.scss';    
 
 import {
     WIDTH_RATIO, NODE_COLLIDE_RADIUS, NODE_RADIUS, ARROW_SIZE, FORM_STEPS,
@@ -49,6 +49,13 @@ export class App extends Component {
             formErrorHide: false,
             // flag for downloading graph
             downloading: false,
+            // database for indexeddb
+            db: undefined,
+            // site modal
+            modalAction: () => {},
+            modalActionText: '',
+            modalTitle: '',
+            modalButtonType: '',
         }
 
         this.state.globals.forceCollideRadius = NODE_COLLIDE_RADIUS
@@ -69,34 +76,40 @@ export class App extends Component {
 
         openRequest.onsuccess = () => {
             const db = openRequest.result;
+            this.setState({db})
 
             db.onversionchange = () => {
                 db.close();
             }
 
             // load in graph data from object store
+            let nonEmptyGraphFound = false;
             db.transaction('graphs')
             .objectStore('graphs')
             .getAll().onsuccess = (e) => {
-                if (e.target.result.length !== 0) {
-                    this.setGraphData(e.target.result[0]);
-                    this.indicatorFadeOut();
+                for (const graph of e.target.result) {
+                    if (graph.nodes.length === 0) {
+                        db.transaction('graphs', 'readwrite').objectStore('graphs')
+                        .delete(graph.id);
+                    } else if (!nonEmptyGraphFound) {
+                        nonEmptyGraphFound = true;
+                        this.setState({modalTitle: 'Load in Saved Graph?', modalActionText: 'Load in', modalButtonType: 'success',
+                        modalAction: () => {
+                            this.setGraphData(graph);
+                            this.indicatorFadeOut();
+                        }})
+                        document.getElementById('showModalButton').click();
+                    }
                 }
             }
             
             // set interval to update graph data every two seconds
-            setInterval(() => {
-                db.transaction('graphs', 'readwrite')
-                .objectStore('graphs')
-                .put(this.state.globals.data)
-            }, 2000)
+            setInterval(this.saveGraph, 2000)
             
             // save before close
             onbeforeunload = (e) => {
                 e.preventDefault();
-                db.transaction('graphs', 'readwrite')
-                .objectStore('graphs')
-                .put(this.state.globals.data)
+                this.saveGraph()
             }
         }
 
@@ -145,6 +158,20 @@ export class App extends Component {
             ...prevState.globals,
             data
         }}), callback)
+    }
+
+    saveGraph = () => {
+        const data = this.state.globals.data;
+        if (this.state.db !== undefined) {
+            this.state.db.transaction('graphs').objectStore('graphs').get(data.id).onsuccess = (e) => {
+                console.log(e);
+                if (data.nodes.length > 0 || e.target.result !== undefined) {
+                    this.state.db.transaction('graphs', 'readwrite')
+                    .objectStore('graphs')
+                    .put(data)
+                }
+            }
+        }
     }
 
     /**
@@ -235,6 +262,32 @@ export class App extends Component {
             // set download back to false to reset flag for next download
             setTimeout(() => this.setState({downloading: false}), 500);
         }
+    }
+
+    /**
+     * Shows prompt to delete current graph.
+     */
+    deleteGraphPrompt = () => {
+        this.setState({modalTitle: 'Delete Current Graph Data?', modalAction: this.deleteGraph, modalActionText: 'Delete', modalButtonType: 'danger'})
+    }
+
+    /**
+     * Deletes current graph data. 
+     */
+    deleteGraph = () => {
+        // update indexeddb
+        this.state.db.transaction('graphs', 'readwrite')
+        .objectStore('graphs')
+        .delete(this.state.globals.data.id)
+        // clear data in react state
+        const data = Object.assign({}, this.state.globals.data);
+        data.id = Math.floor(Math.random() * 1000000000);
+        data.nodes = [];
+        data.links = [];
+        data.linkCounter = {};
+        // update graph data
+        this.setGraphData(data);
+        this.incrementStep(-10);
     }
 
     /**
@@ -517,31 +570,13 @@ export class App extends Component {
                 <p className="noselect">Click and Drag Graph to Interact</p>
             </div>
             {this.state.strGraphviz}
-            <div id="graph-cover">
-                <div className="graph-tl">
-                    <h1 className="noselect">Graph View </h1>
-                    <p className="noselect">
-                        <span style={{color: "green"}}>Green</span> Transitions: Node-based<br/>
-                        <span style={{color: "red"}}>Red</span> Transitions: Edge-based <br/>
-                    </p>
-                </div>
-                <div className="graph-buttons">
-                    <button className="btn btn-success auto-draw" onClick={this.autoDraw}>Auto-Draw</button>
-                    <div className="dropdown">
-                        <button className="btn btn-primary dropdown-toggle download-graph" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Download Graph
-                        </button>
-                        <ul className="dropdown-menu">
-                            <li><button className="dropdown-item" onClick={() => this.downloadGraph('svg')}>SVG</button></li>
-                            <li><button className="dropdown-item" onClick={() => this.downloadGraph('png')}>PNG</button></li>
-                        </ul>
-                    </div>
-                </div>
-                <a className="github-button" href="https://github.com/daniel-ji/GEMF-Designer" target="_blank" rel="noreferrer" aria-label="github repo link">
-                    <button className="btn btn-outline-dark p-0" aria-label="github repo button"><img src={githubIcon} alt="" /></button>
-                </a>
-                <GraphComponent globals={this.state.globals} STRdata={this.state.STRdata} downloading={this.state.downloading}/> 
-            </div>
+            <GraphOverlay 
+            globals={this.state.globals}
+            autoDraw={this.autoDraw}
+            STRdata={this.state.STRdata}
+            downloadGraph={this.downloadGraph}
+            downloading={this.state.downloading}
+            deleteGraphPrompt={this.deleteGraphPrompt}/>
             <Form
             globals={this.state.globals} 
             incrementStep={this.incrementStep}
@@ -556,7 +591,19 @@ export class App extends Component {
             setFormError={this.setFormError}
             processSTR={this.processSTR}
             deleteSTR={this.deleteSTR}
-            STRdata={this.state.STRdata}/>
+            STRdata={this.state.STRdata} />
+            <SiteModal 
+            deleteGraph={this.deleteGraph}
+            modalTitle={this.state.modalTitle}
+            modalActionText={this.state.modalActionText}
+            modalAction={this.state.modalAction}
+            modalButtonType={this.state.modalButtonType}/>
+            <button type="button"
+            id="showModalButton"
+            className="btn .d-none"
+            data-bs-toggle="modal"
+            data-bs-target="#siteModal"
+            />
         </div>
         );
     }

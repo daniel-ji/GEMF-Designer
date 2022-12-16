@@ -90,9 +90,6 @@ export class AddNodesInput extends Component {
     }
 
     render() {
-        console.log(this.props.globals.data.nodes);
-        console.log();
-
         return (
             <Fragment>
                 {this.state.deleted ? <div></div> : 
