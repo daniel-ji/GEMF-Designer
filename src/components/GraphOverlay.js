@@ -26,6 +26,7 @@ export class GraphOverlay extends Component {
                         </ul>
                     </div>
                     <button type="button"
+                    id="deleteGraphBtn"
                     className="btn btn-danger"
                     data-bs-toggle="modal"
                     data-bs-target="#siteModal"

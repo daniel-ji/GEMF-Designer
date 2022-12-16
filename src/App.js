@@ -98,7 +98,7 @@ export class App extends Component {
                             this.setGraphData(graph);
                             this.indicatorFadeOut();
                         }})
-                        document.getElementById('showModalButton').click();
+                        document.getElementById('showModalBtn').click();
                     }
                 }
             }
@@ -599,7 +599,7 @@ export class App extends Component {
             modalAction={this.state.modalAction}
             modalButtonType={this.state.modalButtonType}/>
             <button type="button"
-            id="showModalButton"
+            id="showModalBtn"
             className="btn .d-none"
             data-bs-toggle="modal"
             data-bs-target="#siteModal"

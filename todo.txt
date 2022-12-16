@@ -12,3 +12,10 @@ multiple graphs (1)
 rearrange entries (2)
     - Create arrows to move up and down? Make it a keyboard shortcut as well? Difficulty of draggables? 
 
+auto draw snaps to grids
+on cancel, delete graph? 
+
+drag and drop to create edges?
+edge curves?
+    - if line over line
+        - move node

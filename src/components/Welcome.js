@@ -9,6 +9,7 @@ export class Welcome extends Component {
         <div id="welcome-container" className="form-step">
             <h6>State Transition Rates (STR) File Generation Process:</h6>
             <ul>
+                <li>Select / Create Graph</li>
                 <li>Import existing STR (optional)
                     <ul>
                         <li>Only imports new nodes</li>
