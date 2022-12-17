@@ -350,7 +350,8 @@ export class Graph extends Component {
             minZoom={1}
             onRenderFramePre={this.drawCanvas}
             onMouseOver={() => {document.body.style.cursor = "pointer"}}
-            onMouseLeave={() => {document.body.style.cursor = "default"}}/>
+            onMouseLeave={() => {document.body.style.cursor = "default"}}
+            />
         )
     }
 }

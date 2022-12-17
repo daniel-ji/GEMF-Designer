@@ -51,6 +51,7 @@ export class App extends Component {
             downloading: false,
             // database for indexeddb
             db: undefined,
+            savedGraphs: undefined,
             // site modal
             modalAction: () => {},
             modalActionText: '',
@@ -83,22 +84,14 @@ export class App extends Component {
             }
 
             // load in graph data from object store
-            let nonEmptyGraphFound = false;
             db.transaction('graphs')
             .objectStore('graphs')
             .getAll().onsuccess = (e) => {
+                this.setState({savedGraphs: e.target.result});
                 for (const graph of e.target.result) {
                     if (graph.nodes.length === 0) {
                         db.transaction('graphs', 'readwrite').objectStore('graphs')
                         .delete(graph.id);
-                    } else if (!nonEmptyGraphFound) {
-                        nonEmptyGraphFound = true;
-                        this.setState({modalTitle: 'Load in Saved Graph?', modalActionText: 'Load in', modalButtonType: 'success',
-                        modalAction: () => {
-                            this.setGraphData(graph);
-                            this.indicatorFadeOut();
-                        }})
-                        document.getElementById('showModalBtn').click();
                     }
                 }
             }
@@ -576,7 +569,8 @@ export class App extends Component {
             STRdata={this.state.STRdata}
             downloadGraph={this.downloadGraph}
             downloading={this.state.downloading}
-            deleteGraphPrompt={this.deleteGraphPrompt}/>
+            deleteGraphPrompt={this.deleteGraphPrompt}
+            />
             <Form
             globals={this.state.globals} 
             incrementStep={this.incrementStep}
@@ -591,13 +585,17 @@ export class App extends Component {
             setFormError={this.setFormError}
             processSTR={this.processSTR}
             deleteSTR={this.deleteSTR}
-            STRdata={this.state.STRdata} />
+            deleteGraph={this.deleteGraph}
+            STRdata={this.state.STRdata}
+            savedGraphs={this.state.savedGraphs}
+            />
             <SiteModal 
             deleteGraph={this.deleteGraph}
             modalTitle={this.state.modalTitle}
             modalActionText={this.state.modalActionText}
             modalAction={this.state.modalAction}
-            modalButtonType={this.state.modalButtonType}/>
+            modalButtonType={this.state.modalButtonType}
+            />
             <button type="button"
             id="showModalBtn"
             className="btn .d-none"

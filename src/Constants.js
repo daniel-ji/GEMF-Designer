@@ -12,7 +12,7 @@ export const NODE_RADIUS = 12;
 // arrow size of links
 export const ARROW_SIZE = 4;
 // gap between gridlines
-export const GRID_GAP = 40;
+export const GRID_GAP = 30;
 // default font size of node text label
 export const NODE_FONT_SIZE = 6;
 // length for which node text overflows
@@ -22,7 +22,7 @@ export const RATE_FONT_SIZE = 5;
 // length for which rate text overflows
 export const RATE_TEXT_OVERFLOW = 6; 
 // number of form steps, including welcome
-export const FORM_STEPS = 5;
+export const FORM_STEPS = 6;
 // time to delay graphiz parse procedure, ms
 export const GRAPHVIZ_PARSE_DELAY = 500;
 // interval to retry graphviz parse procedure, ms

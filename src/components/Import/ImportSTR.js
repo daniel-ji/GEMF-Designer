@@ -27,7 +27,8 @@ export class ImportSTR extends Component {
                         links={entry.links}
                         name={entry.name}
                         deleteSTR={this.props.deleteSTR}
-                        deletePrompt={this.props.deletePrompt}/>
+                        deletePrompt={this.props.deletePrompt}
+                        />
                     )}
                 </div>
             </div>

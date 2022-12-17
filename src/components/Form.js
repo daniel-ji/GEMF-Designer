@@ -5,6 +5,7 @@ import React, { Component } from 'react'
 
 import AddNodesContainer from './AddNodes/AddNodesContainer';
 import AddEdgesContainer from './AddEdges/AddEdgesContainer';
+import GraphEntryContainer from './AddGraphs/GraphEntryContainer';
 import Welcome from './Welcome';
 import ImportSTR from './Import/ImportSTR';
 import FinalData from './FinalData';
@@ -26,11 +27,11 @@ export class Form extends Component {
      */
     handleBack = () => {
         switch (this.props.globals.step) {
-            case 2: 
+            case 3: 
                 this.props.incrementStep(-1, true);
                 this.props.setFormError("");
                 break;
-            case 3: 
+            case 4: 
                 // prevent user from leaving half-finished links
                 if (document.getElementsByClassName("finish-edit-btn").length > 0) {
                     this.props.setFormError("Please finish or cancel all link edits first.");
@@ -53,13 +54,13 @@ export class Form extends Component {
             case 0: 
                 this.welcomePageNext();
                 break;
-            case 1: 
+            case 2: 
                 this.importSTRNext();
                 break;
-            case 2: 
+            case 3: 
                 this.addNodesNext();
                 break;
-            case 3: 
+            case 4: 
                 this.addEdgesNext();
                 break;
             default: 
@@ -169,6 +170,7 @@ export class Form extends Component {
                 {/** Switch for titles */}
                 <h1 id="formTitle">{[
                     'GEMF Designer',
+                    'Select Graph',
                     'Import STR Files (Optional)',
                     'Add States (Nodes)',
                     'Add Transitions (Edges)',
@@ -177,6 +179,11 @@ export class Form extends Component {
                 {/** Switch for components */}
                 {[
                     <Welcome />,
+                    <GraphEntryContainer 
+                    savedGraphs={this.props.savedGraphs}
+                    deleteGraph={this.props.deleteGraph}
+                    deletePrompt={this.deletePrompt}
+                    />,
                     <ImportSTR
                     processSTR={this.props.processSTR}
                     STRdata={this.props.STRdata}
