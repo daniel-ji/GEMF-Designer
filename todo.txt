@@ -6,20 +6,6 @@ magic numbers
 
 Shortcuts: Any suggestions (better than shift + g)
 
-multiple graphs (1) 
-    - Figure out where the multiple graph management should be displayed (Sidebar? Navbar? Along with Other Buttons?)
-    - Then just a matter of saving and rendering JSON
-    create: 
-        - have input somewhere for name
-        - don't really need to do much
-    read: 
-        - done? 
-    update:
-        - on selecting previous graph, some kind of visual indication
-        - set all the data values, auto-save should now save to that id
-    delete: 
-        - delete entry, make sure everything is updated correspondingly
-        - delete indexeddb entry
 rearrange entries (2)
     - order is stored as a data attribute
     - Create arrows to move up and down? Make it a keyboard shortcut as well? Difficulty of draggables? 
@@ -34,3 +20,9 @@ edge curves?
 name feature for saved graphs (also last modified time?)
 
 refactor all entries to be under one entry
+
+implement React Context API
+
+https://www.toptal.com/react/react-context-api
+
+clear graph when creating a new one? the interaction existing data and graph creation

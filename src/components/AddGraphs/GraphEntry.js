@@ -24,7 +24,7 @@ export class STREntry extends Component {
      * @param {*} id id of entry
      */
     deletePrompt = (id) => {
-        this.props.deletePrompt(() => this.props.deleteGraph(id));
+        this.props.deletePrompt(() => this.props.deleteGraphEntry(id));
     } 
     
     /**
@@ -59,9 +59,9 @@ export class STREntry extends Component {
                         <i className="bi bi-trash" />
                     </button>
                     <button 
-                    className="btn btn-secondary p-0 mb-3" 
+                    className={`btn btn-${this.props.selected ? 'success' : 'secondary'} p-0 mb-3`}
                     style={{minWidth: "10%"}}
-                    onClick={() => this.deletePrompt(data.id)}>
+                    onClick={() => this.props.setGraph(data.id)}>
                         <i className="bi bi-check-square" />
                     </button>
                 </div>
@@ -73,7 +73,9 @@ export class STREntry extends Component {
                         <div>
                             <h6 className="mb-3">Graph Nodes: </h6>
                             <ul className="list-group">
-                                {data.nodes.map(node => {
+                                {data.nodes.length === 0 ? 
+                                <li className="list-group-item">No Nodes</li> : 
+                                data.nodes.map(node => {
                                     return <li key={node.id} className="list-group-item">{node.name}</li>;
                                 })}
                             </ul>
@@ -81,7 +83,9 @@ export class STREntry extends Component {
                         <div>
                             <h6 className="my-3">Graph Links: </h6>
                             <ul className="list-group">
-                                {data.links.map(link => {
+                                {data.links.length === 0 ? 
+                                <li className="list-group-item">No Links</li> : 
+                                data.links.map(link => {
                                     return <li key={link.id} className="list-group-item">{LINK_SHORT_NAME(link, data)}</li>;
                                 })}
                             </ul>

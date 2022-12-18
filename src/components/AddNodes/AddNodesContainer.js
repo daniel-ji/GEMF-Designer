@@ -4,6 +4,7 @@
 import React, { Component } from 'react'
 
 import AddNodesInput from './AddNodesInput'
+import { CREATE_ENTRY_ID } from '../../Constants'
 
 export class AddNodesContainer extends Component {
     constructor(props) {
@@ -44,7 +45,7 @@ export class AddNodesContainer extends Component {
     createNewInput = () => {
         this.setState(prevState => ({
             nodeInputs: [...this.state.nodeInputs, 
-                this.nodeInput(Math.floor(Math.random() * 1000000000))
+                this.nodeInput(CREATE_ENTRY_ID())
             ]})
         )
     }
@@ -55,7 +56,7 @@ export class AddNodesContainer extends Component {
     componentDidMount() {
         const data = this.props.globals.data;
         this.setState({nodeInputs: [data.nodes.map(node => this.nodeInput(node.id, node.name)), 
-            this.nodeInput(Math.floor(Math.random() * 1000000000))
+            this.nodeInput(CREATE_ENTRY_ID())
         ]})
     }
 

@@ -48,3 +48,9 @@ export const LINK_SHORT_NAME = (link, data) => {
     (link.inducer !== undefined ? (" by " + data.nodes.find(node => node.id === (link.inducer?.id ?? link.inducer)).name) : " (nodal)") + 
     ", " + parseFloat(parseFloat(link.rate).toFixed(3)))
 }
+/**
+ * Creates a new id for entries.
+ */
+export const CREATE_ENTRY_ID = () => {
+    return Math.floor(Math.random() * 1000000000);
+}

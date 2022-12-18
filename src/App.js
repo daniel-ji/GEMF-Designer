@@ -14,7 +14,7 @@ import {
     WIDTH_RATIO, NODE_COLLIDE_RADIUS, NODE_RADIUS, ARROW_SIZE, FORM_STEPS,
     GRAPHVIZ_PARSE_DELAY, GRAPHVIZ_PARSE_RETRY_INTERVAL, STR_REGEX, INVALID_STR_FILE_ERROR,
     INVALID_STR_ENTRY_ERROR, INVALID_STR_SELF_LOOP_ERROR, INVALID_STR_NODE_NAME_ERROR,
-    INVALID_STR_RATE_ERROR
+    INVALID_STR_RATE_ERROR, CREATE_ENTRY_ID
 } from './Constants';
 
 export class App extends Component {
@@ -27,7 +27,7 @@ export class App extends Component {
                 NODE_RADIUS: NODE_RADIUS,
                 ARROW_SIZE: ARROW_SIZE,
                 data: {
-                    id: Math.floor(Math.random() * 1000000000),
+                    id: CREATE_ENTRY_ID(),
                     nodes: [],
                     links: [],
                     linkCounter: {},
@@ -77,27 +77,18 @@ export class App extends Component {
 
         openRequest.onsuccess = () => {
             const db = openRequest.result;
-            this.setState({db})
+            this.setState({db}, this.getSavedGraphs);
 
             db.onversionchange = () => {
                 db.close();
             }
 
-            // load in graph data from object store
-            db.transaction('graphs')
-            .objectStore('graphs')
-            .getAll().onsuccess = (e) => {
-                this.setState({savedGraphs: e.target.result});
-                for (const graph of e.target.result) {
-                    if (graph.nodes.length === 0) {
-                        db.transaction('graphs', 'readwrite').objectStore('graphs')
-                        .delete(graph.id);
-                    }
-                }
+            db.onerror = () => {
+                alert("IndexedDB error, graph data may have not properly been saved.")
             }
             
-            // set interval to update graph data every two seconds
-            setInterval(this.saveGraph, 2000)
+            // set interval to update graph data every second
+            setInterval(this.saveGraph, 1000)
             
             // save before close
             onbeforeunload = (e) => {
@@ -153,17 +144,30 @@ export class App extends Component {
         }}), callback)
     }
 
+    /**
+     * Save graph that is currently being edited.
+     */
     saveGraph = () => {
         const data = this.state.globals.data;
         if (this.state.db !== undefined) {
             this.state.db.transaction('graphs').objectStore('graphs').get(data.id).onsuccess = (e) => {
-                console.log(e);
-                if (data.nodes.length > 0 || e.target.result !== undefined) {
+                if (e.target.result !== undefined) {
                     this.state.db.transaction('graphs', 'readwrite')
                     .objectStore('graphs')
                     .put(data)
                 }
             }
+        }
+    }
+
+    /**
+     * Get saved graphs from IndexedDB.
+     */
+    getSavedGraphs = () => {
+        this.state.db.transaction('graphs')
+        .objectStore('graphs')
+        .getAll().onsuccess = (e) => {
+            this.setState({savedGraphs: e.target.result})
         }
     }
 
@@ -261,7 +265,12 @@ export class App extends Component {
      * Shows prompt to delete current graph.
      */
     deleteGraphPrompt = () => {
-        this.setState({modalTitle: 'Delete Current Graph Data?', modalAction: this.deleteGraph, modalActionText: 'Delete', modalButtonType: 'danger'})
+        this.setState({
+            modalTitle: 'Delete Current Graph Data?', 
+            modalAction: this.deleteGraph, 
+            modalActionText: 'Delete',
+            modalButtonType: 'danger'
+        })
     }
 
     /**
@@ -274,7 +283,7 @@ export class App extends Component {
         .delete(this.state.globals.data.id)
         // clear data in react state
         const data = Object.assign({}, this.state.globals.data);
-        data.id = Math.floor(Math.random() * 1000000000);
+        data.id = CREATE_ENTRY_ID();
         data.nodes = [];
         data.links = [];
         data.linkCounter = {};
@@ -441,7 +450,7 @@ export class App extends Component {
 
             // add data to strdata
             this.setState({STRdata: [...this.state.STRdata, {
-                id: Math.floor(Math.random() * 1000000000),
+                id: CREATE_ENTRY_ID(),
                 nodes: newNodes.map(node => node.id),
                 links: newLinks.map(link => link.id),
                 name: event.target.files[0].name
@@ -587,7 +596,9 @@ export class App extends Component {
             deleteSTR={this.deleteSTR}
             deleteGraph={this.deleteGraph}
             STRdata={this.state.STRdata}
+            getSavedGraphs={this.getSavedGraphs}
             savedGraphs={this.state.savedGraphs}
+            db={this.state.db}
             />
             <SiteModal 
             deleteGraph={this.deleteGraph}

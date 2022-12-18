@@ -19,6 +19,8 @@ export class Form extends Component {
             deletePrompt: false,
             deleteCancelCallback: undefined,
             deleteConfirmCallback: undefined,
+            // graph selection step
+            selectedGraph: undefined,
         }
     }
 
@@ -54,6 +56,9 @@ export class Form extends Component {
             case 0: 
                 this.welcomePageNext();
                 break;
+            case 1: 
+                this.selectGraphNext();
+                break;
             case 2: 
                 this.importSTRNext();
                 break;
@@ -75,7 +80,33 @@ export class Form extends Component {
     welcomePageNext = () => {
         this.props.incrementStep();
     }
+
+    /**
+     * Proceed from graph selection page.
+     */
+    selectGraphNext = () => {
+        if (this.state.selectedGraph !== undefined) {
+            this.props.incrementStep();
+        } else {
+            this.props.setFormError("Please select a graph to edit.");
+        }
+    }
     
+    /** 
+     * Set graph to edit.
+     */
+    setGraph = (id) => {
+        this.setState(prevState => {
+            if (prevState.selectedGraph === id || id === undefined) {
+                return {selectedGraph: undefined}
+            } else {
+                this.props.setFormError("");
+                this.props.setGraphData(this.props.savedGraphs.find(graph => graph.id === id));
+                return {selectedGraph: id}
+            }
+        });
+    }
+
     /**
      * Proceed from import page. 
      */
@@ -180,9 +211,16 @@ export class Form extends Component {
                 {[
                     <Welcome />,
                     <GraphEntryContainer 
+                    setGraph={this.setGraph}
+                    selectedGraph={this.state.selectedGraph}
                     savedGraphs={this.props.savedGraphs}
                     deleteGraph={this.props.deleteGraph}
                     deletePrompt={this.deletePrompt}
+                    db={this.props.db}
+                    data={this.props.globals.data}
+                    setGraphData={this.props.setGraphData}
+                    getSavedGraphs={this.props.getSavedGraphs}
+                    setFormError={this.props.setFormError}
                     />,
                     <ImportSTR
                     processSTR={this.props.processSTR}
