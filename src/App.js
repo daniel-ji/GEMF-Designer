@@ -149,6 +149,8 @@ export class App extends Component {
      */
     saveGraph = () => {
         const data = this.state.globals.data;
+        data.lastModified = new Date();
+
         if (this.state.db !== undefined) {
             this.state.db.transaction('graphs').objectStore('graphs').get(data.id).onsuccess = (e) => {
                 if (e.target.result !== undefined) {

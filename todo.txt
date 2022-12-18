@@ -17,8 +17,6 @@ edge curves?
     - if line over line
         - move node
 
-name feature for saved graphs (also last modified time?)
-
 refactor all entries to be under one entry
 
 implement React Context API

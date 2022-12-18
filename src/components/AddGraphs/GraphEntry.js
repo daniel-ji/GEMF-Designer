@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { LINK_SHORT_NAME } from '../../Constants'
 
-export class STREntry extends Component {
+export class GraphEntry extends Component {
     constructor(props) {
         super(props)
 
@@ -71,6 +71,7 @@ export class STREntry extends Component {
                     <div className="card card-body d-flex w-100 str-collapse"
                     style={{marginTop: this.state.show ? "0" : "-" + this.state.entryHeight + "px", transition: this.state.transition}}>
                         <div>
+                            {data.lastModified !== undefined && <h6>Last Modified: {data.lastModified.toLocaleString()}</h6>}
                             <h6 className="mb-3">Graph Nodes: </h6>
                             <ul className="list-group">
                                 {data.nodes.length === 0 ? 
@@ -97,4 +98,4 @@ export class STREntry extends Component {
     }
 }
 
-export default STREntry
+export default GraphEntry
