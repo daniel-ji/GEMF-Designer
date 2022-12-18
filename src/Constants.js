@@ -54,3 +54,24 @@ export const LINK_SHORT_NAME = (link, data) => {
 export const CREATE_ENTRY_ID = () => {
     return Math.floor(Math.random() * 1000000000);
 }
+/**
+ * Compare two sets of graph data and returns if equal
+ */
+export const COMPARE_GRAPH = (graph1, graph2) => {
+    // names
+    if (graph1.name !== graph2.name) {
+        return false;
+    }
+
+    // nodes
+    if (JSON.stringify(graph1.nodes) !== JSON.stringify(graph2.nodes)) {
+        return false;
+    }
+
+    // links
+    if (JSON.stringify(graph1.links) !== JSON.stringify(graph2.links)) {
+        return false;
+    }
+
+    return true;
+}

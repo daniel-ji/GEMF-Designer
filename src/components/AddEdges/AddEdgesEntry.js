@@ -26,10 +26,6 @@ export class AddEdgesEntry extends Component {
             sourceError: false,
             targetError: false,
             rateError: false,
-            // for transition
-            entryHeight: 0,
-            // to not display card on mount
-            transition: "0s",
         }
 
         this.state.oldSourceID = this.state.sourceID;
@@ -210,16 +206,6 @@ export class AddEdgesEntry extends Component {
         }
     }
 
-    /**
-     * Prevent entry card transition from occuring on render.
-     */
-    componentDidMount() {
-        this.setState({entryHeight: 
-            document.getElementById("collapseWidth-" + this.props.link.id)
-            .getBoundingClientRect().height});
-        setTimeout(() => this.setState({transition: "1s"}), 50);
-    }
-
     render() {
         const data = this.props.data;
         const link = this.props.link;
@@ -257,11 +243,11 @@ export class AddEdgesEntry extends Component {
                         <i className="bi bi-trash" />
                     </button>
                 </div>
+                {this.state.show &&
                 <div 
                 className="link-collapse-container"
                 id={"collapseWidth-" + link.id}>
-                    <div className={`card card-body w-100 link-collapse ${this.state.linkError ? "border-danger" : ""}`}
-                        style={{marginTop: this.state.show ? "0" : "-" + this.state.entryHeight + "px", transition: this.state.transition}}>
+                    <div className={`card card-body w-100 link-collapse ${this.state.linkError ? "border-danger" : ""}`}>
                         <p className="mb-1">Source: </p>
                         <select
                         className={`form-select mb-2 ${this.state.sourceError ? "border-danger" : ""}`}
@@ -334,6 +320,7 @@ export class AddEdgesEntry extends Component {
                         title="Choose node color" />                        
                     </div>
                 </div>
+                }
             </div>
         )
     }

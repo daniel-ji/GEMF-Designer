@@ -7,7 +7,9 @@ export class GraphEntry extends Component {
 
         this.state = {
             show: false,
-            transition: "0s",
+            edit: false,
+            graphName: this.props.data.name,
+            oldGraphName: this.props.data.name,
         }
     }
 
@@ -16,6 +18,28 @@ export class GraphEntry extends Component {
      */
     toggleShowEntry = () => {
         this.setState({show: !this.state.show})
+    }
+
+    toggleEditGraphName = () => {
+        this.setState(prevState => {
+            if (prevState.edit) {
+                return {edit: false, graphName: this.state.oldGraphName}
+            } else {
+                return {edit: true}
+            }
+        })
+    }
+
+    editGraphName = (e) => {
+        this.setState({graphName: e.target.value})
+    }
+
+    setGraphName = () => {
+        this.setState({edit: false, oldGraphName: this.state.graphName});
+        const data = Object.assign({}, this.props.data);
+        data.name = this.state.graphName;
+        this.props.db.transaction('graphs', 'readwrite').objectStore('graphs')
+        .put(data);
     }
 
     /**
@@ -31,9 +55,6 @@ export class GraphEntry extends Component {
      * Prevent transition from occuring on first render.
      */
     componentDidMount() {
-        this.setState({entryHeight: 
-            document.getElementById("collapseWidth-" + this.props.data.id)
-                .getBoundingClientRect().height});
         setTimeout(() => this.setState({transition: "0.5s"}), 50);
     }
 
@@ -43,15 +64,35 @@ export class GraphEntry extends Component {
         return (
             <div key={data.id}>
                 <div className="d-flex flex-wrap justify-content-between mt-3 w-100">
-                    <div style={{width: "70%"}}>
+                    <div style={{width: this.state.edit ? "50%" : "60%"}}>
+                        {this.state.edit ?
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Graph Name" aria-label="Username" 
+                            value={this.state.graphName} onChange={this.editGraphName} />
+                        </div>
+                        :
                         <button
                         type="button"
                         className="btn btn-primary mb-3 w-100"
                         onClick={this.toggleShowEntry}
                         >
-                            Saved Graph : {data.name}
-                        </button>
+                            Saved Graph: {this.state.graphName}
+                        </button>}
                     </div>
+                    {this.state.edit && 
+                    <button 
+                    className="btn btn-success p-0 mb-3"
+                    style={{minWidth: "10%"}}
+                    onClick={this.setGraphName}>
+                        <i className="bi bi-check-square" />
+                    </button>
+                    }
+                    <button 
+                    className={`btn btn-${this.state.edit ? 'danger' : 'warning'} p-0 mb-3`} 
+                    style={{minWidth: "10%"}}
+                    onClick={this.toggleEditGraphName}>
+                        <i className={`bi bi-${this.state.edit ? 'x-square' : 'pencil'}`} />
+                    </button>
                     <button 
                     className="btn btn-danger p-0 mb-3" 
                     style={{minWidth: "10%"}}
@@ -65,11 +106,11 @@ export class GraphEntry extends Component {
                         <i className="bi bi-check-square" />
                     </button>
                 </div>
+                {this.state.show && 
                 <div 
                 className="str-collapse-container"
                 id={"collapseWidth-" + data.id}>
-                    <div className="card card-body d-flex w-100 str-collapse"
-                    style={{marginTop: this.state.show ? "0" : "-" + this.state.entryHeight + "px", transition: this.state.transition}}>
+                    <div className="card card-body d-flex w-100 str-collapse">
                         <div>
                             {data.lastModified !== undefined && <h6>Last Modified: {data.lastModified.toLocaleString()}</h6>}
                             <h6 className="mb-3">Graph Nodes: </h6>
@@ -93,6 +134,7 @@ export class GraphEntry extends Component {
                         </div>
                     </div>
                 </div>
+                }
             </div>
         )
     }

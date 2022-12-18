@@ -14,7 +14,7 @@ import {
     WIDTH_RATIO, NODE_COLLIDE_RADIUS, NODE_RADIUS, ARROW_SIZE, FORM_STEPS,
     GRAPHVIZ_PARSE_DELAY, GRAPHVIZ_PARSE_RETRY_INTERVAL, STR_REGEX, INVALID_STR_FILE_ERROR,
     INVALID_STR_ENTRY_ERROR, INVALID_STR_SELF_LOOP_ERROR, INVALID_STR_NODE_NAME_ERROR,
-    INVALID_STR_RATE_ERROR, CREATE_ENTRY_ID
+    INVALID_STR_RATE_ERROR, CREATE_ENTRY_ID, COMPARE_GRAPH
 } from './Constants';
 
 export class App extends Component {
@@ -28,6 +28,8 @@ export class App extends Component {
                 ARROW_SIZE: ARROW_SIZE,
                 data: {
                     id: CREATE_ENTRY_ID(),
+                    name: undefined, 
+                    lastModified: undefined,
                     nodes: [],
                     links: [],
                     linkCounter: {},
@@ -149,11 +151,13 @@ export class App extends Component {
      */
     saveGraph = () => {
         const data = this.state.globals.data;
-        data.lastModified = new Date();
 
         if (this.state.db !== undefined) {
             this.state.db.transaction('graphs').objectStore('graphs').get(data.id).onsuccess = (e) => {
                 if (e.target.result !== undefined) {
+                    if (!COMPARE_GRAPH(data, e.target.result)) {
+                        data.lastModified = new Date();
+                    }
                     this.state.db.transaction('graphs', 'readwrite')
                     .objectStore('graphs')
                     .put(data)
@@ -169,7 +173,7 @@ export class App extends Component {
         this.state.db.transaction('graphs')
         .objectStore('graphs')
         .getAll().onsuccess = (e) => {
-            this.setState({savedGraphs: e.target.result})
+            this.setState({savedGraphs: e.target.result.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified))})
         }
     }
 

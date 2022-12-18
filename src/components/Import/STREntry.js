@@ -7,7 +7,6 @@ export class STREntry extends Component {
 
         this.state = {
             show: false,
-            transition: "0s",
         }
     }
 
@@ -26,16 +25,6 @@ export class STREntry extends Component {
     deletePrompt = (id) => {
         this.props.deletePrompt(() => this.props.deleteSTR(id));
     } 
-    
-    /**
-     * Prevent transition from occuring on first render.
-     */
-    componentDidMount() {
-        this.setState({entryHeight: 
-            document.getElementById("collapseWidth-" + this.props.id)
-                .getBoundingClientRect().height});
-        setTimeout(() => this.setState({transition: "0.5s"}), 50);
-    }
 
     render() {
         const data = this.props.data;
@@ -59,11 +48,11 @@ export class STREntry extends Component {
                         <i className="bi bi-trash" />
                     </button>
                 </div>
+                {this.state.show &&
                 <div 
                 className="str-collapse-container"
                 id={"collapseWidth-" + this.props.id}>
-                    <div className={`card card-body d-flex w-100 str-collapse ${this.state.show ? "link-show" : ""}`}
-                    style={{marginTop: this.state.show ? "0" : "-" + this.state.entryHeight + "px", transition: this.state.transition}}>
+                    <div className={`card card-body d-flex w-100 str-collapse ${this.state.show ? "link-show" : ""}`}>
                         <div>
                             <h6 className="mb-3">Imported Nodes: </h6>
                             <ul className="list-group">
@@ -90,6 +79,7 @@ export class STREntry extends Component {
                         </div>
                     </div>
                 </div>
+                }
             </div>
         )
     }

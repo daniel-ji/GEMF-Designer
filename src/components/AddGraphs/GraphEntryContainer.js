@@ -35,6 +35,7 @@ export class GraphEntryContainer extends Component {
             const data = Object.assign({}, this.props.data);
             data.name = this.state.newGraphName;
             data.id = CREATE_ENTRY_ID();
+            data.lastModified = new Date();
             this.setState({newGraphName: ''});
     
             // update graph data with new name and put data in IndexedDB
@@ -105,6 +106,7 @@ export class GraphEntryContainer extends Component {
                     deletePrompt={this.props.deletePrompt}
                     setGraph={this.props.setGraph}
                     selected={this.props.selectedGraph === entry.id}
+                    db={this.props.db}
                     />
                 )}
             </div>
