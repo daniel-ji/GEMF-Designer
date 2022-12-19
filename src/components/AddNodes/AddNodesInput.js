@@ -3,7 +3,7 @@
  * The actual individual inputs.    
  */
 import React, { Component, Fragment } from 'react'
-import {NODE_COLLIDE_RADIUS} from '../../Constants';
+import {NODE_COLLIDE_RADIUS, NODE_RADIUS} from '../../Constants';
 
 export class AddNodesInput extends Component {
     constructor(props) {
@@ -13,7 +13,7 @@ export class AddNodesInput extends Component {
         deleted: false,
         inputCreated: this.props.inputValue === undefined ? false : true,
         inputValue: this.props.inputValue ?? '',
-        color: this.props.globals.data.nodes.find(node => node.id === this.props.inputCounter)?.color ?? '#000000',
+        color: this.props.data.nodes.find(node => node.id === this.props.inputCounter)?.color ?? '#000000',
         count: this.props.inputCounter,
       }
     }
@@ -25,7 +25,7 @@ export class AddNodesInput extends Component {
      */
     setInput = (e) => {
         this.setState({inputValue: e.target.value})
-        const data = Object.assign({}, this.props.globals.data);
+        const data = Object.assign({}, this.props.data);
         if (!this.state.inputCreated) {
             this.setState({inputCreated: true})
             // create a new node
@@ -37,7 +37,7 @@ export class AddNodesInput extends Component {
                 color: this.state.color
             })
             // temporarily sets the collision force to the whole node radius so that nodes do not intersect on creation
-            this.props.setForceCollideRadius(this.props.globals.NODE_RADIUS * 1.2);
+            this.props.setForceCollideRadius(NODE_RADIUS * 1.2);
             this.props.setGraphData(data);
             setTimeout(() => this.props.setForceCollideRadius(NODE_COLLIDE_RADIUS), 400)
             // set up a new blank input box 
@@ -60,7 +60,7 @@ export class AddNodesInput extends Component {
      */
     setColor = (e) => {
         this.setState({color: e.target.value});
-        const data = Object.assign({}, this.props.globals.data);
+        const data = Object.assign({}, this.props.data);
         const node = data.nodes.find(x => x.id === this.state.count);
         node.color = e.target.value;
         this.props.setGraphData(data);
@@ -79,7 +79,7 @@ export class AddNodesInput extends Component {
      * Delete corresponding nodes and links of input value from global data object. 
      */
     deleteInput = () => {
-        const data = Object.assign({}, this.props.globals.data);
+        const data = Object.assign({}, this.props.data);
         data.nodes.splice(data.nodes.findIndex(node => node.id === this.state.count), 1);
         // have to do it this way because of weird React should-update interaction and the lack of deepness of the comparison check (i think?)
         while (data.links.findIndex(link => link.source.id === this.state.count || link.target.id === this.state.count || link.inducer === this.state.count) !== -1) {

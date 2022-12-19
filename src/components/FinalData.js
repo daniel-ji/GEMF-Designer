@@ -19,7 +19,7 @@ export class FinalData extends Component {
      * Display final TSV results parsed from data. Creates both UI table data and data to download.
      */
     renderData = () => {
-        const data = this.props.globals.data;
+        const data = this.props.data;
         let tsvData = ""; 
 
         const tableData = data.links.map(link => {

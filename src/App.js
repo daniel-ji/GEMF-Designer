@@ -22,20 +22,16 @@ export class App extends Component {
         super(props)
 
         this.state = {
-            // global variables to be used across components
-            globals: {
-                NODE_RADIUS: NODE_RADIUS,
-                ARROW_SIZE: ARROW_SIZE,
-                data: DEFAULT_GRAPH_DATA(),
-                // form step counter
-                step: 0,
-            },
+            // current graph data
+            data: DEFAULT_GRAPH_DATA(),
+            // node collision
+            forceCollideRadius: NODE_COLLIDE_RADIUS,
+            // form step counter
+            step: 0,
             // graph interaction indicator style
             indicatorStyle: {},
             // stores graphviz component (dot-engine based graph rendering of user-inputted existing STR)
             strGraphviz: undefined,
-            // stores STR data,
-            STRdata: [],
             // form error messages
             formError: "",
             // if form error message is being hidden by user
@@ -47,19 +43,16 @@ export class App extends Component {
             // database for indexeddb
             db: undefined,
             savedGraphs: undefined,
+            selectedGraph: undefined,
             // site modal
             modalAction: () => {},
             modalActionText: '',
             modalTitle: '',
             modalButtonType: '',
         }
-
-        this.state.globals.forceCollideRadius = NODE_COLLIDE_RADIUS
     }
 
     componentDidMount() {
-        setInterval(() => console.log(this.state.globals.data), 1000);
-
         // IndexedDB for Graph Loading / Saving
         const openRequest = indexedDB.open('data');
 
@@ -119,10 +112,7 @@ export class App extends Component {
     incrementStep = (amount = 1, override = false) => {
         if (this.state.formError === "" || override) {
             this.setState(prevState => 
-                ({globals: {
-                    ...prevState.globals, 
-                    step: Math.max(Math.min(prevState.globals.step + amount, FORM_STEPS - 1), 0)
-                }}))
+                ({step: Math.max(Math.min(prevState.step + amount, FORM_STEPS - 1), 0)}))
         } else {
             this.showFormError();
         }
@@ -134,9 +124,19 @@ export class App extends Component {
      * @param {*} callback callback function after update has finished
      */
     setGraphData = (data, callback) => {
-        this.setState(prevState => ({globals: {
-            ...prevState.globals,
-            data
+        this.setState({data}, callback)
+    }
+
+    /**
+     * Set STR data for current graph.
+     * 
+     * @param {*} data new STRData
+     * @param {*} callback callback function after update has finished
+     */
+    setSTRData = (STRData, callback) => {
+        this.setState(prevState => ({data: {
+            ...prevState.data,
+            STRData
         }}), callback)
     }
 
@@ -144,7 +144,7 @@ export class App extends Component {
      * Save graph that is currently being edited.
      */
     saveGraph = () => {
-        const data = this.state.globals.data;
+        const data = this.state.data;
 
         if (this.state.db !== undefined) {
             this.state.db.transaction('graphs').objectStore('graphs').get(data.id).onsuccess = (e) => {
@@ -171,6 +171,22 @@ export class App extends Component {
                 callback !== undefined && callback();
             })
         }
+    }
+
+    /** 
+     * Set graph to edit.
+     */
+    setGraph = (id) => {
+        this.setState(prevState => {
+            if (prevState.selectedGraph === id || id === undefined) {
+                this.setGraphData(DEFAULT_GRAPH_DATA())
+                return {selectedGraph: undefined}
+            } else {
+                this.setFormError("");
+                this.setGraphData(this.state.savedGraphs.find(graph => graph.id === id));
+                return {selectedGraph: id}
+            }
+        });
     }
 
     /**
@@ -222,11 +238,7 @@ export class App extends Component {
      * @param {*} radius collision radius 
      */
     setForceCollideRadius = (radius) => {
-        this.setState(prevState => 
-            ({globals: {
-                ...prevState.globals, 
-                forceCollideRadius: radius
-            }}))
+        this.setState({forceCollideRadius: radius})
     }
 
     /**
@@ -236,7 +248,7 @@ export class App extends Component {
      * @param {*} fileType file type of image to download 
      */
     downloadGraph = (fileType) => {
-        if (this.state.globals.data.nodes.length > 0) {
+        if (this.state.data.nodes.length > 0) {
             const canvas = document.getElementsByClassName("force-graph-container")[0].firstChild;
     
             // set downloading to true immediately to call force-graph zoom to fit
@@ -282,7 +294,7 @@ export class App extends Component {
         // update indexeddb
         this.state.db.transaction('graphs', 'readwrite')
         .objectStore('graphs')
-        .delete(this.state.globals.data.id)
+        .delete(this.state.data.id)
         // update graph data
         this.setGraphData(DEFAULT_GRAPH_DATA());
         this.incrementStep(-10);
@@ -292,8 +304,8 @@ export class App extends Component {
      * Automatically draw graph from current nodes / links.
      */
     autoDraw = () => {
-        const nodes = this.state.globals.data.nodes;
-        const links = this.state.globals.data.links;
+        const nodes = this.state.data.nodes;
+        const links = this.state.data.links;
 
         if (nodes.length > 0) {
             // create graphviz from current data
@@ -321,14 +333,14 @@ export class App extends Component {
      */
     processSTR = (event) => {
         const reader = new FileReader();
-        const data = Object.assign({}, this.state.globals.data);
+        const data = Object.assign({}, this.state.data);
         const nodes = data.nodes;
         const links = data.links;
 
         reader.onload = (e) => {
             let errors = [];            
-            let nodeID = this.state.globals.data.nodes.length === 0 ? 
-                0 : Math.max(...this.state.globals.data.nodes.map(node => parseInt(node.id))) + 1;
+            let nodeID = this.state.data.nodes.length === 0 ? 
+                0 : Math.max(...this.state.data.nodes.map(node => parseInt(node.id))) + 1;
 
             const newNodes = [];
             const newLinks = [];
@@ -446,12 +458,12 @@ export class App extends Component {
             }
 
             // add data to strdata
-            this.setState({STRdata: [...this.state.STRdata, {
+            data.STRData = [...data.STRData, {
                 id: CREATE_ENTRY_ID(),
                 nodes: newNodes.map(node => node.id),
                 links: newLinks.map(link => link.id),
                 name: event.target.files[0].name
-            }]})
+            }]
 
             this.setGraphData(data);
 
@@ -462,7 +474,7 @@ export class App extends Component {
 
         // valid plaintext file
         for (let i = 0; i < event.target.files.length; i++) {
-            if (event.target.files[i].type.match(/^\s*$|(text\/plain)/)) {
+            if (event.target.files[i].type.match(/^\s*$|(text)/)) {
                 reader.readAsText(event.target.files[0]);
             } else {
                 this.setFormError([INVALID_STR_FILE_ERROR]);
@@ -491,7 +503,7 @@ export class App extends Component {
                 rankdir=LR;
                 ${dotLinkContent}
             }`}/>
-        }, () => setTimeout(() => this.parseGraphvizSVG(this.state.globals.nodes, this.state.globals.links), GRAPHVIZ_PARSE_DELAY));
+        }, () => setTimeout(() => this.parseGraphvizSVG(this.state.data.nodes, this.state.data.links), GRAPHVIZ_PARSE_DELAY));
     }
 
     /**
@@ -507,7 +519,7 @@ export class App extends Component {
 
         // in the case that rendering had not finished yet
         if (graph !== null) {
-            const data = Object.assign({}, this.state.globals.data);
+            const data = Object.assign({}, this.state.data);
             const graphDimensions = graph.getBoundingClientRect();
             // change center of graph to simplify math later on for determining node coordinates 
             const graphMiddleX = (graphDimensions.left + graphDimensions.right) / 2; 
@@ -522,7 +534,7 @@ export class App extends Component {
                     const normalizedY = (rect.top - graphMiddleY) / graphMiddleY;
                     const normalizedR = rect.width / graphDimensions.width;
                     // 2 instead of 1 for spacing out more
-                    const scaleRatio = 2 / normalizedR * this.state.globals.NODE_RADIUS;
+                    const scaleRatio = 2 / normalizedR * NODE_RADIUS;
                     // add node with proper coordinate scaling
                     const node = data.nodes.find(node => node.name === child.getElementsByTagName('title')[0].innerHTML);
                     node.fx = normalizedX * scaleRatio;
@@ -547,8 +559,8 @@ export class App extends Component {
      * @param {*} id id of STR entry
      */
     deleteSTR = (id) => {
-        const data = Object.assign({}, this.state.globals.data);
-        const entryData = this.state.STRdata.find(entry => entry.id === id);
+        const data = Object.assign({}, this.state.data);
+        const entryData = this.state.data.STRData.find(entry => entry.id === id);
         for (const linkID of entryData.links) {
             data.links.splice(data.links.findIndex(entry => entry.id === linkID), 1);
         }
@@ -561,7 +573,7 @@ export class App extends Component {
             }
         }
         this.setGraphData(data);
-        this.setState({STRdata: this.state.STRdata.filter(entry => entry.id !== id)});
+        this.setSTRData(this.state.data.STRData.filter(entry => entry.id !== id));
     }
 
     render() {        
@@ -575,17 +587,17 @@ export class App extends Component {
             </div>
             {this.state.strGraphviz}
             <GraphOverlay 
-            globals={this.state.globals}
+            forceCollideRadius={this.state.forceCollideRadius}
+            data={this.state.data}
             autoDraw={this.autoDraw}
-            STRdata={this.state.STRdata}
             downloadGraph={this.downloadGraph}
             downloading={this.state.downloading}
             deleteGraphPrompt={this.deleteGraphPrompt}
             />
             <Form
-            globals={this.state.globals} 
+            data={this.state.data}
+            step={this.state.step}
             incrementStep={this.incrementStep}
-            setGraphData={this.setGraphData}
             forceCollideRadius={this.state.forceCollideRadius}
             setForceCollideRadius={this.setForceCollideRadius}
             formError={this.state.formError}
@@ -597,9 +609,11 @@ export class App extends Component {
             processSTR={this.processSTR}
             deleteSTR={this.deleteSTR}
             deleteGraph={this.deleteGraph}
-            STRdata={this.state.STRdata}
             getSavedGraphs={this.getSavedGraphs}
             savedGraphs={this.state.savedGraphs}
+            setGraph={this.setGraph}
+            selectedGraph={this.state.selectedGraph}
+            setGraphData={this.setGraphData}
             db={this.state.db}
             />
             <SiteModal 

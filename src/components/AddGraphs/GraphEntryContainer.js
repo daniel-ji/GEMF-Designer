@@ -59,15 +59,6 @@ export class GraphEntryContainer extends Component {
     }
 
     /**
-     * Prompt delete graph entry.
-     * 
-     * @param {*} id id to pass into actual delete function
-     */
-     deletePrompt = (id) => {
-        this.props.deletePrompt(() => this.deleteGraphEntry(id));
-    }
-
-    /**
      * Delete graph entry.
      * 
      * @param {*} id id of graph to delete
@@ -77,7 +68,7 @@ export class GraphEntryContainer extends Component {
         .objectStore('graphs')
         .delete(id).onsuccess = () => {
             // if current graph was deleted
-            if (id === this.props.selectedGraph?.id) {
+            if (id === this.props.selectedGraph) {
                 this.props.setGraph(undefined);
                 this.props.setGraphData(DEFAULT_GRAPH_DATA())
             }

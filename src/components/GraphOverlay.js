@@ -7,20 +7,67 @@ import GraphComponent from './Graph';
 import githubIcon from '../images/githubicon.png';
 
 export class GraphOverlay extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            snapMode: true,
+            snapModeDelayed: false,
+            shortcutMode: false,
+            graphFocused: false,
+        }
+    }
+
+    componentDidMount() {
+        // Snap feature for graph
+        document.onkeydown = (e) => {
+            if (e.key === "Shift") {
+                this.setState({shortcutMode: true})
+            }
+
+            // toggling snap mode with delay
+            if (this.state.graphFocused && this.state.shortcutMode) {
+                if (e.key === "G") {
+                    this.toggleGrid();
+                }
+            }
+        }
+
+        // turning off shortcut mode 
+        document.onkeyup = (e) => {
+            if (e.key === "Shift") {
+                this.setState({shortcutMode: false})
+            }
+        }
+
+        // detecting if graph is focused
+        document.onmousemove = (e) => {
+            if (e.target.nodeName === "CANVAS") {
+                this.setState({graphFocused: true})
+            } else {
+                this.setState({graphFocused: false})
+            }
+        }
+    }
+
+    toggleGrid = () => {
+        if (!this.state.snapModeDelayed) {
+            this.setState(prevState => {return {snapMode: !prevState.snapMode, snapModeDelayed: true}})
+            setTimeout(() => this.setState({snapModeDelayed: false}), 100)
+        }
+    }
+
     render() {
         return (
             <div id="graph-cover">
                 <div className="graph-tl">
                     <h1 className="noselect">Graph View </h1>
-                    <p className="noselect">
-                        <span style={{color: "green"}}>Green</span> Transitions: Node-based<br/>
-                        <span style={{color: "red"}}>Red</span> Transitions: Edge-based <br/>
-                    </p>
                 </div>
                 <div className="graph-buttons">
-                    <button className="btn btn-success auto-draw" onClick={this.props.autoDraw}>Auto-Draw</button>
+                    <button className="btn btn-primary toggle-grid" onClick={this.toggleGrid}>Toggle Grid</button>
+                    <button className="btn btn-primary auto-draw" onClick={this.props.autoDraw}>Auto-Draw</button>
                     <div className="dropdown">
-                        <button className="btn btn-primary download-graph" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button className="btn btn-success download-graph" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i className="bi bi-download"></i>
                         </button>
                         <ul className="dropdown-menu">
@@ -40,7 +87,12 @@ export class GraphOverlay extends Component {
                 <a className="github-button" href="https://github.com/daniel-ji/GEMF-Designer" target="_blank" rel="noreferrer" aria-label="github repo link">
                     <button className="btn btn-outline-dark p-0" aria-label="github repo button"><img src={githubIcon} alt="" /></button>
                 </a>
-                <GraphComponent globals={this.props.globals} STRdata={this.props.STRdata} downloading={this.props.downloading}/> 
+                <GraphComponent 
+                forceCollideRadius={this.props.forceCollideRadius}
+                data={this.props.data}
+                downloading={this.props.downloading}
+                snapMode={this.state.snapMode}
+                /> 
             </div>
         )
     }

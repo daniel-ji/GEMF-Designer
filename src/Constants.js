@@ -82,5 +82,6 @@ export const DEFAULT_GRAPH_DATA = () => {
         lastModified: undefined,
         nodes: [],
         links: [],
+        STRData: [],
     }
 }

@@ -28,7 +28,7 @@ export class AddNodesContainer extends Component {
         return (
             <AddNodesInput
                 key={key}
-                globals={this.props.globals}
+                data={this.props.data}
                 inputCounter={key}
                 inputValue={value}
                 setForceCollideRadius={this.props.setForceCollideRadius} 
@@ -54,7 +54,7 @@ export class AddNodesContainer extends Component {
      * On mount, render all existing node inputs. 
      */
     componentDidMount() {
-        const data = this.props.globals.data;
+        const data = this.props.data;
         this.setState({nodeInputs: [data.nodes.map(node => this.nodeInput(node.id, node.name)), 
             this.nodeInput(CREATE_ENTRY_ID())
         ]})

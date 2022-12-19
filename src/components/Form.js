@@ -20,8 +20,6 @@ export class Form extends Component {
             deletePrompt: false,
             deleteCancelCallback: undefined,
             deleteConfirmCallback: undefined,
-            // graph selection step
-            selectedGraph: undefined,
         }
     }
 
@@ -29,7 +27,7 @@ export class Form extends Component {
      * Handle back button press. 
      */
     handleBack = () => {
-        switch (this.props.globals.step) {
+        switch (this.props.step) {
             case 3: 
                 this.props.incrementStep(-1, true);
                 this.props.setFormError("");
@@ -53,7 +51,7 @@ export class Form extends Component {
      * Handle next button press.
      */
     handleNext = () => {
-        switch (this.props.globals.step) {
+        switch (this.props.step) {
             case 0: 
                 this.welcomePageNext();
                 break;
@@ -86,27 +84,11 @@ export class Form extends Component {
      * Proceed from graph selection page.
      */
     selectGraphNext = () => {
-        if (this.state.selectedGraph !== undefined) {
+        if (this.props.selectedGraph !== undefined) {
             this.props.incrementStep();
         } else {
             this.props.setFormError("Please select a graph to edit.");
         }
-    }
-    
-    /** 
-     * Set graph to edit.
-     */
-    setGraph = (id) => {
-        this.setState(prevState => {
-            if (prevState.selectedGraph === id || id === undefined) {
-                this.props.setGraphData(DEFAULT_GRAPH_DATA())
-                return {selectedGraph: undefined}
-            } else {
-                this.props.setFormError("");
-                this.props.setGraphData(this.props.savedGraphs.find(graph => graph.id === id));
-                return {selectedGraph: id}
-            }
-        });
     }
 
     /**
@@ -124,7 +106,7 @@ export class Form extends Component {
      * Proceed from node creation step, validates nodes. 
      */
     addNodesNext = () => {
-        const data = this.props.globals.data;
+        const data = this.props.data;
         // create empty set that will hold duplicate / empty nodes
         let badNodes = new Set();
         for (let i = 0; i < data.nodes.length; i++) {
@@ -208,37 +190,36 @@ export class Form extends Component {
                     'Add States (Nodes)',
                     'Add Transitions (Edges)',
                     'Finalized Data'
-                ][this.props.globals.step]}</h1>
+                ][this.props.step]}</h1>
                 {/** Switch for components */}
                 {[
                     <Welcome />,
                     <GraphEntryContainer 
-                    setGraph={this.setGraph}
-                    selectedGraph={this.state.selectedGraph}
+                    setGraph={this.props.setGraph}
+                    selectedGraph={this.props.selectedGraph}
                     savedGraphs={this.props.savedGraphs}
                     deleteGraph={this.props.deleteGraph}
                     deletePrompt={this.deletePrompt}
                     db={this.props.db}
-                    data={this.props.globals.data}
+                    data={this.props.data}
                     setGraphData={this.props.setGraphData}
                     getSavedGraphs={this.props.getSavedGraphs}
                     setFormError={this.props.setFormError}
                     />,
                     <ImportSTR
                     processSTR={this.props.processSTR}
-                    STRdata={this.props.STRdata}
-                    data={this.props.globals.data}
+                    data={this.props.data}
                     deleteSTR={this.props.deleteSTR}
                     deletePrompt={this.deletePrompt}
                     />,
                     <AddNodesContainer 
-                    globals={this.props.globals} 
+                    data={this.props.data} 
                     setForceCollideRadius={this.props.setForceCollideRadius} 
                     setGraphData={this.props.setGraphData}
                     deletePrompt={this.deletePrompt}
                     />,
                     <AddEdgesContainer
-                    globals={this.props.globals}
+                    data={this.props.data}
                     setGraphData={this.props.setGraphData}
                     setFormError={this.props.setFormError}
                     formError={this.props.formError}
@@ -246,13 +227,13 @@ export class Form extends Component {
                     deletePrompt={this.deletePrompt}
                     />,
                     <FinalData
-                    globals={this.props.globals}
+                    data={this.props.data}
                     setGraphData={this.props.setGraphData}
                     />
-                ][this.props.globals.step]}
-                <div id="button-container" className={this.props.globals.step === 0 ? "justify-content-end" : "justify-content-between"}>
-                    {this.props.globals.step !== 0 && <button onClick={this.handleBack} type="button" className="btn btn-secondary">Back</button>}
-                    {this.props.globals.step !== FORM_STEPS - 1 && <button onClick={this.handleNext} type="button" className="btn btn-success">Next</button>}
+                ][this.props.step]}
+                <div id="button-container" className={this.props.step === 0 ? "justify-content-end" : "justify-content-between"}>
+                    {this.props.step !== 0 && <button onClick={this.handleBack} type="button" className="btn btn-secondary">Back</button>}
+                    {this.props.step !== FORM_STEPS - 1 && <button onClick={this.handleNext} type="button" className="btn btn-success">Next</button>}
                 </div>
                 <button 
                     id="error-popup" 

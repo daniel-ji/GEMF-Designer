@@ -22,7 +22,7 @@ export class AddEdgesContainer extends Component {
      * Validates input and creates edge on graph based on provided values. 
      */
     addEdge = () => {
-        const data = Object.assign({}, this.props.globals.data);
+        const data = Object.assign({}, this.props.data);
         const selectSource = document.getElementById("selectSource");
         const selectTarget = document.getElementById("selectTarget");
         const rateInput = document.getElementById("rateInput");
@@ -76,7 +76,7 @@ export class AddEdgesContainer extends Component {
                 inducer: inducerID === -1 ? undefined : inducerID,
                 rate: rateInput.value,
                 color: '#000000',
-                order: this.props.globals.data.links.length 
+                order: this.props.data.links.length 
             }
             newLink.shortName = LINK_SHORT_NAME(newLink, data);
             data.links.push(newLink)
@@ -106,7 +106,7 @@ export class AddEdgesContainer extends Component {
      * @param {*} id id of link to delete
      */
     deleteEdgeEntry = (id) => {
-        const newData = Object.assign({}, this.props.globals.data);
+        const newData = Object.assign({}, this.props.data);
         newData.links = newData.links.filter(l => l.id !== id);
         this.props.setGraphData(newData);
         this.setState({
@@ -127,7 +127,7 @@ export class AddEdgesContainer extends Component {
      * @param {*} id id of link to assign to
      */
     setLink = (values, id) => {
-        const data = Object.assign({}, this.props.globals.data);
+        const data = Object.assign({}, this.props.data);
         const link = data.links.find(link => link.id === id);
         
         if (values.rate !== undefined) {
@@ -164,7 +164,7 @@ export class AddEdgesContainer extends Component {
             ...links.map(link => 
                 <AddEdgesEntry 
                 key={link.id}
-                data={this.props.globals.data} 
+                data={this.props.data} 
                 link={link}
                 deletePrompt={this.deletePrompt}
                 setLink={this.setLink}
@@ -177,17 +177,17 @@ export class AddEdgesContainer extends Component {
      * Create entries for all pre-existing edge.
      */
     componentDidMount() {
-        const data = Object.assign({}, this.props.globals.data);
+        const data = Object.assign({}, this.props.data);
         for (const link of data.links) {
             link.shortName = LINK_SHORT_NAME(link, data);
         }
 
         this.props.setGraphData(data);
-        this.createEdgeEntry(this.props.globals.data.links);
+        this.createEdgeEntry(this.props.data.links);
     }
 
     render() {
-        const data = this.props.globals.data;
+        const data = this.props.data;
 
         return (
             <div id="add-edges-container" className="form-step">

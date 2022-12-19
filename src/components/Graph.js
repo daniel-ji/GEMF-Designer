@@ -6,18 +6,12 @@ import React, { Component } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
 import {forceCollide} from 'd3-force';
 
-import { CSS_BREAKPOINT, GRAPHVIZ_PARSE_DELAY, NODE_FONT_SIZE, NODE_TEXT_OVERFLOW, RATE_FONT_SIZE, RATE_TEXT_OVERFLOW, WIDTH_RATIO, GRID_GAP } from '../Constants';
+import { CSS_BREAKPOINT, GRAPHVIZ_PARSE_DELAY, NODE_FONT_SIZE, NODE_TEXT_OVERFLOW, RATE_FONT_SIZE, 
+    RATE_TEXT_OVERFLOW, WIDTH_RATIO, GRID_GAP, NODE_RADIUS, ARROW_SIZE} from '../Constants';
 
 export class Graph extends Component {
     constructor(props) {
         super(props)
-
-        this.state = {
-            snapMode: true,
-            snapModeDelayed: false,
-            shortcutMode: false,
-            graphFocused: false,
-        }
 
         this.ref = React.createRef();
     }
@@ -28,44 +22,11 @@ export class Graph extends Component {
     componentDidMount() {
         this.ref.current.d3Force('charge', null)
         this.ref.current.d3Force('center', null)
-        this.ref.current.d3Force('collide', forceCollide(this.props.globals.forceCollideRadius))
+        this.ref.current.d3Force('collide', forceCollide(this.props.forceCollideRadius))
         this.ref.current.d3Force('link', null)
         setTimeout(() => {
             this.ref.current.zoomToFit(0, 150);
         }, 500)
-
-        // Snap feature for graph
-        document.onkeydown = (e) => {
-            if (e.key === "Shift") {
-                this.setState({shortcutMode: true})
-            }
-
-            // toggling snap mode with delay
-            if (this.state.graphFocused && this.state.shortcutMode) {
-                if (e.key === "G") {
-                    if (!this.state.snapModeDelayed) {
-                        this.setState({snapMode: !this.state.snapMode, snapModeDelayed: true})
-                        setTimeout(() => this.setState({snapModeDelayed: false}), 100)
-                    }
-                }
-            }
-        }
-
-        // turning off shortcut mode 
-        document.onkeyup = (e) => {
-            if (this.state.graphFocused && e.key === "Shift") {
-                this.setState({shortcutMode: false})
-            }
-        }
-
-        // detecting if graph is focused
-        document.onmousemove = (e) => {
-            if (e.target.nodeName === "CANVAS") {
-                this.setState({graphFocused: true})
-            } else {
-                this.setState({graphFocused: false})
-            }
-        }
     }
 
     /**
@@ -73,12 +34,20 @@ export class Graph extends Component {
      * zoom function on import if new STR has been imported / image is being downloaded.
      */
     componentDidUpdate(prevProps, prevState) {
-        if (prevProps.STRdata.length !== this.props.STRdata.length || prevProps.downloading) {
+        if (prevProps.data.STRData.length !== this.props.data.STRData.length || prevProps.downloading) {
             setTimeout(() => {
                 this.ref.current.zoomToFit(0, prevProps.downloading ? 50 : 150);
             }, prevProps.downloading ? 0 : 2 * GRAPHVIZ_PARSE_DELAY);
         }
-        this.ref.current.d3Force('collide', forceCollide(this.props.globals.forceCollideRadius))
+        this.ref.current.d3Force('collide', forceCollide(this.props.forceCollideRadius))
+        
+        if (prevProps.snapMode !== this.props.snapMode) {
+            this.ref.current.d3ReheatSimulation();
+        }
+    }
+
+    refreshGraph = () => {
+        this.setState({})
     }
 
     /**
@@ -127,8 +96,8 @@ export class Graph extends Component {
         const d = Math.sqrt((Math.pow(link.target.x - link.source.x, 2) + Math.pow(link.target.y - link.source.y, 2)))
         const d_y = link.target.y - link.source.y;
         const d_x = link.target.x - link.source.x;
-        const y_i = ((this.props.globals.NODE_RADIUS * d_y) / d);
-        const x_i = ((this.props.globals.NODE_RADIUS * d_x) / d);
+        const y_i = ((NODE_RADIUS * d_y) / d);
+        const x_i = ((NODE_RADIUS * d_x) / d);
         return {
             sourceX: x_i + link.source.x, sourceY: y_i + link.source.y, 
             targetX: -x_i + link.target.x, targetY: -y_i + link.target.y
@@ -148,8 +117,8 @@ export class Graph extends Component {
         const ady = y2 - y1;           // arrow dy
         const dist = Math.sqrt(adx * adx + ady * ady);
         // base of arrow, scaled to arrow size, on link
-        const tdx = this.props.globals.ARROW_SIZE * adx / dist;      // arrow triangle dx
-        const tdy = this.props.globals.ARROW_SIZE * ady / dist;      // arrow triangle dy
+        const tdx = ARROW_SIZE * adx / dist;      // arrow triangle dx
+        const tdy = ARROW_SIZE * ady / dist;      // arrow triangle dy
         const arrowBaseX = x2 - tdx; 
         const arrowBaseY = y2 - tdy; 
         ctx.beginPath();
@@ -170,7 +139,7 @@ export class Graph extends Component {
      * @param {*} globalScale zoom / scale of canvas 
      */
     drawLinks = (link, ctx, globalScale) => {
-        const data = this.props.globals.data;
+        const data = this.props.data;
         // create array of edges that also link between source and target node (regardless of direction)
         const repeats = data.links.filter(
             e => (e.source.id === link.source.id && e.target.id === link.target.id) 
@@ -209,7 +178,7 @@ export class Graph extends Component {
         // curved edge
         } else {
             // vertical height of edge based on distance and repeatedness of edge
-            const h = (Math.sqrt(dist) * 2 + (Math.floor((repeatCount + 1) / 2) - 1) * this.props.globals.NODE_RADIUS * 1.5) 
+            const h = (Math.sqrt(dist) * 2 + (Math.floor((repeatCount + 1) / 2) - 1) * NODE_RADIUS * 1.5) 
             // determining whether or not the line should be flipped based on:
             // edge direction, edge y displacement, alternations of edges  
                 * (link.source.id === src ? 1 : -1) * (dy < 0 ? 1 : -1) * (repeatCount % 2 === 0 ? 1 : -1);
@@ -252,8 +221,8 @@ export class Graph extends Component {
         // draw rate label circle
         ctx.beginPath();
         ctx.lineWidth = 2;
-        ctx.strokeStyle = link.inducer === undefined ? "green" : "red";
-        ctx.arc(arcMx, arcMy, this.props.globals.NODE_RADIUS * 0.75, 0, 2 * Math.PI);
+        ctx.strokeStyle = link.color;
+        ctx.arc(arcMx, arcMy, NODE_RADIUS * 0.75, 0, 2 * Math.PI);
         ctx.stroke();
         ctx.strokeStyle = link.color;
         ctx.fillStyle = "white";
@@ -278,7 +247,7 @@ export class Graph extends Component {
         // draw circle
         ctx.strokeStyle = node.color;
         ctx.beginPath();
-        ctx.arc(node.x, node.y, this.props.globals.NODE_RADIUS, 0, 2 * Math.PI);
+        ctx.arc(node.x, node.y, NODE_RADIUS, 0, 2 * Math.PI);
         ctx.fillStyle = "white";
         ctx.fill();
         ctx.stroke();
@@ -302,7 +271,7 @@ export class Graph extends Component {
      * @param {*} scale scale of canvas (zoom)
      */
     drawCanvas = (ctx, scale) => {
-        if (this.state.snapMode) {
+        if (this.props.snapMode) {
             const bh = Math.ceil(ctx.canvas.clientWidth / GRID_GAP) * GRID_GAP;
             const bw = Math.ceil(ctx.canvas.clientHeight / GRID_GAP) * GRID_GAP
             ctx.strokeStyle = "#b3b3b3";
@@ -328,14 +297,14 @@ export class Graph extends Component {
             <ForceGraph2D 
             ref={this.ref}
             id="graph" 
-            graphData={this.props.globals.data}
-            nodeVal={this.props.globals.NODE_RADIUS}
+            graphData={this.props.data}
+            nodeVal={NODE_RADIUS}
             nodeLabel=''
             nodeAutoColorBy='group'
             nodeCanvasObject={this.drawNode}
             // snap mode feature
             onNodeDragEnd={(node, translate) => {
-                if (this.state.snapMode) {
+                if (this.props.snapMode) {
                     node.fx = Math.round(node.x / GRID_GAP) * GRID_GAP;
                     node.fy = Math.round(node.y / GRID_GAP) * GRID_GAP;
                     node.x = Math.round(node.x / GRID_GAP) * GRID_GAP;
@@ -344,6 +313,7 @@ export class Graph extends Component {
             }}
             onNodeHover={(node) => {document.body.style.cursor = (node === null ? "pointer" : "grab")}}
             linkCanvasObject={this.drawLinks}
+            cooldownTime={1000}
             width={window.innerWidth >= CSS_BREAKPOINT ? window.innerWidth * WIDTH_RATIO : window.innerWidth}
             height={window.innerWidth >= CSS_BREAKPOINT ? window.innerHeight : window.innerHeight * WIDTH_RATIO}
             maxZoom={5}
@@ -352,8 +322,8 @@ export class Graph extends Component {
             onMouseOver={() => {document.body.style.cursor = "pointer"}}
             onMouseLeave={() => {document.body.style.cursor = "default"}}
             />
-        )
+            )
+        }
     }
-}
-
+    
 export default Graph
