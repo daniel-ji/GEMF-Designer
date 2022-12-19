@@ -6,13 +6,6 @@ import React, { Component } from 'react'
 import STREntry from './STREntry';
 
 export class ImportSTR extends Component {
-    constructor(props) {
-        super(props)
-
-        this.state = {
-        }
-    }
-
     render() {
         return (
             <div id="import-str-container" className="form-step">

@@ -19,8 +19,4 @@ edge curves?
 
 refactor all entries to be under one entry
 
-implement React Context API
-
-https://www.toptal.com/react/react-context-api
-
 clear graph when creating a new one? the interaction existing data and graph creation

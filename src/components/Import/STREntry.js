@@ -1,3 +1,6 @@
+/**
+ * STR entry (for created STR entries) component. Part of Form component.  
+ */
 import React, { Component } from 'react'
 import { LINK_SHORT_NAME } from '../../Constants'
 

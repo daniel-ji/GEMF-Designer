@@ -1,3 +1,6 @@
+/**
+ * Site modal, for displaying an errors / prompts / confirmations.
+ */
 import React, { Component } from 'react'
 
 export class SiteModal extends Component {

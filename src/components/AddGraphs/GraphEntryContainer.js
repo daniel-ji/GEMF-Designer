@@ -1,3 +1,6 @@
+/**
+ * Graph input container component. Part of Form component.  
+ */
 import React, { Component } from 'react'
 
 import GraphEntry from './GraphEntry';
@@ -12,8 +15,10 @@ export class GraphEntryContainer extends Component {
         }
     }
 
+    /**
+     * Update entries to ensure they contain any new graph edits.  
+     */
     componentDidMount() {
-        console.log(this.props.savedGraphs);
         this.props.getSavedGraphs();
     }
 

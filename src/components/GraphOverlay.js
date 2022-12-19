@@ -1,3 +1,6 @@
+/**
+ * Graph component of site, including graph itself. 
+ */
 import React, { Component } from 'react'
 
 import GraphComponent from './Graph';

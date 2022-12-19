@@ -1,3 +1,6 @@
+/**
+ * Graph input entry (for created graphs) component. Part of Form component.  
+ */
 import React, { Component } from 'react'
 import { LINK_SHORT_NAME } from '../../Constants'
 
@@ -20,6 +23,9 @@ export class GraphEntry extends Component {
         this.setState({show: !this.state.show})
     }
 
+    /**
+     * Toggle editable state of graph entry.
+     */
     toggleEditGraphName = () => {
         this.setState(prevState => {
             if (prevState.edit) {
@@ -30,10 +36,18 @@ export class GraphEntry extends Component {
         })
     }
 
+    /**
+     * Edit graph name.
+     * 
+     * @param {*} e event 
+     */
     editGraphName = (e) => {
         this.setState({graphName: e.target.value})
     }
 
+    /**
+     * Set graph name, after editing has been completed.
+     */
     setGraphName = () => {
         this.setState({edit: false, oldGraphName: this.state.graphName});
         const data = Object.assign({}, this.props.data);

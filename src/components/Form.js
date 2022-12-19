@@ -16,6 +16,7 @@ export class Form extends Component {
         super(props)
 
         this.state = {
+            // form confirm modal for deleting entries 
             deletePrompt: false,
             deleteCancelCallback: undefined,
             deleteConfirmCallback: undefined,

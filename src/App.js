@@ -84,7 +84,6 @@ export class App extends Component {
             db.onversionchange = () => {
                 db.close();
             }
-
             db.onerror = () => {
                 alert("IndexedDB error, graph data may have not properly been saved.")
             }
@@ -480,6 +479,11 @@ export class App extends Component {
         }
     }
 
+    /**
+     * Creates graph visualization using provided nodes and links
+     * @param {*} dotNodeContent node content to pass into dot engine 
+     * @param {*} dotLinkContent link content to pass into dot engine
+     */
     generateGraphviz = (dotNodeContent, dotLinkContent) => {
         this.setState({strGraphviz: 
             <Graphviz 
