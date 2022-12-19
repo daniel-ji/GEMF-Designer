@@ -1,10 +1,7 @@
 bug testing!!! (especially indexeddb, modal, loading in graphs, graph saving, graph deletion)
 
-
 code documentation
 magic numbers
-
-Shortcuts: Any suggestions (better than shift + g)
 
 rearrange entries (2)
     - order is stored as a data attribute
@@ -12,11 +9,11 @@ rearrange entries (2)
 
 auto draw snaps to grids
 
-drag and drop to create edges?
+drag and drop to create edges? click on node to select? 
 edge curves?
     - if line over line
         - move node
 
-refactor all entries to be under one entry
-
+discuss with jonathan: 
 clear graph when creating a new one? the interaction existing data and graph creation
+Shortcuts: Any suggestions (better than shift + g)

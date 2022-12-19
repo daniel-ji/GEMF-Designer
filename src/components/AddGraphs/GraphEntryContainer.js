@@ -4,7 +4,7 @@
 import React, { Component } from 'react'
 
 import GraphEntry from './GraphEntry';
-import { CREATE_ENTRY_ID } from '../../Constants';
+import { CREATE_ENTRY_ID, DEFAULT_GRAPH_DATA } from '../../Constants';
 
 export class GraphEntryContainer extends Component {
     constructor(props) {
@@ -48,7 +48,9 @@ export class GraphEntryContainer extends Component {
                 this.props.db.transaction('graphs', 'readwrite')
                 .objectStore('graphs')
                 .put(data).onsuccess = () => {
-                    this.props.getSavedGraphs();
+                    this.props.getSavedGraphs(() => {
+                        this.props.setGraph(data.id);
+                    });   
                 }
             })
         } else {
@@ -75,11 +77,9 @@ export class GraphEntryContainer extends Component {
         .objectStore('graphs')
         .delete(id).onsuccess = () => {
             // if current graph was deleted
-            if (id === this.props.selectedGraph) {
+            if (id === this.props.selectedGraph?.id) {
                 this.props.setGraph(undefined);
-                const newData = Object.assign({}, this.props.data);
-                newData.id = CREATE_ENTRY_ID();
-                this.props.setGraphData(newData);
+                this.props.setGraphData(DEFAULT_GRAPH_DATA())
             }
 
             this.props.getSavedGraphs();

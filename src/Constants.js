@@ -75,3 +75,12 @@ export const COMPARE_GRAPH = (graph1, graph2) => {
 
     return true;
 }
+export const DEFAULT_GRAPH_DATA = () => {
+    return {
+        id: CREATE_ENTRY_ID(),
+        name: undefined, 
+        lastModified: undefined,
+        nodes: [],
+        links: [],
+    }
+}

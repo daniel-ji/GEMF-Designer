@@ -9,7 +9,7 @@ import GraphEntryContainer from './AddGraphs/GraphEntryContainer';
 import Welcome from './Welcome';
 import ImportSTR from './Import/ImportSTR';
 import FinalData from './FinalData';
-import { FORM_STEPS } from '../Constants';
+import { FORM_STEPS, DEFAULT_GRAPH_DATA } from '../Constants';
 
 export class Form extends Component {
     constructor(props) {
@@ -99,6 +99,7 @@ export class Form extends Component {
     setGraph = (id) => {
         this.setState(prevState => {
             if (prevState.selectedGraph === id || id === undefined) {
+                this.props.setGraphData(DEFAULT_GRAPH_DATA())
                 return {selectedGraph: undefined}
             } else {
                 this.props.setFormError("");

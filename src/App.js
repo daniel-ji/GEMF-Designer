@@ -14,7 +14,7 @@ import {
     WIDTH_RATIO, NODE_COLLIDE_RADIUS, NODE_RADIUS, ARROW_SIZE, FORM_STEPS,
     GRAPHVIZ_PARSE_DELAY, GRAPHVIZ_PARSE_RETRY_INTERVAL, STR_REGEX, INVALID_STR_FILE_ERROR,
     INVALID_STR_ENTRY_ERROR, INVALID_STR_SELF_LOOP_ERROR, INVALID_STR_NODE_NAME_ERROR,
-    INVALID_STR_RATE_ERROR, CREATE_ENTRY_ID, COMPARE_GRAPH
+    INVALID_STR_RATE_ERROR, CREATE_ENTRY_ID, COMPARE_GRAPH, DEFAULT_GRAPH_DATA
 } from './Constants';
 
 export class App extends Component {
@@ -26,14 +26,7 @@ export class App extends Component {
             globals: {
                 NODE_RADIUS: NODE_RADIUS,
                 ARROW_SIZE: ARROW_SIZE,
-                data: {
-                    id: CREATE_ENTRY_ID(),
-                    name: undefined, 
-                    lastModified: undefined,
-                    nodes: [],
-                    links: [],
-                    linkCounter: {},
-                },
+                data: DEFAULT_GRAPH_DATA(),
                 // form step counter
                 step: 0,
             },
@@ -65,6 +58,8 @@ export class App extends Component {
     }
 
     componentDidMount() {
+        setInterval(() => console.log(this.state.globals.data), 1000);
+
         // IndexedDB for Graph Loading / Saving
         const openRequest = indexedDB.open('data');
 
@@ -168,11 +163,13 @@ export class App extends Component {
     /**
      * Get saved graphs from IndexedDB.
      */
-    getSavedGraphs = () => {
+    getSavedGraphs = (callback) => {
         this.state.db.transaction('graphs')
         .objectStore('graphs')
         .getAll().onsuccess = (e) => {
-            this.setState({savedGraphs: e.target.result.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified))})
+            this.setState({savedGraphs: e.target.result.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified))}, () => {
+                callback !== undefined && callback();
+            })
         }
     }
 
@@ -286,14 +283,8 @@ export class App extends Component {
         this.state.db.transaction('graphs', 'readwrite')
         .objectStore('graphs')
         .delete(this.state.globals.data.id)
-        // clear data in react state
-        const data = Object.assign({}, this.state.globals.data);
-        data.id = CREATE_ENTRY_ID();
-        data.nodes = [];
-        data.links = [];
-        data.linkCounter = {};
         // update graph data
-        this.setGraphData(data);
+        this.setGraphData(DEFAULT_GRAPH_DATA());
         this.incrementStep(-10);
     }
 
@@ -413,7 +404,8 @@ export class App extends Component {
                                 source: getNodeID(i, 0),
                                 target: getNodeID(i, 1),
                                 inducer: undefined,
-                                rate: parseFloat(parsedSTR[i][3])
+                                rate: parseFloat(parsedSTR[i][3]),
+                                color: '#000000',
                             }
                             newLinks.push(linkObject);
                             links.push(linkObject);

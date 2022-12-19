@@ -116,7 +116,7 @@ export class GraphEntry extends Component {
                     <button 
                     className={`btn btn-${this.props.selected ? 'success' : 'secondary'} p-0 mb-3`}
                     style={{minWidth: "10%"}}
-                    onClick={() => this.props.setGraph(data.id)}>
+                    onClick={() => this.props.setGraph(this.props.selected ? undefined : data.id)}>
                         <i className="bi bi-check-square" />
                     </button>
                 </div>
