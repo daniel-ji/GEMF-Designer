@@ -316,3 +316,7 @@ body {
             user-select: none; /* Non-prefixed version, currently
                                 supported by Chrome, Edge, Opera and Firefox */
 }
+
+.sortable-chosen, sortable-chosen.sortable-ghost {
+    opacity: 1;
+}

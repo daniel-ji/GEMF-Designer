@@ -167,9 +167,7 @@ export class App extends Component {
         this.state.db.transaction('graphs')
         .objectStore('graphs')
         .getAll().onsuccess = (e) => {
-            this.setState({savedGraphs: e.target.result.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified))}, () => {
-                callback !== undefined && callback();
-            })
+            this.setState({savedGraphs: e.target.result.sort((a, b) => a.order - b.order)}, callback)
         }
     }
 
@@ -418,6 +416,7 @@ export class App extends Component {
                                 inducer: undefined,
                                 rate: parseFloat(parsedSTR[i][3]),
                                 color: '#000000',
+                                order: links.length,
                             }
                             newLinks.push(linkObject);
                             links.push(linkObject);
@@ -437,6 +436,7 @@ export class App extends Component {
                                 inducer: getNodeID(i, 2),
                                 rate: parseFloat(parsedSTR[i][3]), 
                                 color: '#000000',
+                                order: links.length
                             }
                             newLinks.push(linkObject);
                             links.push(linkObject);

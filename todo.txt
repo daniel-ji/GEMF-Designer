@@ -5,6 +5,9 @@ magic numbers
 
 New features:
 - Rearrangeable entries
+    - TODO:
+        - deletion for graph and link
+        - creation, update, and deletion for node and str
 - During transition creation, click on states to auto-fill source / target / inducer 
 - Global adjustable font sizes for states and transitions
 - Global and local shapes for states and transitions (squares, circles, diamonds, pentagons, hexagons, triangles)
