@@ -9,7 +9,7 @@ import GraphEntryContainer from './AddGraphs/GraphEntryContainer';
 import Welcome from './Welcome';
 import ImportSTR from './Import/ImportSTR';
 import FinalData from './FinalData';
-import { FORM_STEPS, DEFAULT_GRAPH_DATA } from '../Constants';
+import { FORM_STEPS } from '../Constants';
 
 export class Form extends Component {
     constructor(props) {
