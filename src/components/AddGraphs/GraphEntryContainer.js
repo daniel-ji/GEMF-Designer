@@ -2,9 +2,10 @@
  * Graph input container component. Part of Form component.  
  */
 import React, { Component } from 'react'
+import Sortable from 'sortablejs';
 
 import GraphEntry from './GraphEntry';
-import { CREATE_ENTRY_ID, DEFAULT_GRAPH_DATA } from '../../Constants';
+import { CREATE_ENTRY_ID, DEFAULT_GRAPH_DATA, UPDATE_DATA_ORDER } from '../../Constants';
 
 export class GraphEntryContainer extends Component {
     constructor(props) {
@@ -12,6 +13,7 @@ export class GraphEntryContainer extends Component {
         
         this.state = {
             newGraphName: '',
+            sortable: undefined,
         }
     }
 
@@ -20,6 +22,16 @@ export class GraphEntryContainer extends Component {
      */
     componentDidMount() {
         this.props.getSavedGraphs();
+
+        this.setState({sortable: new Sortable(document.getElementById('graphEntries'), {
+            onUpdate: (e) => {
+                for (const savedGraph of UPDATE_DATA_ORDER(e, this.props.savedGraphs)) {
+                    this.props.db.transaction('graphs', 'readwrite')
+                    .objectStore('graphs')
+                    .put(savedGraph)
+                }
+            }
+        })})
     }
 
     /**
@@ -41,6 +53,7 @@ export class GraphEntryContainer extends Component {
             data.name = this.state.newGraphName;
             data.id = CREATE_ENTRY_ID();
             data.lastModified = new Date();
+            data.order = this.props.savedGraphs.length;
             this.setState({newGraphName: ''});
     
             // update graph data with new name and put data in IndexedDB
@@ -94,17 +107,19 @@ export class GraphEntryContainer extends Component {
                     </button>
                 </div>
                 <h4 className="w-100 text-center">Select Saved Graphs</h4>
-                {this.props.savedGraphs.map(entry => 
-                    <GraphEntry
-                    key={entry.id}
-                    data={entry}
-                    deleteGraphEntry={this.deleteGraphEntry}
-                    deletePrompt={this.props.deletePrompt}
-                    setGraph={this.props.setGraph}
-                    selected={this.props.selectedGraph === entry.id}
-                    db={this.props.db}
-                    />
-                )}
+                <div id="graphEntries">
+                    {this.props.savedGraphs.map(entry => 
+                        <GraphEntry
+                        key={entry.id}
+                        data={entry}
+                        deleteGraphEntry={this.deleteGraphEntry}
+                        deletePrompt={this.props.deletePrompt}
+                        setGraph={this.props.setGraph}
+                        selected={this.props.selectedGraph === entry.id}
+                        db={this.props.db}
+                        />
+                    )}
+                </div>
             </div>
         )
     }

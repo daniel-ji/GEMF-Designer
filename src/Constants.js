@@ -75,13 +75,51 @@ export const COMPARE_GRAPH = (graph1, graph2) => {
 
     return true;
 }
+/**
+ * Return graph data as loads (everything empty). Used for when graph is reset.
+ * 
+ * @returns default graph data
+ */
 export const DEFAULT_GRAPH_DATA = () => {
     return {
         id: CREATE_ENTRY_ID(),
         name: undefined, 
         lastModified: undefined,
+        order: undefined,
         nodes: [],
         links: [],
         STRData: [],
     }
+}
+/**
+ * Updates order of given entries of data, used after entries are re-arranged by user.
+ * @param {*} e event from Sortable
+ * @param {*} providedData graph data
+ * @param {*} entry entry to sort, if not provided, sorts the data itself
+ * 
+ * @returns new graph data
+ */
+export const UPDATE_DATA_ORDER = (e, providedData, entry = false) => {
+    const iterable = entry ? Object.assign({}, providedData)[entry] : providedData;
+    // moved item up
+    if (e.newIndex < e.oldIndex) {
+        for (const item of iterable) {
+            if (item.order == e.oldIndex) {
+                item.order = e.newIndex;
+            } else if (item.order < e.oldIndex && item.order >= e.newIndex) {
+                item.order++;
+            }
+        }
+    // moved item down
+    } else {
+        for (const item of iterable) {
+            if (item.order == e.oldIndex) {
+                item.order = e.newIndex;
+            } else if (item.order > e.oldIndex && item.order <= e.newIndex) {
+                item.order--;
+            }
+        }
+    }
+    iterable.sort((a, b) => a.order - b.order)
+    return iterable;
 }

@@ -2,10 +2,11 @@
  * Edge input container component. Part of Form component.  
  */
 import React, { Component } from 'react'
+import Sortable from 'sortablejs';
 
 import AddEdgesEntry from './AddEdgesEntry'
 
-import { LINK_SHORT_NAME } from '../../Constants';
+import { LINK_SHORT_NAME, UPDATE_DATA_ORDER } from '../../Constants';
 
 export class AddEdgesContainer extends Component {
     constructor(props) {
@@ -15,7 +16,26 @@ export class AddEdgesContainer extends Component {
             // existing edges 
             edgeEntries: [],
             mounted: false,
+            sortable: undefined,
         }
+    }
+
+    /**
+     * Create entries for all pre-existing edge.
+     */
+    componentDidMount() {
+        const data = Object.assign({}, this.props.data);
+        for (const link of data.links) {
+            link.shortName = LINK_SHORT_NAME(link, data);
+        }
+
+        this.props.setGraphData(data);
+        this.createEdgeEntry(this.props.data.links);
+        this.setState({sortable: new Sortable(document.getElementById('linkEntries'), {
+            onUpdate: (e) => {
+                this.props.setGraphData(UPDATE_DATA_ORDER(e, this.props.data, 'links'));
+            }
+        })})
     }
 
     /**
@@ -76,7 +96,7 @@ export class AddEdgesContainer extends Component {
                 inducer: inducerID === -1 ? undefined : inducerID,
                 rate: rateInput.value,
                 color: '#000000',
-                order: this.props.data.links.length 
+                order: this.props.data.links.length
             }
             newLink.shortName = LINK_SHORT_NAME(newLink, data);
             data.links.push(newLink)
@@ -163,6 +183,7 @@ export class AddEdgesContainer extends Component {
             edgeEntries: [...this.state.edgeEntries,
             ...links.map(link => 
                 <AddEdgesEntry 
+                id={link.id}
                 key={link.id}
                 data={this.props.data} 
                 link={link}
@@ -171,19 +192,6 @@ export class AddEdgesContainer extends Component {
                 setFormError={this.props.setFormError}
                 />)
         ]})
-    }
-
-    /**
-     * Create entries for all pre-existing edge.
-     */
-    componentDidMount() {
-        const data = Object.assign({}, this.props.data);
-        for (const link of data.links) {
-            link.shortName = LINK_SHORT_NAME(link, data);
-        }
-
-        this.props.setGraphData(data);
-        this.createEdgeEntry(this.props.data.links);
     }
 
     render() {
@@ -239,7 +247,9 @@ export class AddEdgesContainer extends Component {
                     style={{width: "30%"}} 
                     onClick={this.addEdge}>Add</button>
                 </div>
-                {this.state.edgeEntries}
+                <div id="linkEntries">
+                    {this.state.edgeEntries}
+                </div>
             </div>
         )
     }

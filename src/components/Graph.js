@@ -46,10 +46,6 @@ export class Graph extends Component {
         }
     }
 
-    refreshGraph = () => {
-        this.setState({})
-    }
-
     /**
      * From: https://stackoverflow.com/questions/62550460/how-to-draw-a-curve-that-passes-three-points-in-canvas
      * Returns a circle fitted to three coordinates, for drawing curved edges on graph.
