@@ -15,6 +15,7 @@ export class GraphOverlay extends Component {
             snapModeDelayed: false,
             shortcutMode: false,
             graphFocused: false,
+            downloading: false,
         }
     }
 
@@ -50,11 +51,23 @@ export class GraphOverlay extends Component {
         }
     }
 
+    /**
+     * Toggle gridlines.
+     */
     toggleGrid = () => {
         if (!this.state.snapModeDelayed) {
             this.setState(prevState => {return {snapMode: !prevState.snapMode, snapModeDelayed: true}})
             setTimeout(() => this.setState({snapModeDelayed: false}), 100)
         }
+    }
+
+    /**
+     * Start download of graph as PNG / SVG. 
+     * @param {*} fileType file type of graphic to download
+     */
+    startDownload = (fileType) => {
+        this.setState({downloading: fileType});
+        setTimeout(() => this.setState({downloading: false}), 500);
     }
 
     render() {
@@ -71,8 +84,8 @@ export class GraphOverlay extends Component {
                             <i className="bi bi-download"></i>
                         </button>
                         <ul className="dropdown-menu">
-                            <li><button className="dropdown-item" onClick={() => this.props.downloadGraph('svg')}>SVG</button></li>
-                            <li><button className="dropdown-item" onClick={() => this.props.downloadGraph('png')}>PNG</button></li>
+                            <li><button className="dropdown-item" onClick={() => this.startDownload('SVG')}>SVG</button></li>
+                            <li><button className="dropdown-item" onClick={() => this.startDownload('PNG')}>PNG</button></li>
                         </ul>
                     </div>
                     <button type="button"
@@ -90,7 +103,7 @@ export class GraphOverlay extends Component {
                 <GraphComponent 
                 forceCollideRadius={this.props.forceCollideRadius}
                 data={this.props.data}
-                downloading={this.props.downloading}
+                downloading={this.state.downloading}
                 snapMode={this.state.snapMode}
                 /> 
             </div>

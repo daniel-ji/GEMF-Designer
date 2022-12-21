@@ -104,7 +104,7 @@ export const UPDATE_DATA_ORDER = (e, providedData, entry = false) => {
     // moved item up
     if (e.newIndex < e.oldIndex) {
         for (const item of iterable) {
-            if (item.order == e.oldIndex) {
+            if (item.order === e.oldIndex) {
                 item.order = e.newIndex;
             } else if (item.order < e.oldIndex && item.order >= e.newIndex) {
                 item.order++;
@@ -113,7 +113,7 @@ export const UPDATE_DATA_ORDER = (e, providedData, entry = false) => {
     // moved item down
     } else {
         for (const item of iterable) {
-            if (item.order == e.oldIndex) {
+            if (item.order === e.oldIndex) {
                 item.order = e.newIndex;
             } else if (item.order > e.oldIndex && item.order <= e.newIndex) {
                 item.order--;

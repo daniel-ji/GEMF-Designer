@@ -5,6 +5,9 @@
 import React, { Component } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
 import {forceCollide} from 'd3-force';
+import { saveAs } from 'file-saver';
+
+import C2S from '../Canvas2SVG';
 
 import { CSS_BREAKPOINT, GRAPHVIZ_PARSE_DELAY, NODE_FONT_SIZE, NODE_TEXT_OVERFLOW, RATE_FONT_SIZE, 
     RATE_TEXT_OVERFLOW, WIDTH_RATIO, GRID_GAP, NODE_RADIUS, ARROW_SIZE} from '../Constants';
@@ -24,25 +27,72 @@ export class Graph extends Component {
         this.ref.current.d3Force('center', null)
         this.ref.current.d3Force('collide', forceCollide(this.props.forceCollideRadius))
         this.ref.current.d3Force('link', null)
-        setTimeout(() => {
-            this.ref.current.zoomToFit(0, 150);
-        }, 500)
+        this.ref.current.zoomToFit(0, 50);
     }
 
     /**
      * Update collision force on graph update. Also re-fit graph through 
-     * zoom function on import if new STR has been imported / image is being downloaded.
+     * zoom function on import if new STR has been imported / image is being downloaded / new graph is loaded in.
      */
     componentDidUpdate(prevProps, prevState) {
-        if (prevProps.data.STRData.length !== this.props.data.STRData.length || prevProps.downloading) {
-            setTimeout(() => {
-                this.ref.current.zoomToFit(0, prevProps.downloading ? 50 : 150);
-            }, prevProps.downloading ? 0 : 2 * GRAPHVIZ_PARSE_DELAY);
-        }
         this.ref.current.d3Force('collide', forceCollide(this.props.forceCollideRadius))
+        
+        if (prevProps.data.name !== this.props.data.name ||
+            prevProps.data.STRData.length !== this.props.data.STRData.length || 
+            prevProps.downloading) {
+            setTimeout(() => {
+                this.ref.current.zoomToFit(0, 50);
+            }, prevProps.data.STRData.length === this.props.data.STRData.length ? 0 : 2 * GRAPHVIZ_PARSE_DELAY);
+        }
+        
+        if (this.props.downloading && !prevProps.downloading) {
+            this.downloadGraph(this.props.downloading);
+        }
         
         if (prevProps.snapMode !== this.props.snapMode) {
             this.ref.current.d3ReheatSimulation();
+        }
+    }
+
+    /**
+     * Download graph in given file type. Utilizes Canvas.toBlob (built-in) for PNG
+     * and canvasToSvg (external library) for SVG. SVG is flawed, just a PNG in svg. 
+     * 
+     * @param {*} fileType file type of image to download 
+     */
+    downloadGraph = (fileType) => {
+        if (this.props.data.nodes.length > 0) {
+            const canvas = document.getElementsByClassName("force-graph-container")[0].firstChild;
+            if (fileType === 'PNG') {
+                setTimeout(() => {
+                    canvas.toBlob(blob => {saveAs(blob, `STR Graph ${this.props.data.name}.png`)})
+                }, 1500)
+            } else if (fileType === 'SVG') {
+                // //Create a new mock canvas context. Pass in your desired width and height for your svg document.
+                const width = this.ref.current.screen2GraphCoords(canvas.width, canvas.height).x  - this.ref.current.screen2GraphCoords(0, 0).x;
+                const height = this.ref.current.screen2GraphCoords(canvas.width, canvas.height).y  - this.ref.current.screen2GraphCoords(0, 0).y;
+                const ctx = new C2S(width, height);
+                const nodes = JSON.parse(JSON.stringify(this.props.data.nodes));
+                const links = JSON.parse(JSON.stringify(this.props.data.links))
+                const leftX = this.ref.current.screen2GraphCoords(0, 0).x;
+                const topY = this.ref.current.screen2GraphCoords(0, 0).y;
+
+                for (const node of nodes) {
+                    node.x = node.x - leftX;
+                    node.y = node.y - topY;
+                    this.drawNode(node, ctx)
+                }
+
+                for (const link of links) {
+                    link.target.x = link.target.x - leftX;
+                    link.source.x = link.source.x - leftX;
+                    link.target.y = link.target.y - topY;
+                    link.source.y = link.source.y - topY;
+                    this.drawLink(link, ctx)
+                }
+
+                saveAs(new Blob([ctx.getSerializedSvg()], {type: 'image/svg+xml'}), `STR Graph ${this.props.data.name}.svg`)
+            }
         }
     }
 
@@ -134,7 +184,7 @@ export class Graph extends Component {
      * @param {*} ctx canvas to draw on
      * @param {*} globalScale zoom / scale of canvas 
      */
-    drawLinks = (link, ctx, globalScale) => {
+    drawLink = (link, ctx, globalScale) => {
         const data = this.props.data;
         // create array of edges that also link between source and target node (regardless of direction)
         const repeats = data.links.filter(
@@ -308,7 +358,7 @@ export class Graph extends Component {
                 }
             }}
             onNodeHover={(node) => {document.body.style.cursor = (node === null ? "pointer" : "grab")}}
-            linkCanvasObject={this.drawLinks}
+            linkCanvasObject={this.drawLink}
             cooldownTime={1000}
             width={window.innerWidth >= CSS_BREAKPOINT ? window.innerWidth * WIDTH_RATIO : window.innerWidth}
             height={window.innerWidth >= CSS_BREAKPOINT ? window.innerHeight : window.innerHeight * WIDTH_RATIO}

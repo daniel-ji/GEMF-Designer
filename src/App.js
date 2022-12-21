@@ -1,9 +1,6 @@
 import React, {Component} from 'react';
 import Graphviz from 'graphviz-react';
 
-import canvasToSvg from "canvas-to-svg";
-import { saveAs } from 'file-saver';
-
 import Form from './components/Form';
 import GraphOverlay from './components/GraphOverlay';
 import SiteModal from './components/SiteModal';
@@ -11,7 +8,7 @@ import SiteModal from './components/SiteModal';
 import './App.scss';    
 
 import {
-    WIDTH_RATIO, NODE_COLLIDE_RADIUS, NODE_RADIUS, ARROW_SIZE, FORM_STEPS,
+    WIDTH_RATIO, NODE_COLLIDE_RADIUS, NODE_RADIUS, FORM_STEPS,
     GRAPHVIZ_PARSE_DELAY, GRAPHVIZ_PARSE_RETRY_INTERVAL, STR_REGEX, INVALID_STR_FILE_ERROR,
     INVALID_STR_ENTRY_ERROR, INVALID_STR_SELF_LOOP_ERROR, INVALID_STR_NODE_NAME_ERROR,
     INVALID_STR_RATE_ERROR, CREATE_ENTRY_ID, COMPARE_GRAPH, DEFAULT_GRAPH_DATA
@@ -38,8 +35,6 @@ export class App extends Component {
             formErrorTrans: false,
             // if form error message is hidden
             formErrorHide: false,
-            // flag for downloading graph
-            downloading: false,
             // database for indexeddb
             db: undefined,
             savedGraphs: undefined,
@@ -237,40 +232,6 @@ export class App extends Component {
      */
     setForceCollideRadius = (radius) => {
         this.setState({forceCollideRadius: radius})
-    }
-
-    /**
-     * Download graph in given file type. Utilizes Canvas.toBlob (built-in) for PNG
-     * and canvasToSvg (external library) for SVG. SVG is flawed, just a PNG in svg. 
-     * 
-     * @param {*} fileType file type of image to download 
-     */
-    downloadGraph = (fileType) => {
-        if (this.state.data.nodes.length > 0) {
-            const canvas = document.getElementsByClassName("force-graph-container")[0].firstChild;
-    
-            // set downloading to true immediately to call force-graph zoom to fit
-            this.setState({downloading: true}, () => {
-                // wait 1500ms before starting download process
-                setTimeout(() => {
-                    switch (fileType) {
-                        case 'png':
-                            canvas.toBlob(blob => {
-                                saveAs(blob, "STRGraph.png");
-                            })
-                            break;
-                        case 'svg':
-                        default: 
-                            const ctx = new canvasToSvg(2 * canvas.offsetWidth, 2 * canvas.offsetHeight);
-                            ctx.drawImage(canvas, 0, 0, 2 * canvas.offsetWidth, 2 * canvas.offsetHeight);
-                            const serializedSVG = ctx.getSerializedSvg();
-                            saveAs(new Blob([serializedSVG], {type:"image/svg+xml;charset=utf-8"}), "STRGraph.svg");
-                    }
-                }, 1500)
-            })
-            // set download back to false to reset flag for next download
-            setTimeout(() => this.setState({downloading: false}), 500);
-        }
     }
 
     /**
@@ -545,6 +506,7 @@ export class App extends Component {
             }
 
             this.setGraphData(data);
+            this.setState({strGraphviz: undefined});
         } else {
             // retry in 200ms if graph has not rendered yet
             setTimeout(() => this.parseGraphvizSVG(nodes, links), GRAPHVIZ_PARSE_RETRY_INTERVAL);
@@ -590,8 +552,6 @@ export class App extends Component {
             forceCollideRadius={this.state.forceCollideRadius}
             data={this.state.data}
             autoDraw={this.autoDraw}
-            downloadGraph={this.downloadGraph}
-            downloading={this.state.downloading}
             deleteGraphPrompt={this.deleteGraphPrompt}
             />
             <Form

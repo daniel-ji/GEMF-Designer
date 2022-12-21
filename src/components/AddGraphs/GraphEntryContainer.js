@@ -48,7 +48,9 @@ export class GraphEntryContainer extends Component {
      */
     createGraph = () => {
         // ensure graph name doesn't exist already
-        if (!this.props.savedGraphs.map(entry => entry.name).includes(this.state.newGraphName)) {
+        if (this.state.newGraphName === '') {
+            this.props.setFormError("Graph name cannot be empty.", true);
+        } else if (!this.props.savedGraphs.map(entry => entry.name).includes(this.state.newGraphName)) {
             const data = Object.assign({}, this.props.data);
             data.name = this.state.newGraphName;
             data.id = CREATE_ENTRY_ID();
