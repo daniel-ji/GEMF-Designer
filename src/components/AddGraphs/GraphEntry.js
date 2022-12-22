@@ -54,6 +54,7 @@ export class GraphEntry extends Component {
         data.name = this.state.graphName;
         this.props.db.transaction('graphs', 'readwrite').objectStore('graphs')
         .put(data);
+        this.props.setGraphData(data);
     }
 
     /**
@@ -80,8 +81,8 @@ export class GraphEntry extends Component {
                 <div className="d-flex flex-wrap justify-content-between mt-3 w-100">
                     <div style={{width: this.state.edit ? "50%" : "60%"}}>
                         {this.state.edit ?
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" placeholder="Graph Name" aria-label="Username" 
+                        <div className="input-group mb-3">
+                            <input type="text" className="form-control" placeholder="Graph Name" aria-label="Username" 
                             value={this.state.graphName} onChange={this.editGraphName} />
                         </div>
                         :

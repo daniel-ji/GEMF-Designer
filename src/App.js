@@ -11,7 +11,7 @@ import {
     WIDTH_RATIO, NODE_COLLIDE_RADIUS, NODE_RADIUS, FORM_STEPS,
     GRAPHVIZ_PARSE_DELAY, GRAPHVIZ_PARSE_RETRY_INTERVAL, STR_REGEX, INVALID_STR_FILE_ERROR,
     INVALID_STR_ENTRY_ERROR, INVALID_STR_SELF_LOOP_ERROR, INVALID_STR_NODE_NAME_ERROR,
-    INVALID_STR_RATE_ERROR, CREATE_ENTRY_ID, COMPARE_GRAPH, DEFAULT_GRAPH_DATA
+    INVALID_STR_RATE_ERROR, CREATE_ENTRY_ID, COMPARE_GRAPH, DEFAULT_GRAPH_DATA, UPDATE_DATA_DEL
 } from './Constants';
 
 export class App extends Component {
@@ -524,14 +524,17 @@ export class App extends Component {
         const data = Object.assign({}, this.state.data);
         const entryData = this.state.data.STRData.find(entry => entry.id === id);
         for (const linkID of entryData.links) {
-            data.links.splice(data.links.findIndex(entry => entry.id === linkID), 1);
+            if (data.links.findIndex(entry => entry.id === linkID) !== -1) {
+                UPDATE_DATA_DEL(data.links.find(entry => entry.id === linkID).order, data.links);
+                data.links.splice(data.links.findIndex(entry => entry.id === linkID), 1);
+            }
         }
         for (const nodeID of entryData.nodes) {
             const otherLinks = data.links.filter(link => (link.source.id === nodeID || 
                 link.target.id === nodeID || link.inducer === nodeID) && !entryData.links.includes(link.id))
-
-            if (otherLinks.length === 0) {
-                data.nodes.splice(data.nodes.findIndex(entry => entry.id === nodeID), 1);
+            const index = data.nodes.findIndex(entry => entry.id === nodeID);
+            if (otherLinks.length === 0 && index !== -1) {
+                data.nodes.splice(index, 1);
             }
         }
         this.setGraphData(data);

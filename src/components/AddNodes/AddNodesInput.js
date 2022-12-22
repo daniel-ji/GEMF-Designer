@@ -3,7 +3,7 @@
  * The actual individual inputs.    
  */
 import React, { Component, Fragment } from 'react'
-import {NODE_COLLIDE_RADIUS, NODE_RADIUS} from '../../Constants';
+import {NODE_COLLIDE_RADIUS, NODE_RADIUS, UPDATE_DATA_DEL} from '../../Constants';
 
 export class AddNodesInput extends Component {
     constructor(props) {
@@ -82,8 +82,12 @@ export class AddNodesInput extends Component {
         const data = Object.assign({}, this.props.data);
         data.nodes.splice(data.nodes.findIndex(node => node.id === this.state.count), 1);
         // have to do it this way because of weird React should-update interaction and the lack of deepness of the comparison check (i think?)
-        while (data.links.findIndex(link => link.source.id === this.state.count || link.target.id === this.state.count || link.inducer === this.state.count) !== -1) {
-            data.links.splice(data.links.findIndex(link => link.source.id === this.state.count || link.target.id === this.state.count || link.inducer === this.state.count), 1)
+        while (data.links.findIndex(link => link.source.id === this.state.count 
+            || link.target.id === this.state.count || link.inducer === this.state.count) !== -1) {
+            const linkToDel = data.links.find(link => link.source.id === this.state.count || 
+                link.target.id === this.state.count || link.inducer === this.state.count)
+            UPDATE_DATA_DEL(linkToDel.order, data.links);
+            data.links.splice(data.links.indexOf(linkToDel), 1)
         }
         this.props.setGraphData(data);
         this.setState({deleted: true})

@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * Constant values to share across components. 
  */
@@ -122,4 +123,21 @@ export const UPDATE_DATA_ORDER = (e, providedData, entry = false) => {
     }
     iterable.sort((a, b) => a.order - b.order)
     return iterable;
+}
+/**
+ * Updates the order of other entries after deleting an entry from data.
+ * 
+ * @param {*} order the order of the deleted element
+ * @param {*} entries the total set of entries
+ * @returns updated entries
+ */
+export const UPDATE_DATA_DEL = (order, entries) => {
+    for (const entry of entries) {
+        if (entry.order > order) {
+            entry.order--;
+        }
+    }
+
+
+    return entries;
 }

@@ -3,8 +3,6 @@ bug testing!!! (especially indexeddb, modal, loading in graphs, graph saving, gr
 code documentation
 magic numbers
 
-Bugs:
-- SVG is not actual SVG
 Improve Features:
 New features:
 - Rearrangeable entries

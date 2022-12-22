@@ -5,7 +5,7 @@ import React, { Component } from 'react'
 import Sortable from 'sortablejs';
 
 import GraphEntry from './GraphEntry';
-import { CREATE_ENTRY_ID, DEFAULT_GRAPH_DATA, UPDATE_DATA_ORDER } from '../../Constants';
+import { CREATE_ENTRY_ID, DEFAULT_GRAPH_DATA, UPDATE_DATA_DEL, UPDATE_DATA_ORDER } from '../../Constants';
 
 export class GraphEntryContainer extends Component {
     constructor(props) {
@@ -25,7 +25,9 @@ export class GraphEntryContainer extends Component {
 
         this.setState({sortable: new Sortable(document.getElementById('graphEntries'), {
             onUpdate: (e) => {
-                for (const savedGraph of UPDATE_DATA_ORDER(e, this.props.savedGraphs)) {
+                const savedGraphs = JSON.parse(JSON.stringify(this.props.savedGraphs));
+                const updatedGraphs = UPDATE_DATA_ORDER(e, savedGraphs);
+                for (const savedGraph of updatedGraphs) {
                     this.props.db.transaction('graphs', 'readwrite')
                     .objectStore('graphs')
                     .put(savedGraph)
@@ -79,6 +81,7 @@ export class GraphEntryContainer extends Component {
      * @param {*} id id of graph to delete
      */
     deleteGraphEntry = (id) => {
+        const order = this.props.savedGraphs.find(graph => graph.id === id).order;
         this.props.db.transaction('graphs', 'readwrite')
         .objectStore('graphs')
         .delete(id).onsuccess = () => {
@@ -88,7 +91,20 @@ export class GraphEntryContainer extends Component {
                 this.props.setGraphData(DEFAULT_GRAPH_DATA())
             }
 
-            this.props.getSavedGraphs();
+            this.props.getSavedGraphs(() => {
+                const savedGraphs = JSON.parse(JSON.stringify(this.props.savedGraphs));
+                const updatedGraphs = UPDATE_DATA_DEL(order, savedGraphs);
+                for (const savedGraph of updatedGraphs) {
+                    if (savedGraph.id === this.props.selectedGraph) {
+                        const data = Object.assign({}, this.props.data);
+                        data.order = savedGraph.order;
+                        this.props.setGraphData(data);
+                    }
+                    this.props.db.transaction('graphs', 'readwrite')
+                    .objectStore('graphs')
+                    .put(savedGraph);
+                }
+            });
         }
     }
 
@@ -117,6 +133,7 @@ export class GraphEntryContainer extends Component {
                         deleteGraphEntry={this.deleteGraphEntry}
                         deletePrompt={this.props.deletePrompt}
                         setGraph={this.props.setGraph}
+                        setGraphData={this.props.setGraphData}
                         selected={this.props.selectedGraph === entry.id}
                         db={this.props.db}
                         />

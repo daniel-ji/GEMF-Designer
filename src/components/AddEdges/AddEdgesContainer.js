@@ -6,7 +6,7 @@ import Sortable from 'sortablejs';
 
 import AddEdgesEntry from './AddEdgesEntry'
 
-import { LINK_SHORT_NAME, UPDATE_DATA_ORDER } from '../../Constants';
+import { LINK_SHORT_NAME, UPDATE_DATA_DEL, UPDATE_DATA_ORDER } from '../../Constants';
 
 export class AddEdgesContainer extends Component {
     constructor(props) {
@@ -127,6 +127,7 @@ export class AddEdgesContainer extends Component {
      */
     deleteEdgeEntry = (id) => {
         const newData = Object.assign({}, this.props.data);
+        UPDATE_DATA_DEL(newData.links.find(l => l.id === id).order, newData.links);
         newData.links = newData.links.filter(l => l.id !== id);
         this.props.setGraphData(newData);
         this.setState({
