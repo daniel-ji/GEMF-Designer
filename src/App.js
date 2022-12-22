@@ -48,6 +48,7 @@ export class App extends Component {
     }
 
     componentDidMount() {
+        setTimeout(() =>{console.log(this.state.data);}, 3000);
         // IndexedDB for Graph Loading / Saving
         const openRequest = indexedDB.open('data');
 
@@ -346,7 +347,12 @@ export class App extends Component {
                     for (let j = 0; j < parsedSTR[i].length; j++) {
                         const foundNode = nodes.map(node => node.name).indexOf(parsedSTR[i][j]) !== -1;
                         // source and target node
-                        const nodeObject = {id: nodeID, name: parsedSTR[i][j], color: '#000000'}
+                        const nodeObject = {
+                            id: nodeID, 
+                            name: parsedSTR[i][j], 
+                            color: '#000000',
+                            order: nodes.length
+                        }
                         if (j <= 1 && !foundNode) {
                             newNodes.push(nodeObject);
                             nodes.push(nodeObject);
@@ -535,6 +541,7 @@ export class App extends Component {
                 link.target.id === nodeID || link.inducer === nodeID) && !entryData.links.includes(link.id))
             const index = data.nodes.findIndex(entry => entry.id === nodeID);
             if (otherLinks.length === 0 && index !== -1) {
+                UPDATE_DATA_DEL(data.nodes.find(entry => entry.id === nodeID).order, data.nodes);
                 data.nodes.splice(index, 1);
             }
         }

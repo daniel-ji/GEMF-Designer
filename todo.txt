@@ -5,7 +5,6 @@ magic numbers
 
 Improve Features:
 New features:
-- Rearrangeable entries
 - Global adjustable font sizes for states and transitions
 - Global and local shapes for states and transitions (squares, circles, diamonds, pentagons, hexagons, triangles)
 - Revert to default button (resets all the colors, fonts, and shapes)

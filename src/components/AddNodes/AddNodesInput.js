@@ -34,7 +34,8 @@ export class AddNodesInput extends Component {
                 name: e.target.value,
                 x: 0,
                 y: 0,
-                color: this.state.color
+                color: this.state.color,
+                order: data.nodes.length,
             })
             // temporarily sets the collision force to the whole node radius so that nodes do not intersect on creation
             this.props.setForceCollideRadius(NODE_RADIUS * 1.2);
@@ -80,7 +81,9 @@ export class AddNodesInput extends Component {
      */
     deleteInput = () => {
         const data = Object.assign({}, this.props.data);
-        data.nodes.splice(data.nodes.findIndex(node => node.id === this.state.count), 1);
+        const nodeToDel = data.nodes.find(node => node.id === this.state.count);
+        UPDATE_DATA_DEL(nodeToDel.order, data.nodes);
+        data.nodes.splice(data.nodes.indexOf(nodeToDel), 1);
         // have to do it this way because of weird React should-update interaction and the lack of deepness of the comparison check (i think?)
         while (data.links.findIndex(link => link.source.id === this.state.count 
             || link.target.id === this.state.count || link.inducer === this.state.count) !== -1) {

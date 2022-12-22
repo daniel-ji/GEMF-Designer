@@ -19,9 +19,7 @@ export class ImportSTR extends Component {
     componentDidMount() {
         this.setState({sortable: new Sortable(document.getElementById('strEntries'), {
             onUpdate: (e) => {
-                this.props.setGraphData(UPDATE_DATA_ORDER(e, this.props.data, 'STRData'), () => {
-                    console.log(this.props.data);
-                });
+                this.props.setGraphData(UPDATE_DATA_ORDER(e, this.props.data, 'STRData'));
             }
         })})
     }

@@ -2,9 +2,10 @@
  * Node input container component for creating nodes. Part of Form component.  
  */
 import React, { Component } from 'react'
+import Sortable from 'sortablejs'
 
 import AddNodesInput from './AddNodesInput'
-import { CREATE_ENTRY_ID } from '../../Constants'
+import { CREATE_ENTRY_ID, UPDATE_DATA_ORDER } from '../../Constants'
 
 export class AddNodesContainer extends Component {
     constructor(props) {
@@ -12,8 +13,27 @@ export class AddNodesContainer extends Component {
     
         this.state = {
             // stores all the node input react elements
-            nodeInputs: []
+            nodeInputs: [],
+            sortable: undefined
         }
+    }
+
+    /**
+     * On mount, render all existing node inputs and set up Sortable.
+     */
+    componentDidMount() {
+        const data = this.props.data;
+        this.setState({nodeInputs: [data.nodes.map(node => this.nodeInput(node.id, node.name)), 
+            this.nodeInput(CREATE_ENTRY_ID())
+        ]})
+
+        this.setState({sortable: new Sortable(document.getElementById('add-nodes-container'), {
+            onUpdate: (e) => {
+                this.props.setGraphData(UPDATE_DATA_ORDER(e, this.props.data, 'nodes'), () => {
+                    console.log(this.props.data);
+                });
+            }
+        })})
     }
 
     /**
@@ -48,16 +68,6 @@ export class AddNodesContainer extends Component {
                 this.nodeInput(CREATE_ENTRY_ID())
             ]})
         )
-    }
-
-    /**
-     * On mount, render all existing node inputs. 
-     */
-    componentDidMount() {
-        const data = this.props.data;
-        this.setState({nodeInputs: [data.nodes.map(node => this.nodeInput(node.id, node.name)), 
-            this.nodeInput(CREATE_ENTRY_ID())
-        ]})
     }
 
     render() {

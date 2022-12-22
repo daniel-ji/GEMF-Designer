@@ -18,7 +18,7 @@ export class GraphEntryContainer extends Component {
     }
 
     /**
-     * Update entries to ensure they contain any new graph edits.  
+     * Update entries to ensure they contain any new graph edits and set up Sortable.
      */
     componentDidMount() {
         this.props.getSavedGraphs();
