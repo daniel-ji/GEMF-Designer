@@ -423,7 +423,8 @@ export class App extends Component {
                 id: CREATE_ENTRY_ID(),
                 nodes: newNodes.map(node => node.id),
                 links: newLinks.map(link => link.id),
-                name: event.target.files[0].name
+                name: event.target.files[0].name,
+                order: data.STRData.length
             }]
 
             this.setGraphData(data);
@@ -538,6 +539,7 @@ export class App extends Component {
             }
         }
         this.setGraphData(data);
+        UPDATE_DATA_DEL(this.state.data.STRData.find(entry => entry.id === id).order, this.state.data.STRData);
         this.setSTRData(this.state.data.STRData.filter(entry => entry.id !== id));
     }
 

@@ -122,7 +122,7 @@ export const UPDATE_DATA_ORDER = (e, providedData, entry = false) => {
         }
     }
     iterable.sort((a, b) => a.order - b.order)
-    return iterable;
+    return providedData;
 }
 /**
  * Updates the order of other entries after deleting an entry from data.

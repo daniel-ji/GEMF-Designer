@@ -211,6 +211,7 @@ export class Form extends Component {
                     data={this.props.data}
                     deleteSTR={this.props.deleteSTR}
                     deletePrompt={this.deletePrompt}
+                    setGraphData={this.props.setGraphData}
                     />,
                     <AddNodesContainer 
                     data={this.props.data} 
