@@ -52,6 +52,11 @@ export class Graph extends Component {
         if (prevProps.snapMode !== this.props.snapMode) {
             this.ref.current.d3ReheatSimulation();
         }
+
+        window.onresize = (e) => {
+            this.forceUpdate();
+            this.ref.current.resumeAnimation();
+        }
     }
 
     /**
@@ -61,38 +66,41 @@ export class Graph extends Component {
      * @param {*} fileType file type of image to download 
      */
     downloadGraph = (fileType) => {
-        if (this.props.data.nodes.length > 0) {
-            const canvas = document.getElementsByClassName("force-graph-container")[0].firstChild;
-            if (fileType === 'PNG') {
-                setTimeout(() => {
-                    canvas.toBlob(blob => {saveAs(blob, `STR Graph ${this.props.data.name}.png`)})
-                }, 1500)
-            } else if (fileType === 'SVG') {
-                // //Create a new mock canvas context. Pass in your desired width and height for your svg document.
-                const width = this.ref.current.screen2GraphCoords(canvas.width, canvas.height).x  - this.ref.current.screen2GraphCoords(0, 0).x;
-                const height = this.ref.current.screen2GraphCoords(canvas.width, canvas.height).y  - this.ref.current.screen2GraphCoords(0, 0).y;
-                const ctx = new C2S(width, height);
-                const nodes = JSON.parse(JSON.stringify(this.props.data.nodes));
-                const links = JSON.parse(JSON.stringify(this.props.data.links))
-                const leftX = this.ref.current.screen2GraphCoords(0, 0).x;
-                const topY = this.ref.current.screen2GraphCoords(0, 0).y;
+        if (this.props.data.nodes.length === 0) {
+            this.props.setModal('Nothing on graph to download.', undefined, undefined, 'Continue', 'primary')
+            return;
+        }
+        
+        const canvas = document.getElementsByClassName("force-graph-container")[0].firstChild;
+        if (fileType === 'PNG') {
+            setTimeout(() => {
+                canvas.toBlob(blob => {saveAs(blob, `STR Graph ${this.props.data.name}.png`)})
+            }, 1500)
+        } else if (fileType === 'SVG') {
+            // //Create a new mock canvas context. Pass in your desired width and height for your svg document.
+            const width = this.ref.current.screen2GraphCoords(canvas.width, canvas.height).x  - this.ref.current.screen2GraphCoords(0, 0).x;
+            const height = this.ref.current.screen2GraphCoords(canvas.width, canvas.height).y  - this.ref.current.screen2GraphCoords(0, 0).y;
+            const ctx = new C2S(width, height);
+            const nodes = JSON.parse(JSON.stringify(this.props.data.nodes));
+            const links = JSON.parse(JSON.stringify(this.props.data.links))
+            const leftX = this.ref.current.screen2GraphCoords(0, 0).x;
+            const topY = this.ref.current.screen2GraphCoords(0, 0).y;
 
-                for (const node of nodes) {
-                    node.x = node.x - leftX;
-                    node.y = node.y - topY;
-                    this.drawNode(node, ctx)
-                }
-
-                for (const link of links) {
-                    link.target.x = link.target.x - leftX;
-                    link.source.x = link.source.x - leftX;
-                    link.target.y = link.target.y - topY;
-                    link.source.y = link.source.y - topY;
-                    this.drawLink(link, ctx)
-                }
-
-                saveAs(new Blob([ctx.getSerializedSvg()], {type: 'image/svg+xml'}), `STR Graph ${this.props.data.name}.svg`)
+            for (const node of nodes) {
+                node.x = node.x - leftX;
+                node.y = node.y - topY;
+                this.drawNode(node, ctx)
             }
+
+            for (const link of links) {
+                link.target.x = link.target.x - leftX;
+                link.source.x = link.source.x - leftX;
+                link.target.y = link.target.y - topY;
+                link.source.y = link.source.y - topY;
+                this.drawLink(link, ctx)
+            }
+
+            saveAs(new Blob([ctx.getSerializedSvg()], {type: 'image/svg+xml'}), `STR Graph ${this.props.data.name}.svg`)
         }
     }
 
@@ -191,7 +199,7 @@ export class Graph extends Component {
             e => (e.source.id === link.source.id && e.target.id === link.target.id) 
             || (e.source.id === link.target.id && e.target.id === link.source.id));
         // get count of which "repeat" this link is
-        const repeatCount = repeats.findIndex(e => e === link) + 1;
+        const repeatCount = repeats.findIndex(e => e.source.id === link.source.id && e.target.id === link.target.id && e.inducer === link.inducer) + 1;
 
         const scaledLink = this.scaleLinkToNodeRadius(link);
         const dx = (scaledLink.targetX - scaledLink.sourceX);
@@ -318,8 +326,8 @@ export class Graph extends Component {
      */
     drawCanvas = (ctx, scale) => {
         if (this.props.snapMode) {
-            const bh = Math.ceil(ctx.canvas.clientWidth / GRID_GAP) * GRID_GAP;
-            const bw = Math.ceil(ctx.canvas.clientHeight / GRID_GAP) * GRID_GAP
+            const bh = 3 * Math.ceil(ctx.canvas.clientWidth / GRID_GAP) * GRID_GAP;
+            const bw = 3 * Math.ceil(ctx.canvas.clientHeight / GRID_GAP) * GRID_GAP
             ctx.strokeStyle = "#b3b3b3";
 
             for (let x = -bw; x <= bw; x += GRID_GAP) {

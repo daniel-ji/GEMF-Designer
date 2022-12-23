@@ -13,6 +13,7 @@ export class GraphOverlay extends Component {
         this.state = {
             snapMode: true,
             snapModeDelayed: false,
+            downloadDelayed: false,
             shortcutMode: false,
             graphFocused: false,
             downloading: false,
@@ -26,10 +27,16 @@ export class GraphOverlay extends Component {
                 this.setState({shortcutMode: true})
             }
 
-            // toggling snap mode with delay
             if (this.state.graphFocused && this.state.shortcutMode) {
+                // toggling snap mode with delay
                 if (e.key === "G") {
                     this.toggleGrid();
+                } else if (e.key === "S") {
+                    this.startDownload('SVG');
+                } else if (e.key === "P") {
+                    this.startDownload("PNG");
+                } else if (e.key === "A") {
+                    this.props.autoDraw();
                 }
             }
         }
@@ -66,8 +73,11 @@ export class GraphOverlay extends Component {
      * @param {*} fileType file type of graphic to download
      */
     startDownload = (fileType) => {
-        this.setState({downloading: fileType});
-        setTimeout(() => this.setState({downloading: false}), 500);
+        if (!this.state.downloadDelayed) {
+            this.setState({downloading: fileType, downloadDelayed: true});
+            setTimeout(() => this.setState({downloading: false}), 500);
+            setTimeout(() => this.setState({downloadDelayed: false}), 1000)
+        }
     }
 
     render() {
@@ -84,15 +94,13 @@ export class GraphOverlay extends Component {
                             <i className="bi bi-download"></i>
                         </button>
                         <ul className="dropdown-menu">
-                            <li><button className="dropdown-item" onClick={() => this.startDownload('SVG')}>SVG</button></li>
+                            <li><button className="dropdown-item"  onClick={() => this.startDownload('SVG')}>SVG</button></li>
                             <li><button className="dropdown-item" onClick={() => this.startDownload('PNG')}>PNG</button></li>
                         </ul>
                     </div>
                     <button type="button"
                     id="deleteGraphBtn"
                     className="btn btn-danger"
-                    data-bs-toggle="modal"
-                    data-bs-target="#siteModal"
                     onClick={this.props.deleteGraphPrompt}>
                         <i className="bi bi-trash"></i>
                     </button>
@@ -106,6 +114,7 @@ export class GraphOverlay extends Component {
                 downloading={this.state.downloading}
                 snapMode={this.state.snapMode}
                 shortcutLink={this.props.shortcutLink}
+                setModal={this.props.setModal}
                 /> 
             </div>
         )

@@ -24,9 +24,9 @@ export class Welcome extends Component {
             <h6>Graph Shortcuts (after creating nodes & while hovering over graph): </h6>
             <ul>
                 <li>Shift + G: Toggle Snap Mode with Gridlines.</li>
-                {/**<li>Shift + A: Auto-Draw.</li>
+                <li>Shift + A: Auto-Draw.</li>
                 <li>Shift + S: Download Graph as SVG.</li>
-                <li>Shift + P: Download Graph as PNG.</li>**/}
+                <li>Shift + P: Download Graph as PNG.</li>
             </ul>
             <h6>Note: Entries are rearrangeable, just click and drag. </h6>
             <br></br>

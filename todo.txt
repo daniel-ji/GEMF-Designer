@@ -10,7 +10,6 @@ New features:
 - Revert to default button (resets all the colors, fonts, and shapes)
 - Transitions that have no source / inducer state (might have to discuss how this will fit in with the final STR file - does the transition not appear, or does it come from NULL or something like that?)
 Potential features (still need to figure out how to implement)
-- Shortcuts for everything else
 - Ctrl-Z (Undo) feature
 - Color-based legend
 - Adjustable edge curves

@@ -1,6 +1,10 @@
 import React, {Component} from 'react';
 import Graphviz from 'graphviz-react';
 
+import 'bootstrap/dist/css/bootstrap.min.css';
+import * as bootstrap from 'bootstrap/dist/js/bootstrap'
+import "bootstrap-icons/font/bootstrap-icons.css";
+
 import Form from './components/Form';
 import GraphOverlay from './components/GraphOverlay';
 import SiteModal from './components/SiteModal';
@@ -45,14 +49,19 @@ export class App extends Component {
             // currently selected graph
             selectedGraph: undefined,
             // site modal
+            modal: undefined,
+            modalTitle: undefined,
+            modalBody: undefined,
             modalAction: () => {},
-            modalActionText: '',
-            modalTitle: '',
-            modalButtonType: '',
+            modalActionText: undefined,
+            modalButtonType: undefined,
         }
     }
 
     componentDidMount() {
+        // modal
+        this.setState({modal: new bootstrap.Modal(document.getElementById('siteModal'))});
+
         // IndexedDB for Graph Loading / Saving
         const openRequest = indexedDB.open('data');
 
@@ -243,12 +252,7 @@ export class App extends Component {
      * Shows prompt to delete current graph.
      */
     deleteGraphPrompt = () => {
-        this.setState({
-            modalTitle: 'Delete Current Graph Data?', 
-            modalAction: this.deleteGraph, 
-            modalActionText: 'Delete',
-            modalButtonType: 'danger'
-        })
+        this.setModal('Delete Current Graph Data?', undefined, this.deleteGraph, 'Delete', 'danger')
     }
 
     /**
@@ -558,6 +562,23 @@ export class App extends Component {
         this.setState(prevState => {return {nodesAutoSel: (increment ? prevState.nodesAutoSel + amount : amount) % 3}})
     }
 
+    setModal = (title, bodyText, action, actionText, buttonType) => {
+        this.state.modal !== undefined && this.state.modal.show();
+        this.setState({
+            modalTitle: title,
+            modalBody: bodyText,
+            modalAction: action,
+            modalActionText: actionText, 
+            modalButtonType: buttonType,
+        })
+    }
+
+    /**
+     * Auto-fills in select input on node click during transition creation. 
+     * 
+     * @param {*} node node that was clicked on
+     * @param {*} e click event
+     */
     shortcutLink = (node, e) => {
         if (this.state.step !== 4) {
             return;
@@ -589,6 +610,7 @@ export class App extends Component {
             autoDraw={this.autoDraw}
             deleteGraphPrompt={this.deleteGraphPrompt}
             shortcutLink={this.shortcutLink}
+            setModal={this.setModal}
             />
             <Form
             data={this.state.data}
@@ -616,6 +638,7 @@ export class App extends Component {
             <SiteModal 
             deleteGraph={this.deleteGraph}
             modalTitle={this.state.modalTitle}
+            modalBody={this.state.modalBody}
             modalActionText={this.state.modalActionText}
             modalAction={this.state.modalAction}
             modalButtonType={this.state.modalButtonType}
