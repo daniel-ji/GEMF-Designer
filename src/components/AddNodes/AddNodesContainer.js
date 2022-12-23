@@ -29,9 +29,7 @@ export class AddNodesContainer extends Component {
 
         this.setState({sortable: new Sortable(document.getElementById('add-nodes-container'), {
             onUpdate: (e) => {
-                this.props.setGraphData(UPDATE_DATA_ORDER(e, this.props.data, 'nodes'), () => {
-                    console.log(this.props.data);
-                });
+                this.props.setGraphData(UPDATE_DATA_ORDER(e, this.props.data, 'nodes'));
             }
         })})
     }

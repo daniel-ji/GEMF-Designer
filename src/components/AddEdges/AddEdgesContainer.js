@@ -6,7 +6,7 @@ import Sortable from 'sortablejs';
 
 import AddEdgesEntry from './AddEdgesEntry'
 
-import { LINK_SHORT_NAME, UPDATE_DATA_DEL, UPDATE_DATA_ORDER } from '../../Constants';
+import { LINK_NODE_SELECT_IDS, LINK_SHORT_NAME, UPDATE_DATA_DEL, UPDATE_DATA_ORDER } from '../../Constants';
 
 export class AddEdgesContainer extends Component {
     constructor(props) {
@@ -36,6 +36,8 @@ export class AddEdgesContainer extends Component {
                 this.props.setGraphData(UPDATE_DATA_ORDER(e, this.props.data, 'links'));
             }
         })})
+
+        this.props.setNodesAutoSel(0);
     }
 
     /**
@@ -106,6 +108,7 @@ export class AddEdgesContainer extends Component {
             // create new entry based off link 
             this.props.setFormError("");
             this.createEdgeEntry([data.links[data.links.length - 1]])
+            this.props.setNodesAutoSel(0);
         } else {
             // show error
             this.props.setFormError("Link already exists.", true);
@@ -204,7 +207,7 @@ export class AddEdgesContainer extends Component {
                 <select
                 className="form-select main-node-select"
                 aria-label="Select Source Node"
-                id="selectSource">
+                id={LINK_NODE_SELECT_IDS[0]}>
                     {data.nodes.map(node => {
                         return (
                             <option key={node.id} value={node.id} id={"select-source-" + node.id}>{node.name}</option>
@@ -215,7 +218,7 @@ export class AddEdgesContainer extends Component {
                 <select
                 className="form-select main-node-select"
                 aria-label="Select Target Node"
-                id="selectTarget">
+                id={LINK_NODE_SELECT_IDS[1]}>
                     {data.nodes.map(node => {
                         return (
                             <option key={node.id} value={node.id} id={"select-target-" + node.id}>{node.name}</option>
@@ -226,7 +229,7 @@ export class AddEdgesContainer extends Component {
                 <select
                 className="form-select main-node-select"
                 aria-label="Select Inducer Node"
-                id="selectInducer">
+                id={LINK_NODE_SELECT_IDS[2]}>
                     <option key={-1} value={-1} id={"select-inducer-none"}>None</option>
                     {data.nodes.map(node => {
                         return (

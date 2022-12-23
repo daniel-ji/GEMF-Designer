@@ -11,7 +11,8 @@ import {
     WIDTH_RATIO, NODE_COLLIDE_RADIUS, NODE_RADIUS, FORM_STEPS,
     GRAPHVIZ_PARSE_DELAY, GRAPHVIZ_PARSE_RETRY_INTERVAL, STR_REGEX, INVALID_STR_FILE_ERROR,
     INVALID_STR_ENTRY_ERROR, INVALID_STR_SELF_LOOP_ERROR, INVALID_STR_NODE_NAME_ERROR,
-    INVALID_STR_RATE_ERROR, CREATE_ENTRY_ID, COMPARE_GRAPH, DEFAULT_GRAPH_DATA, UPDATE_DATA_DEL
+    INVALID_STR_RATE_ERROR, CREATE_ENTRY_ID, COMPARE_GRAPH, DEFAULT_GRAPH_DATA, UPDATE_DATA_DEL,
+    LINK_NODE_SELECT_IDS
 } from './Constants';
 
 export class App extends Component {
@@ -35,9 +36,13 @@ export class App extends Component {
             formErrorTrans: false,
             // if form error message is hidden
             formErrorHide: false,
+            // number of nodes selected for shortcut link creation
+            nodesAutoSel: 0,
             // database for indexeddb
             db: undefined,
+            // list of saved graphs
             savedGraphs: undefined,
+            // currently selected graph
             selectedGraph: undefined,
             // site modal
             modalAction: () => {},
@@ -48,7 +53,6 @@ export class App extends Component {
     }
 
     componentDidMount() {
-        setTimeout(() =>{console.log(this.state.data);}, 3000);
         // IndexedDB for Graph Loading / Saving
         const openRequest = indexedDB.open('data');
 
@@ -550,6 +554,25 @@ export class App extends Component {
         this.setSTRData(this.state.data.STRData.filter(entry => entry.id !== id));
     }
 
+    setNodesAutoSel = (amount, increment = false) => {
+        this.setState(prevState => {return {nodesAutoSel: (increment ? prevState.nodesAutoSel + amount : amount) % 3}})
+    }
+
+    shortcutLink = (node, e) => {
+        if (this.state.step !== 4) {
+            return;
+        }
+
+        for (const selectElID of LINK_NODE_SELECT_IDS) {
+            document.getElementById(selectElID).blur();
+        }
+
+        const selectElement = document.getElementById(LINK_NODE_SELECT_IDS[this.state.nodesAutoSel]);
+        selectElement.focus();
+        selectElement.value = node.id;
+        this.setNodesAutoSel(1, true);
+    }
+
     render() {        
         return (
         <div className="App">
@@ -565,6 +588,7 @@ export class App extends Component {
             data={this.state.data}
             autoDraw={this.autoDraw}
             deleteGraphPrompt={this.deleteGraphPrompt}
+            shortcutLink={this.shortcutLink}
             />
             <Form
             data={this.state.data}
@@ -578,6 +602,7 @@ export class App extends Component {
             hideFormError={this.hideFormError}
             showFormError={this.showFormError}
             setFormError={this.setFormError}
+            setNodesAutoSel={this.setNodesAutoSel}
             processSTR={this.processSTR}
             deleteSTR={this.deleteSTR}
             deleteGraph={this.deleteGraph}

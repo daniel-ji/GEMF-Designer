@@ -226,6 +226,7 @@ export class Form extends Component {
                     formError={this.props.formError}
                     showFormError={this.props.showFormError}
                     deletePrompt={this.deletePrompt}
+                    setNodesAutoSel={this.props.setNodesAutoSel}
                     />,
                     <FinalData
                     data={this.props.data}

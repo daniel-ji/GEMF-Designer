@@ -105,6 +105,7 @@ export class GraphOverlay extends Component {
                 data={this.props.data}
                 downloading={this.state.downloading}
                 snapMode={this.state.snapMode}
+                shortcutLink={this.props.shortcutLink}
                 /> 
             </div>
         )

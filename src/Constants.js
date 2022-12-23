@@ -18,6 +18,8 @@ export const GRID_GAP = 30;
 export const NODE_FONT_SIZE = 6;
 // length for which node text overflows
 export const NODE_TEXT_OVERFLOW = 6; 
+// list of select elements for edge creation
+export const LINK_NODE_SELECT_IDS = ["selectSource", "selectTarget", "selectInducer"];
 // default font size of rate text label
 export const RATE_FONT_SIZE = 5;
 // length for which rate text overflows

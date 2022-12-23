@@ -348,6 +348,7 @@ export class Graph extends Component {
             nodeLabel=''
             nodeAutoColorBy='group'
             nodeCanvasObject={this.drawNode}
+            onNodeClick={this.props.shortcutLink}
             // snap mode feature
             onNodeDragEnd={(node, translate) => {
                 if (this.props.snapMode) {
