@@ -147,14 +147,38 @@ export class Graph extends Component {
      * @returns object of start and end coordinates of scaled link
      */
     scaleLinkToNodeRadius = (link) => {
+        // distance between links
         const d = Math.sqrt((Math.pow(link.target.x - link.source.x, 2) + Math.pow(link.target.y - link.source.y, 2)))
-        const d_y = link.target.y - link.source.y;
-        const d_x = link.target.x - link.source.x;
-        const y_i = ((NODE_RADIUS * d_y) / d);
-        const x_i = ((NODE_RADIUS * d_x) / d);
+        // y distance between links
+        const dY = link.target.y - link.source.y;
+        // x distance between links
+        const dX = link.target.x - link.source.x;
+        const aDY = Math.abs(dY);
+        const aDX = Math.abs(dX);
+        const scaleByShape = (shape) => {
+            switch (shape) {
+                case undefined:
+                // case 'triangle': 
+                //     if (dY >= 0) {
+                //         return NODE_RADIUS * 2 * d / (Math.sqrt(3) * aDX + aDY);
+                //     } else {
+                //         return NODE_RADIUS * 2 * d / (Math.sqrt(3) * aDY + aDX);
+                //     }
+                case 'diamond':
+                    return NODE_RADIUS * Math.sqrt(2) * d / (aDX + aDY)
+                case 'square':
+                   return NODE_RADIUS * Math.abs(d / (aDX > aDY ? aDX : aDY))
+                case 'circle':
+                default: 
+                    return NODE_RADIUS;
+            }
+        }
+
+        const yI = ((scaleByShape(link.source.shape) * dY) / d);
+        const xI = ((scaleByShape(link.target.shape) * dX) / d);
         return {
-            sourceX: x_i + link.source.x, sourceY: y_i + link.source.y, 
-            targetX: -x_i + link.target.x, targetY: -y_i + link.target.y
+            sourceX: xI + link.source.x, sourceY: yI + link.source.y, 
+            targetX: -xI + link.target.x, targetY: -yI + link.target.y
         };
     }
 
@@ -237,7 +261,7 @@ export class Graph extends Component {
             let dfy = 0;
             if (y99 === 0) {
                 dfx = 0;
-                dfy = h;
+                dfy = h * (x99 > 0 ? -1 : 1);
             } else {
                 const ps = - x99 / y99
                 dfx = h / Math.sqrt(ps * ps + 1)
@@ -305,31 +329,31 @@ export class Graph extends Component {
         ctx.beginPath();
         switch (node.shape) {
             case undefined:
-            case 'hexagon': 
-                const hr = NODE_RADIUS / Math.cos(TO_RAD(30));
-                ctx.moveTo(node.x, node.y - hr);
-                ctx.lineTo(node.x + hr * Math.sin(TO_RAD(60)), node.y - hr * Math.cos(TO_RAD(60)));
-                ctx.lineTo(node.x + hr * Math.sin(TO_RAD(60)), node.y + hr * Math.cos(TO_RAD(60)));
-                ctx.lineTo(node.x, node.y + hr);
-                ctx.lineTo(node.x - hr * Math.sin(TO_RAD(60)), node.y + hr * Math.cos(TO_RAD(60)));
-                ctx.lineTo(node.x - hr * Math.sin(TO_RAD(60)), node.y - hr * Math.cos(TO_RAD(60)));
-                ctx.lineTo(node.x + 0.25, node.y - hr - 0.25);
-                break;
-            case 'pentagon':
-                const pr = NODE_RADIUS / Math.cos(TO_RAD(36))
-                ctx.moveTo(node.x, node.y - pr);
-                ctx.lineTo(node.x + pr *  Math.sin(TO_RAD(72)), node.y - pr *  Math.cos(TO_RAD(72)));
-                ctx.lineTo(node.x + pr *  Math.sin(TO_RAD(36)), node.y + pr *  Math.cos(TO_RAD(36)));
-                ctx.lineTo(node.x - pr *  Math.sin(TO_RAD(36)), node.y + pr *  Math.cos(TO_RAD(36)));
-                ctx.lineTo(node.x - pr *  Math.sin(TO_RAD(72)), node.y - pr *  Math.cos(TO_RAD(72)))
-                ctx.lineTo(node.x + 0.25, node.y - pr - 0.25);
-                break;
-            case 'triangle':
-                ctx.moveTo(node.x, node.y - 2 * NODE_RADIUS);
-                ctx.lineTo(node.x + Math.sqrt(3) * NODE_RADIUS, node.y + NODE_RADIUS);
-                ctx.lineTo(node.x - Math.sqrt(3) * NODE_RADIUS, node.y + NODE_RADIUS);
-                ctx.lineTo(node.x + 0.25, node.y - 2 * NODE_RADIUS - 0.25);
-                break; 
+            // case 'hexagon': 
+            //     const hr = NODE_RADIUS / Math.cos(TO_RAD(30));
+            //     ctx.moveTo(node.x, node.y - hr);
+            //     ctx.lineTo(node.x + hr * Math.sin(TO_RAD(60)), node.y - hr * Math.cos(TO_RAD(60)));
+            //     ctx.lineTo(node.x + hr * Math.sin(TO_RAD(60)), node.y + hr * Math.cos(TO_RAD(60)));
+            //     ctx.lineTo(node.x, node.y + hr);
+            //     ctx.lineTo(node.x - hr * Math.sin(TO_RAD(60)), node.y + hr * Math.cos(TO_RAD(60)));
+            //     ctx.lineTo(node.x - hr * Math.sin(TO_RAD(60)), node.y - hr * Math.cos(TO_RAD(60)));
+            //     ctx.lineTo(node.x + 0.25, node.y - hr - 0.25);
+            //     break;
+            // case 'pentagon':
+            //     const pr = NODE_RADIUS / Math.cos(TO_RAD(36))
+            //     ctx.moveTo(node.x, node.y - pr);
+            //     ctx.lineTo(node.x + pr *  Math.sin(TO_RAD(72)), node.y - pr *  Math.cos(TO_RAD(72)));
+            //     ctx.lineTo(node.x + pr *  Math.sin(TO_RAD(36)), node.y + pr *  Math.cos(TO_RAD(36)));
+            //     ctx.lineTo(node.x - pr *  Math.sin(TO_RAD(36)), node.y + pr *  Math.cos(TO_RAD(36)));
+            //     ctx.lineTo(node.x - pr *  Math.sin(TO_RAD(72)), node.y - pr *  Math.cos(TO_RAD(72)))
+            //     ctx.lineTo(node.x + 0.25, node.y - pr - 0.25);
+            //     break;
+            // case 'triangle':
+            //     ctx.moveTo(node.x, node.y - 2 * NODE_RADIUS);
+            //     ctx.lineTo(node.x + Math.sqrt(3) * NODE_RADIUS, node.y + NODE_RADIUS);
+            //     ctx.lineTo(node.x - Math.sqrt(3) * NODE_RADIUS, node.y + NODE_RADIUS);
+            //     ctx.lineTo(node.x + 0.25, node.y - 2 * NODE_RADIUS - 0.25);
+            //     break; 
             case 'diamond':
                 ctx.moveTo(node.x, node.y - NODE_RADIUS * Math.sqrt(2));
                 ctx.lineTo(node.x + NODE_RADIUS * Math.sqrt(2), node.y);
@@ -338,7 +362,7 @@ export class Graph extends Component {
                 ctx.lineTo(node.x + 0.25, node.y - NODE_RADIUS * Math.sqrt(2) - 0.25);
                 break; 
             case 'square':
-                ctx.rect(node.x - NODE_RADIUS, node.y - NODE_RADIUS, NODE_RADIUS * 2, NODE_RADIUS * 2);             
+                ctx.rect(node.x - NODE_RADIUS, node.y - NODE_RADIUS, NODE_RADIUS * 2, NODE_RADIUS * 2);
                 break;
             case 'circle':
             default:

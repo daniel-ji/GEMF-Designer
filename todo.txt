@@ -12,3 +12,8 @@ New features:
 - Ctrl-Z (Undo) feature
 - Color-based legend
 - Adjustable edge curves
+
+- with shapes, still need to:
+    - figure out arrow length
+    - create global shape option 
+    - create local shape option (in node inputs form page)
