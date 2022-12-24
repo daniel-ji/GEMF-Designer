@@ -10,7 +10,7 @@ import { saveAs } from 'file-saver';
 import C2S from '../Canvas2SVG';
 
 import { CSS_BREAKPOINT, GRAPHVIZ_PARSE_DELAY, NODE_FONT_SIZE, NODE_TEXT_OVERFLOW, RATE_FONT_SIZE, 
-    RATE_TEXT_OVERFLOW, WIDTH_RATIO, GRID_GAP, NODE_RADIUS, ARROW_SIZE} from '../Constants';
+    RATE_TEXT_OVERFLOW, WIDTH_RATIO, GRID_GAP, NODE_RADIUS, ARROW_SIZE, TO_RAD} from '../Constants';
 
 export class Graph extends Component {
     constructor(props) {
@@ -206,12 +206,8 @@ export class Graph extends Component {
         const dy = (scaledLink.targetY - scaledLink.sourceY);
         const dist = Math.sqrt(dx * dx + dy * dy);
         // to prevent arrow from protruding into node radius border
-        const x99 = (scaledLink.targetX - scaledLink.sourceX) * 0.99;
-        let y99 = (scaledLink.targetY - scaledLink.sourceY) * 0.99;
-        // can't let y99 be near 0 or line doesn't get drawn
-        if (Math.abs(y99) < 1) {
-            y99 = y99 < 0 ? y99 - 0.5 : y99 + 0.5;
-        }
+        const x99 = (scaledLink.targetX - scaledLink.sourceX) - dx / dist * 0.3;
+        const y99 = (scaledLink.targetY - scaledLink.sourceY) - dy / dist * 0.3;
         const src = Math.min(link.source.id, link.target.id);
         const tgt = Math.max(link.source.id, link.target.id);
         // middle point of link
@@ -237,9 +233,16 @@ export class Graph extends Component {
             // edge direction, edge y displacement, alternations of edges  
                 * (link.source.id === src ? 1 : -1) * (dy < 0 ? 1 : -1) * (repeatCount % 2 === 0 ? 1 : -1);
             // perpendicular slope
-            const ps = - x99 / y99
-            const dfx = h / Math.sqrt(ps * ps + 1)
-            const dfy = dfx * ps
+            let dfx = 0;
+            let dfy = 0;
+            if (y99 === 0) {
+                dfx = 0;
+                dfy = h;
+            } else {
+                const ps = - x99 / y99
+                dfx = h / Math.sqrt(ps * ps + 1)
+                dfy = dfx * ps
+            }
             // determine arc midpoint
             arcMx = dfx + mx;
             arcMy = dfy + my;
@@ -298,10 +301,50 @@ export class Graph extends Component {
      * @param {*} globalScale zoom / scale of graph
      */
     drawNode = (node, ctx, globalScale) => {
-        // draw circle
         ctx.strokeStyle = node.color;
         ctx.beginPath();
-        ctx.arc(node.x, node.y, NODE_RADIUS, 0, 2 * Math.PI);
+        switch (node.shape) {
+            case undefined:
+            case 'hexagon': 
+                const hr = NODE_RADIUS / Math.cos(TO_RAD(30));
+                ctx.moveTo(node.x, node.y - hr);
+                ctx.lineTo(node.x + hr * Math.sin(TO_RAD(60)), node.y - hr * Math.cos(TO_RAD(60)));
+                ctx.lineTo(node.x + hr * Math.sin(TO_RAD(60)), node.y + hr * Math.cos(TO_RAD(60)));
+                ctx.lineTo(node.x, node.y + hr);
+                ctx.lineTo(node.x - hr * Math.sin(TO_RAD(60)), node.y + hr * Math.cos(TO_RAD(60)));
+                ctx.lineTo(node.x - hr * Math.sin(TO_RAD(60)), node.y - hr * Math.cos(TO_RAD(60)));
+                ctx.lineTo(node.x + 0.25, node.y - hr - 0.25);
+                break;
+            case 'pentagon':
+                const pr = NODE_RADIUS / Math.cos(TO_RAD(36))
+                ctx.moveTo(node.x, node.y - pr);
+                ctx.lineTo(node.x + pr *  Math.sin(TO_RAD(72)), node.y - pr *  Math.cos(TO_RAD(72)));
+                ctx.lineTo(node.x + pr *  Math.sin(TO_RAD(36)), node.y + pr *  Math.cos(TO_RAD(36)));
+                ctx.lineTo(node.x - pr *  Math.sin(TO_RAD(36)), node.y + pr *  Math.cos(TO_RAD(36)));
+                ctx.lineTo(node.x - pr *  Math.sin(TO_RAD(72)), node.y - pr *  Math.cos(TO_RAD(72)))
+                ctx.lineTo(node.x + 0.25, node.y - pr - 0.25);
+                break;
+            case 'triangle':
+                ctx.moveTo(node.x, node.y - 2 * NODE_RADIUS);
+                ctx.lineTo(node.x + Math.sqrt(3) * NODE_RADIUS, node.y + NODE_RADIUS);
+                ctx.lineTo(node.x - Math.sqrt(3) * NODE_RADIUS, node.y + NODE_RADIUS);
+                ctx.lineTo(node.x + 0.25, node.y - 2 * NODE_RADIUS - 0.25);
+                break; 
+            case 'diamond':
+                ctx.moveTo(node.x, node.y - NODE_RADIUS * Math.sqrt(2));
+                ctx.lineTo(node.x + NODE_RADIUS * Math.sqrt(2), node.y);
+                ctx.lineTo(node.x, node.y + NODE_RADIUS * Math.sqrt(2));
+                ctx.lineTo(node.x - NODE_RADIUS * Math.sqrt(2), node.y);
+                ctx.lineTo(node.x + 0.25, node.y - NODE_RADIUS * Math.sqrt(2) - 0.25);
+                break; 
+            case 'square':
+                ctx.rect(node.x - NODE_RADIUS, node.y - NODE_RADIUS, NODE_RADIUS * 2, NODE_RADIUS * 2);             
+                break;
+            case 'circle':
+            default:
+                ctx.arc(node.x, node.y, NODE_RADIUS, 0, 2 * Math.PI);              
+                break;
+        }
         ctx.fillStyle = "white";
         ctx.fill();
         ctx.stroke();

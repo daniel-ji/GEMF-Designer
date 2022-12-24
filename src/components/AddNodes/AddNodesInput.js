@@ -36,6 +36,7 @@ export class AddNodesInput extends Component {
                 y: 0,
                 color: this.state.color,
                 order: data.nodes.length,
+                shape: 'square',
             })
             // temporarily sets the collision force to the whole node radius so that nodes do not intersect on creation
             this.props.setForceCollideRadius(NODE_RADIUS * 1.2);

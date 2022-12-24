@@ -359,7 +359,8 @@ export class App extends Component {
                             id: nodeID, 
                             name: parsedSTR[i][j], 
                             color: '#000000',
-                            order: nodes.length
+                            order: nodes.length,
+                            shape: 'square',
                         }
                         if (j <= 1 && !foundNode) {
                             newNodes.push(nodeObject);

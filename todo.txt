@@ -3,13 +3,12 @@ bug testing!!! (especially indexeddb, modal, loading in graphs, graph saving, gr
 code documentation
 magic numbers
 
-Improve Features:
 New features:
-- Global adjustable font sizes for states and transitions
-- Global and local shapes for states and transitions (squares, circles, diamonds, pentagons, hexagons, triangles)
+- Adjustable, global font size for states and transitions (one global font size for each of them)
+- Global (default) and local shapes for states and transitions (squares, circles, diamonds, pentagons, hexagons, triangles)
 - Revert to default button (resets all the colors, fonts, and shapes)
-- Transitions that have no source / inducer state (might have to discuss how this will fit in with the final STR file - does the transition not appear, or does it come from NULL or something like that?)
-Potential features (still need to figure out how to implement)
+- Transitions that have no source / inducer state (how will this will fit in with the final STR file - does the transition not appear, or does it come from NULL or something like that?)
+- Shortcuts for everything else (auto-draw, download, delete?)
 - Ctrl-Z (Undo) feature
 - Color-based legend
 - Adjustable edge curves

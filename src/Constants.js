@@ -39,6 +39,12 @@ export const INVALID_STR_NODE_NAME_ERROR = 'Invalid state name. Please ensure va
 export const INVALID_STR_SELF_LOOP_ERROR = 'Invalid link entry. Please ensure no self-loops.';
 export const INVALID_STR_RATE_ERROR = 'Invalid rate. Please ensure numeric, positive transition rate.';
 /**
+ * Convert deg to radians.
+ */
+export const TO_RAD = (deg) => {
+    return deg * Math.PI / 180;
+}
+/**
  * Create shortened name from link object.
  * @param {*} link link object 
  * @param {*} data graph data
@@ -139,7 +145,6 @@ export const UPDATE_DATA_DEL = (order, entries) => {
             entry.order--;
         }
     }
-
 
     return entries;
 }
