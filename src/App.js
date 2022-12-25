@@ -360,7 +360,7 @@ export class App extends Component {
                             name: parsedSTR[i][j], 
                             color: '#000000',
                             order: nodes.length,
-                            shape: 'square',
+                            shape: this.state.data.defaultShape,
                         }
                         if (j <= 1 && !foundNode) {
                             newNodes.push(nodeObject);

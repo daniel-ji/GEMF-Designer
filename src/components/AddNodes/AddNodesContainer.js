@@ -5,7 +5,7 @@ import React, { Component } from 'react'
 import Sortable from 'sortablejs'
 
 import AddNodesInput from './AddNodesInput'
-import { CREATE_ENTRY_ID, UPDATE_DATA_ORDER } from '../../Constants'
+import { CREATE_ENTRY_ID, UPDATE_DATA_ORDER, NODE_SHAPES } from '../../Constants'
 
 export class AddNodesContainer extends Component {
     constructor(props) {
@@ -14,7 +14,7 @@ export class AddNodesContainer extends Component {
         this.state = {
             // stores all the node input react elements
             nodeInputs: [],
-            sortable: undefined
+            sortable: undefined,
         }
     }
 
@@ -68,9 +68,33 @@ export class AddNodesContainer extends Component {
         )
     }
 
+    setDefaultShape = (shape) => {
+        this.setState({nodeInputs: this.state.nodeInputs.filter((input, index) => {
+            return index !== this.state.nodeInputs.length - 1
+        })}, () => this.createNewInput())
+        const data = Object.assign({}, this.props.data);
+        data.defaultShape = shape;
+        this.props.setGraphData(data);
+    }
+
     render() {
         return (
             <div id="add-nodes-container" className="form-step">
+                <div className="dropdown shapes-dropdown mb-4">
+                    <div className="btn-group">
+                        <button className="btn btn-outline-dark" type="button">
+                            Default Shape: 
+                        </button>
+                        <button type="button" className="btn btn-outline-dark dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i className={`bi bi-${this.props.data.defaultShape}`} />&nbsp;&nbsp;
+                        </button>
+                        <ul className="dropdown-menu">
+                            {NODE_SHAPES.map(shape =>
+                                <li><i className={`dropdown-item bi bi-${shape}`} onClick={() => this.setDefaultShape(shape)}/></li>
+                            )}
+                        </ul>
+                    </div>
+                </div>
                 {this.state.nodeInputs}
             </div>
         )

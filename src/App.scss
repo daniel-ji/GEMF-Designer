@@ -210,6 +210,26 @@ body {
     .node-color-edit {
         flex: none;
         width: 2.5rem;
+        background-color: #F8F9FA;
+        
+        &:hover {
+            background-color: #d3d4d5;
+        }
+    }
+
+    .shapes-dropdown {
+        .dropdown-menu {
+            min-width: 0 !important;
+
+            .dropdown-item {
+                cursor: pointer;
+            }
+        }
+
+        .shape-dropdown-toggle {
+            border-radius: 0;
+            border: 1px solid #ced4da;
+        }
     }
 }
 

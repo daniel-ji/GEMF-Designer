@@ -150,35 +150,47 @@ export class Graph extends Component {
         // distance between links
         const d = Math.sqrt((Math.pow(link.target.x - link.source.x, 2) + Math.pow(link.target.y - link.source.y, 2)))
         // y distance between links
-        const dY = link.target.y - link.source.y;
+        const tDY = link.target.y - link.source.y;
         // x distance between links
-        const dX = link.target.x - link.source.x;
-        const aDY = Math.abs(dY);
-        const aDX = Math.abs(dX);
-        const scaleByShape = (shape) => {
+        const tDX = link.target.x - link.source.x;
+        const aDY = Math.abs(tDY);
+        const aDX = Math.abs(tDX);
+        const scaleByShape = (shape, node) => {
+            let dY = tDY;
+            let dX = tDX;
+            if (node === 'source') {
+                dY *= -1;
+                dX *= -1;
+            }
             switch (shape) {
-                case undefined:
-                // case 'triangle': 
-                //     if (dY >= 0) {
-                //         return NODE_RADIUS * 2 * d / (Math.sqrt(3) * aDX + aDY);
-                //     } else {
-                //         return NODE_RADIUS * 2 * d / (Math.sqrt(3) * aDY + aDX);
-                //     }
+                case 'hexagon': 
+                    return 1.06 * NODE_RADIUS;
+                case 'pentagon': 
+                    return 1.09 * NODE_RADIUS;
+                case 'triangle': 
+                    if (dY > 0 || aDY * Math.sqrt(3) <= aDX) {
+                        return NODE_RADIUS * 2 * d / (Math.sqrt(3) * dX * (dX < 0 ? -1 : 1) + dY);
+                    } else {
+                        return NODE_RADIUS * Math.abs(d / aDY);
+                    }
                 case 'diamond':
                     return NODE_RADIUS * Math.sqrt(2) * d / (aDX + aDY)
                 case 'square':
                    return NODE_RADIUS * Math.abs(d / (aDX > aDY ? aDX : aDY))
+                case undefined: 
                 case 'circle':
                 default: 
                     return NODE_RADIUS;
             }
         }
 
-        const yI = ((scaleByShape(link.source.shape) * dY) / d);
-        const xI = ((scaleByShape(link.target.shape) * dX) / d);
+        const yIS = ((scaleByShape(link.source.shape, 'source') * tDY) / d);
+        const yIT = ((scaleByShape(link.source.shape, 'target') * tDY) / d);
+        const xIS = ((scaleByShape(link.target.shape, 'source') * tDX) / d);
+        const xIT = ((scaleByShape(link.target.shape, 'target') * tDX) / d);
         return {
-            sourceX: xI + link.source.x, sourceY: yI + link.source.y, 
-            targetX: -xI + link.target.x, targetY: -yI + link.target.y
+            sourceX: xIS + link.source.x, sourceY: yIS + link.source.y, 
+            targetX: -xIT + link.target.x, targetY: -yIT + link.target.y
         };
     }
 
@@ -245,7 +257,14 @@ export class Graph extends Component {
             ctx.beginPath();
             ctx.lineWidth = 1;
             ctx.strokeStyle = link.color;
-            ctx.moveTo(scaledLink.sourceX, scaledLink.sourceY);
+            // add a bit of a stub for source if hexagon / pentagon since scaledLink is eyeballed  
+            let stubX = 0;
+            let stubY = 0;
+            if (link.shape === 'hexagon' || link.shape === 'pentagon') {
+                stubX = - dx / dist * NODE_RADIUS * 0.25 * (scaledLink.targetX > scaledLink.sourceX);
+                stubY = - dy / dist * NODE_RADIUS * 0.25 * (scaledLink.targetY > scaledLink.sourceY);
+            }
+            ctx.moveTo(scaledLink.sourceX + stubX, scaledLink.sourceY + stubY);
             ctx.lineTo(scaledLink.targetX, scaledLink.targetY);
             ctx.stroke();
             this.drawArrow(ctx, scaledLink.sourceX, scaledLink.sourceY, scaledLink.sourceX + x99, scaledLink.sourceY + y99, link);
@@ -328,32 +347,31 @@ export class Graph extends Component {
         ctx.strokeStyle = node.color;
         ctx.beginPath();
         switch (node.shape) {
-            case undefined:
-            // case 'hexagon': 
-            //     const hr = NODE_RADIUS / Math.cos(TO_RAD(30));
-            //     ctx.moveTo(node.x, node.y - hr);
-            //     ctx.lineTo(node.x + hr * Math.sin(TO_RAD(60)), node.y - hr * Math.cos(TO_RAD(60)));
-            //     ctx.lineTo(node.x + hr * Math.sin(TO_RAD(60)), node.y + hr * Math.cos(TO_RAD(60)));
-            //     ctx.lineTo(node.x, node.y + hr);
-            //     ctx.lineTo(node.x - hr * Math.sin(TO_RAD(60)), node.y + hr * Math.cos(TO_RAD(60)));
-            //     ctx.lineTo(node.x - hr * Math.sin(TO_RAD(60)), node.y - hr * Math.cos(TO_RAD(60)));
-            //     ctx.lineTo(node.x + 0.25, node.y - hr - 0.25);
-            //     break;
-            // case 'pentagon':
-            //     const pr = NODE_RADIUS / Math.cos(TO_RAD(36))
-            //     ctx.moveTo(node.x, node.y - pr);
-            //     ctx.lineTo(node.x + pr *  Math.sin(TO_RAD(72)), node.y - pr *  Math.cos(TO_RAD(72)));
-            //     ctx.lineTo(node.x + pr *  Math.sin(TO_RAD(36)), node.y + pr *  Math.cos(TO_RAD(36)));
-            //     ctx.lineTo(node.x - pr *  Math.sin(TO_RAD(36)), node.y + pr *  Math.cos(TO_RAD(36)));
-            //     ctx.lineTo(node.x - pr *  Math.sin(TO_RAD(72)), node.y - pr *  Math.cos(TO_RAD(72)))
-            //     ctx.lineTo(node.x + 0.25, node.y - pr - 0.25);
-            //     break;
-            // case 'triangle':
-            //     ctx.moveTo(node.x, node.y - 2 * NODE_RADIUS);
-            //     ctx.lineTo(node.x + Math.sqrt(3) * NODE_RADIUS, node.y + NODE_RADIUS);
-            //     ctx.lineTo(node.x - Math.sqrt(3) * NODE_RADIUS, node.y + NODE_RADIUS);
-            //     ctx.lineTo(node.x + 0.25, node.y - 2 * NODE_RADIUS - 0.25);
-            //     break; 
+            case 'hexagon': 
+                const hr = NODE_RADIUS / Math.cos(TO_RAD(30));
+                ctx.moveTo(node.x, node.y - hr);
+                ctx.lineTo(node.x + hr * Math.sin(TO_RAD(60)), node.y - hr * Math.cos(TO_RAD(60)));
+                ctx.lineTo(node.x + hr * Math.sin(TO_RAD(60)), node.y + hr * Math.cos(TO_RAD(60)));
+                ctx.lineTo(node.x, node.y + hr);
+                ctx.lineTo(node.x - hr * Math.sin(TO_RAD(60)), node.y + hr * Math.cos(TO_RAD(60)));
+                ctx.lineTo(node.x - hr * Math.sin(TO_RAD(60)), node.y - hr * Math.cos(TO_RAD(60)));
+                ctx.lineTo(node.x + 0.25, node.y - hr - 0.25);
+                break;
+            case 'pentagon':
+                const pr = NODE_RADIUS / Math.cos(TO_RAD(36))
+                ctx.moveTo(node.x, node.y - pr);
+                ctx.lineTo(node.x + pr *  Math.sin(TO_RAD(72)), node.y - pr *  Math.cos(TO_RAD(72)));
+                ctx.lineTo(node.x + pr *  Math.sin(TO_RAD(36)), node.y + pr *  Math.cos(TO_RAD(36)));
+                ctx.lineTo(node.x - pr *  Math.sin(TO_RAD(36)), node.y + pr *  Math.cos(TO_RAD(36)));
+                ctx.lineTo(node.x - pr *  Math.sin(TO_RAD(72)), node.y - pr *  Math.cos(TO_RAD(72)))
+                ctx.lineTo(node.x + 0.25, node.y - pr - 0.25);
+                break;
+            case 'triangle':
+                ctx.moveTo(node.x, node.y - 2 * NODE_RADIUS);
+                ctx.lineTo(node.x + Math.sqrt(3) * NODE_RADIUS, node.y + NODE_RADIUS);
+                ctx.lineTo(node.x - Math.sqrt(3) * NODE_RADIUS, node.y + NODE_RADIUS);
+                ctx.lineTo(node.x + 0.25, node.y - 2 * NODE_RADIUS - 0.25);
+                break; 
             case 'diamond':
                 ctx.moveTo(node.x, node.y - NODE_RADIUS * Math.sqrt(2));
                 ctx.lineTo(node.x + NODE_RADIUS * Math.sqrt(2), node.y);
@@ -364,6 +382,7 @@ export class Graph extends Component {
             case 'square':
                 ctx.rect(node.x - NODE_RADIUS, node.y - NODE_RADIUS, NODE_RADIUS * 2, NODE_RADIUS * 2);
                 break;
+            case undefined:
             case 'circle':
             default:
                 ctx.arc(node.x, node.y, NODE_RADIUS, 0, 2 * Math.PI);              

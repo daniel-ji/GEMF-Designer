@@ -3,7 +3,7 @@
  * The actual individual inputs.    
  */
 import React, { Component, Fragment } from 'react'
-import {NODE_COLLIDE_RADIUS, NODE_RADIUS, UPDATE_DATA_DEL} from '../../Constants';
+import {NODE_COLLIDE_RADIUS, NODE_RADIUS, NODE_SHAPES, UPDATE_DATA_DEL} from '../../Constants';
 
 export class AddNodesInput extends Component {
     constructor(props) {
@@ -14,6 +14,7 @@ export class AddNodesInput extends Component {
         inputCreated: this.props.inputValue === undefined ? false : true,
         inputValue: this.props.inputValue ?? '',
         color: this.props.data.nodes.find(node => node.id === this.props.inputCounter)?.color ?? '#000000',
+        shape: this.props.data.nodes.find(node => node.id === this.props.inputCounter)?.shape ?? this.props.data.defaultShape,
         count: this.props.inputCounter,
       }
     }
@@ -36,7 +37,7 @@ export class AddNodesInput extends Component {
                 y: 0,
                 color: this.state.color,
                 order: data.nodes.length,
-                shape: 'square',
+                shape: this.state.shape,
             })
             // temporarily sets the collision force to the whole node radius so that nodes do not intersect on creation
             this.props.setForceCollideRadius(NODE_RADIUS * 1.2);
@@ -58,7 +59,7 @@ export class AddNodesInput extends Component {
 
     /**
      * Updates color of node based on color picker.
-     * @param {*} e 
+     * @param {*} e event
      */
     setColor = (e) => {
         this.setState({color: e.target.value});
@@ -66,6 +67,20 @@ export class AddNodesInput extends Component {
         const node = data.nodes.find(x => x.id === this.state.count);
         node.color = e.target.value;
         this.props.setGraphData(data);
+    }
+
+    /**
+     * Updates shape of node based on shape input.
+     * @param {*} shape new shape
+     */
+    setShape = (shape) => {
+        this.setState({shape});
+        if (this.state.inputCreated) {
+            const data = Object.assign({}, this.props.data);
+            const node = data.nodes.find(x => x.id === this.state.count);
+            node.shape = shape;
+            this.props.setGraphData(data);
+        }
     }
 
     /**
@@ -109,6 +124,22 @@ export class AddNodesInput extends Component {
                     value={this.state.color}
                     onChange={this.setColor}
                     title="Choose node color" />
+                    
+                    <div className="dropdown shapes-dropdown">
+                        <button
+                        className="btn btn-light shape-dropdown-toggle dropdown-toggle" 
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        >
+                            <i className={`bi bi-${this.state.shape}`} />
+                        </button>
+                        <ul className="dropdown-menu">
+                            {NODE_SHAPES.map(shape =>
+                                <li><i className={`dropdown-item bi bi-${shape}`} onClick={() => this.setShape(shape)}/></li>
+                            )}
+                        </ul>
+                    </div>
 
                     <input
                     id={'s-1-input-' + this.state.count}
