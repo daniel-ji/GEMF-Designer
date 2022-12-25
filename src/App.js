@@ -358,7 +358,7 @@ export class App extends Component {
                         const nodeObject = {
                             id: nodeID, 
                             name: parsedSTR[i][j], 
-                            color: this.state.data.defaultColor,
+                            color: this.state.data.defaultNodeColor,
                             order: nodes.length,
                             shape: this.state.data.defaultShape,
                         }
@@ -391,7 +391,7 @@ export class App extends Component {
                                 target: getNodeID(i, 1),
                                 inducer: undefined,
                                 rate: parseFloat(parsedSTR[i][3]),
-                                color: '#000000',
+                                color: this.state.data.defaultEdgeColor,
                                 order: links.length,
                             }
                             newLinks.push(linkObject);
@@ -411,7 +411,7 @@ export class App extends Component {
                                 target: getNodeID(i, 1),
                                 inducer: getNodeID(i, 2),
                                 rate: parseFloat(parsedSTR[i][3]), 
-                                color: '#000000',
+                                color: this.state.defaultEdgeColor,
                                 order: links.length
                             }
                             newLinks.push(linkObject);

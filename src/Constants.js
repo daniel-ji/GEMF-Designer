@@ -101,7 +101,8 @@ export const DEFAULT_GRAPH_DATA = () => {
         links: [],
         STRData: [],
         defaultShape: 'circle',
-        defaultColor: '#000000',
+        defaultNodeColor: '#000000',
+        defaultEdgeColor: '#000000',
     }
 }
 /**

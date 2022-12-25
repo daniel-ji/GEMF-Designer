@@ -207,6 +207,23 @@ body {
 #add-nodes-container {
     overflow-y: scroll;
 
+    .shapes-dropdown {
+        .dropdown-menu {
+            min-width: 0 !important;
+
+            .dropdown-item {
+                cursor: pointer;
+            }
+        }
+
+        .shape-dropdown-toggle {
+            border-radius: 0;
+            border: 1px solid #ced4da;
+        }
+    }
+}
+
+#add-nodes-container, #add-edges-container {
     .node-color-edit {
         flex: none;
         width: 2.5rem;
@@ -226,21 +243,6 @@ body {
         &:focus {
             border-color: inherit;
             box-shadow: none;
-        }
-    }
-
-    .shapes-dropdown {
-        .dropdown-menu {
-            min-width: 0 !important;
-
-            .dropdown-item {
-                cursor: pointer;
-            }
-        }
-
-        .shape-dropdown-toggle {
-            border-radius: 0;
-            border: 1px solid #ced4da;
         }
     }
 }

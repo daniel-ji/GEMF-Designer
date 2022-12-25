@@ -6,7 +6,7 @@ import Sortable from 'sortablejs';
 
 import AddEdgesEntry from './AddEdgesEntry'
 
-import { LINK_NODE_SELECT_IDS, LINK_SHORT_NAME, UPDATE_DATA_DEL, UPDATE_DATA_ORDER } from '../../Constants';
+import { CREATE_ENTRY_ID, LINK_NODE_SELECT_IDS, LINK_SHORT_NAME, UPDATE_DATA_DEL, UPDATE_DATA_ORDER } from '../../Constants';
 
 export class AddEdgesContainer extends Component {
     constructor(props) {
@@ -97,7 +97,7 @@ export class AddEdgesContainer extends Component {
                 target: targetID,
                 inducer: inducerID === -1 ? undefined : inducerID,
                 rate: rateInput.value,
-                color: '#000000',
+                color: this.props.data.defaultEdgeColor,
                 order: this.props.data.links.length
             }
             newLink.shortName = LINK_SHORT_NAME(newLink, data);
@@ -199,7 +199,7 @@ export class AddEdgesContainer extends Component {
             ...links.map(link => 
                 <AddEdgesEntry 
                 id={link.id}
-                key={link.id}
+                key={CREATE_ENTRY_ID()}
                 data={this.props.data} 
                 link={link}
                 deletePrompt={this.deletePrompt}
@@ -209,11 +209,69 @@ export class AddEdgesContainer extends Component {
         ]})
     }
 
+    /**
+     * Set default link color of graph.
+     *  
+     * @param {*} e color picker event 
+     */
+    setDefaultColor = (e) => {
+        const data = Object.assign({}, this.props.data);
+        data.defaultEdgeColor = e.target.value;
+        this.props.setGraphData(data);
+    }
+
+    /**
+     * Confirm prompt for resetting all links' colors.
+     */
+    resetColorPrompt = () => {
+        if (document.getElementsByClassName("finish-edit-btn").length > 0) {
+            this.props.setFormError("Please finish or cancel all link edits first.");
+        } else {
+            this.props.deletePrompt(this.resetColor, () => {}, 'Revert ALL links\' color to default?')
+        }
+    }
+
+    /**
+     * Reset all links' colors and update graph data. 
+     */
+    resetColor = () => {
+        const data = Object.assign({}, this.props.data);
+        for (const link of data.links) {
+            link.color = data.defaultEdgeColor;
+        }
+        this.props.setGraphData(data, () => {
+            this.setState({edgeEntries: []}, () => {
+                this.createEdgeEntry(data.links);
+            })
+        });
+    }
+
+
     render() {
         const data = this.props.data;
 
         return (
             <div id="add-edges-container" className="form-step">
+                <div className="d-flex justify-content-between">
+                    <div className="dropdown shapes-dropdown mb-4">
+                        <div className="btn-group">
+                            <button className="btn btn-outline-dark" type="button">
+                                Default Color: 
+                            </button>
+                            <input
+                            type="color" 
+                            className="form-control form-control-color node-default-color-edit node-color-edit"
+                            id={"button-color-" + this.state.count}
+                            value={this.props.data.defaultEdgeColor}
+                            onChange={this.setDefaultColor}
+                            title="Choose default node color" 
+                            />
+                        </div>
+                    </div>
+                    <button className="btn btn-outline-danger mb-4" type="button" onClick={this.resetColorPrompt}>
+                        Reset Links to Default Color
+                    </button>
+                </div>
                 <p>Select Source Node</p>
                 <select
                 className="form-select main-node-select"
@@ -248,7 +306,7 @@ export class AddEdgesContainer extends Component {
                         )
                     })}
                 </select> 
-                <div className="d-flex justify-content-between mb-3">
+                <div className="d-flex justify-content-between mt-3 mb-3">
                     <div className="input-group" style={{width: "60%"}}>
                         <input
                         type="number"
@@ -262,7 +320,7 @@ export class AddEdgesContainer extends Component {
                     style={{width: "30%"}} 
                     onClick={this.addEdge}>Add</button>
                 </div>
-                <button className="btn btn-danger mt-3 mb-3" onClick={this.deleteAllPrompt}>Delete All Links</button>
+                <button className="btn btn-danger mt-4 mb-4" onClick={this.deleteAllPrompt}>Delete All Links</button>
                 <div id="linkEntries">
                     {this.state.edgeEntries}
                 </div>

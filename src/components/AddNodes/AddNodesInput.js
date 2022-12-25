@@ -13,7 +13,7 @@ export class AddNodesInput extends Component {
         deleted: false,
         inputCreated: this.props.inputValue === undefined ? false : true,
         inputValue: this.props.inputValue ?? '',
-        color: this.props.data.nodes.find(node => node.id === this.props.inputCounter)?.color ?? this.props.data.defaultColor,
+        color: this.props.data.nodes.find(node => node.id === this.props.inputCounter)?.color ?? this.props.data.defaultNodeColor,
         shape: this.props.data.nodes.find(node => node.id === this.props.inputCounter)?.shape ?? this.props.data.defaultShape,
         count: this.props.inputCounter,
       }

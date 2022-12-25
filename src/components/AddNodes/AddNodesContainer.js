@@ -108,7 +108,7 @@ export class AddNodesContainer extends Component {
     }
 
     /**
-     * Set default color of graph.
+     * Set default node color of graph.
      *  
      * @param {*} e color picker event 
      */
@@ -117,7 +117,7 @@ export class AddNodesContainer extends Component {
             return index !== this.state.nodeInputs.length - 1
         })}, () => this.createNewInput())
         const data = Object.assign({}, this.props.data);
-        data.defaultColor = e.target.value;
+        data.defaultNodeColor = e.target.value;
         this.props.setGraphData(data);
     }
 
@@ -134,7 +134,7 @@ export class AddNodesContainer extends Component {
     resetColor = () => {
         const data = Object.assign({}, this.props.data);
         for (const node of data.nodes) {
-            node.color = data.defaultColor;
+            node.color = data.defaultNodeColor;
         }
         this.props.setGraphData(data);
         this.loadInNodeInputs();
@@ -173,7 +173,7 @@ export class AddNodesContainer extends Component {
                             type="color" 
                             className="form-control form-control-color node-default-color-edit node-color-edit"
                             id={"button-color-" + this.state.count}
-                            value={this.props.data.defaultColor}
+                            value={this.props.data.defaultNodeColor}
                             onChange={this.setDefaultColor}
                             title="Choose default node color" 
                             />
