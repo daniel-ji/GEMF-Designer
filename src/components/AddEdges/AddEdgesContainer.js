@@ -139,7 +139,7 @@ export class AddEdgesContainer extends Component {
     }
 
     deleteAllPrompt = () => {
-        this.props.deletePrompt(() => this.deleteAllEdges(), () => {}, true);
+        this.props.deletePrompt(() => this.deleteAllEdges(), () => {}, 'Delete ALL links?');
     }
 
     deleteAllEdges = () => {

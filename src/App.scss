@@ -217,6 +217,18 @@ body {
         }
     }
 
+    .node-default-color-edit {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-left: 0;
+        border-color: #212529;
+
+        &:focus {
+            border-color: inherit;
+            box-shadow: none;
+        }
+    }
+
     .shapes-dropdown {
         .dropdown-menu {
             min-width: 0 !important;

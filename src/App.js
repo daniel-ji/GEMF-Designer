@@ -358,7 +358,7 @@ export class App extends Component {
                         const nodeObject = {
                             id: nodeID, 
                             name: parsedSTR[i][j], 
-                            color: '#000000',
+                            color: this.state.data.defaultColor,
                             order: nodes.length,
                             shape: this.state.data.defaultShape,
                         }

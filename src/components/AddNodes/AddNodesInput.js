@@ -13,7 +13,7 @@ export class AddNodesInput extends Component {
         deleted: false,
         inputCreated: this.props.inputValue === undefined ? false : true,
         inputValue: this.props.inputValue ?? '',
-        color: this.props.data.nodes.find(node => node.id === this.props.inputCounter)?.color ?? '#000000',
+        color: this.props.data.nodes.find(node => node.id === this.props.inputCounter)?.color ?? this.props.data.defaultColor,
         shape: this.props.data.nodes.find(node => node.id === this.props.inputCounter)?.shape ?? this.props.data.defaultShape,
         count: this.props.inputCounter,
       }
@@ -123,7 +123,8 @@ export class AddNodesInput extends Component {
                     id={"button-color-" + this.state.count}
                     value={this.state.color}
                     onChange={this.setColor}
-                    title="Choose node color" />
+                    title="Choose node color"
+                    />
                     
                     <div className="dropdown shapes-dropdown">
                         <button

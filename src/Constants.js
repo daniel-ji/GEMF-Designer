@@ -101,6 +101,7 @@ export const DEFAULT_GRAPH_DATA = () => {
         links: [],
         STRData: [],
         defaultShape: 'circle',
+        defaultColor: '#000000',
     }
 }
 /**
