@@ -18,6 +18,7 @@ export class Form extends Component {
         this.state = {
             // form confirm modal for deleting entries 
             deletePrompt: false,
+            deleteAll: false,
             deleteCancelCallback: undefined,
             deleteConfirmCallback: undefined,
         }
@@ -159,8 +160,8 @@ export class Form extends Component {
      * @param {*} deleteConfirmCallback callback on confirm
      * @param {*} deleteCancelCallback callback on cancel
      */
-    deletePrompt = (deleteConfirmCallback, deleteCancelCallback = () => {}) => {
-        this.setState({deletePrompt: true, deleteCancelCallback, deleteConfirmCallback})
+    deletePrompt = (deleteConfirmCallback, deleteCancelCallback = () => {}, deleteAll = false) => {
+        this.setState({deletePrompt: true, deleteCancelCallback, deleteConfirmCallback, deleteAll})
     }
 
     /**
@@ -247,7 +248,7 @@ export class Form extends Component {
                 <div className={`form-error-prompt ${!this.state.deletePrompt ? "form-error-prompt-hidden" : ""}`}>
                     <div className="card">
                         <div className="card-body">
-                            <p className="mx-3 my-0">Delete entry?</p> 
+                            <p className="mx-3 my-0">{this.state.deleteAll ? 'Delete ALL entries?' : 'Delete entry?'}</p> 
                             <div className="form-error-prompt-buttons">
                                 <button className="btn btn-secondary me-3" onClick={this.deleteCancelCallback}>Cancel</button>
                                 <button className="btn btn-danger" onClick={this.deleteConfirmCallback}>Confirm</button>

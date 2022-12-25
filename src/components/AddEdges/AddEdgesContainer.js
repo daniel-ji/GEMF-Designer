@@ -137,6 +137,17 @@ export class AddEdgesContainer extends Component {
             edgeEntries: this.state.edgeEntries.filter(element => element.key !== id),
         })
     }
+
+    deleteAllPrompt = () => {
+        this.props.deletePrompt(() => this.deleteAllEdges(), () => {}, true);
+    }
+
+    deleteAllEdges = () => {
+        const newData = Object.assign({}, this.props.data);
+        newData.links = [];
+        this.props.setGraphData(newData);
+        this.setState({edgeEntries: []})
+    }
     
     /**
      * Set values of link as well as generate new link name.
@@ -251,6 +262,7 @@ export class AddEdgesContainer extends Component {
                     style={{width: "30%"}} 
                     onClick={this.addEdge}>Add</button>
                 </div>
+                <button className="btn btn-danger mt-3 mb-3" onClick={this.deleteAllPrompt}>Delete All Links</button>
                 <div id="linkEntries">
                     {this.state.edgeEntries}
                 </div>
