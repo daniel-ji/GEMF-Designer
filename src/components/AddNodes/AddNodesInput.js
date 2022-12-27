@@ -40,7 +40,7 @@ export class AddNodesInput extends Component {
                 shape: this.state.shape,
             })
             // temporarily sets the collision force to the whole node radius so that nodes do not intersect on creation
-            this.props.setForceCollideRadius(this.props.nodeRadius * 1.2);
+            this.props.setForceCollideRadius(this.props.data.nodeRadius * 1.2);
             this.props.setGraphData(data);
             setTimeout(() => this.props.setForceCollideRadius(NODE_COLLIDE_RADIUS), 400)
             // set up a new blank input box 

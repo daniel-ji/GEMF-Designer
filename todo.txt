@@ -3,8 +3,7 @@ bug testing!!! (especially indexeddb, modal, loading in graphs, graph saving, gr
 code documentation
 magic numbers
 
-New features:
-- Adjustable, global font size for states and transitions (one global font size for each of them)
+features to add:
 - Color-based legend
 - Adjustable edge curves
 

@@ -252,6 +252,14 @@ export class AddEdgesContainer extends Component {
 
         return (
             <div id="add-edges-container" className="form-step">
+                <p>Link size: {this.props.data.linkRadius}</p>
+                <input 
+                type="range" 
+                className="form-range mt-1 mb-4" 
+                min="3" max="20" step="0.5" 
+                value={this.props.data.linkRadius}
+                onChange={(e) => this.props.setLinkRadius(e.target.value)}
+                />
                 <div className="d-flex justify-content-between">
                     <div className="dropdown shapes-dropdown mb-4">
                         <div className="btn-group">

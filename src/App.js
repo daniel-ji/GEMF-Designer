@@ -28,8 +28,6 @@ export class App extends Component {
             data: DEFAULT_GRAPH_DATA(),
             // node collision
             forceCollideRadius: NODE_COLLIDE_RADIUS,
-            // node radius, but is multiplied by relSize, https://github.com/vasturiano/force-graph#node-styling
-            nodeRadius: 12,
             // form step counter
             step: 0,
             // graph interaction indicator style
@@ -113,6 +111,30 @@ export class App extends Component {
                 this.setState({indicatorStyle: {display: "none"}});
             }, 500)
         }
+    }
+    
+    /**
+     * Sets node radius.
+     * 
+     * @param {*} nodeRadius new radius
+     */
+    setNodeRadius = (nodeRadius) => {
+        this.setState(prevState => ({data: {
+            ...prevState.data,
+            nodeRadius
+        }}))
+    }
+
+    /**
+     * Sets link radius.
+     * 
+     * @param {*} linkRadius new radius
+     */
+    setLinkRadius = (linkRadius) => {
+        this.setState(prevState => ({data: {
+            ...prevState.data,
+            linkRadius
+        }}))
     }
 
     /**
@@ -413,7 +435,7 @@ export class App extends Component {
                                 target: getNodeID(i, 1),
                                 inducer: getNodeID(i, 2),
                                 rate: parseFloat(parsedSTR[i][3]), 
-                                color: this.state.defaultEdgeColor,
+                                color: this.state.data.defaultEdgeColor,
                                 order: links.length
                             }
                             newLinks.push(linkObject);
@@ -513,7 +535,7 @@ export class App extends Component {
                     const normalizedY = (rect.top - graphMiddleY) / graphMiddleY;
                     const normalizedR = rect.width / graphDimensions.width;
                     // 2 instead of 1 for spacing out more
-                    const scaleRatio = 2 / normalizedR * this.state.nodeRadius;
+                    const scaleRatio = 2 / normalizedR * this.state.data.nodeRadius;
                     // add node with proper coordinate scaling
                     const node = data.nodes.find(node => node.name === child.getElementsByTagName('title')[0].innerHTML);
                     node.fx = normalizedX * scaleRatio;
@@ -609,7 +631,6 @@ export class App extends Component {
             {this.state.strGraphviz}
             <GraphOverlay 
             forceCollideRadius={this.state.forceCollideRadius}
-            nodeRadius={this.state.nodeRadius}
             data={this.state.data}
             autoDraw={this.autoDraw}
             deleteGraphPrompt={this.deleteGraphPrompt}
@@ -620,7 +641,8 @@ export class App extends Component {
             data={this.state.data}
             step={this.state.step}
             incrementStep={this.incrementStep}
-            nodeRadius={this.state.nodeRadius}
+            setNodeRadius={this.setNodeRadius}
+            setLinkRadius={this.setLinkRadius}
             forceCollideRadius={this.state.forceCollideRadius}
             setForceCollideRadius={this.setForceCollideRadius}
             formError={this.state.formError}

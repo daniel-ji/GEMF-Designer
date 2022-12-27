@@ -216,13 +216,14 @@ export class Form extends Component {
                     />,
                     <AddNodesContainer 
                     data={this.props.data} 
-                    nodeRadius={this.props.nodeRadius}
+                    setNodeRadius={this.props.setNodeRadius}
                     setForceCollideRadius={this.props.setForceCollideRadius} 
                     setGraphData={this.props.setGraphData}
                     deletePrompt={this.deletePrompt}
                     />,
                     <AddEdgesContainer
                     data={this.props.data}
+                    setLinkRadius={this.props.setLinkRadius}
                     setGraphData={this.props.setGraphData}
                     setFormError={this.props.setFormError}
                     formError={this.props.formError}

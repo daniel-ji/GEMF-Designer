@@ -18,8 +18,6 @@ export const NODE_TEXT_OVERFLOW = 6;
 export const NODE_SHAPES = ['circle', 'square', 'diamond', 'triangle', 'pentagon', 'hexagon'];
 // list of select elements for edge creation
 export const LINK_NODE_SELECT_IDS = ["selectSource", "selectTarget", "selectInducer"];
-// default font size of rate text label
-export const RATE_FONT_SIZE = 5;
 // length for which rate text overflows
 export const RATE_TEXT_OVERFLOW = 6; 
 // number of form steps, including welcome
@@ -90,15 +88,22 @@ export const COMPARE_GRAPH = (graph1, graph2) => {
 export const DEFAULT_GRAPH_DATA = () => {
     return {
         id: CREATE_ENTRY_ID(),
+        // name of graph entry
         name: undefined, 
         lastModified: undefined,
+        // order for sorting graphs 
         order: undefined,
         nodes: [],
         links: [],
+        // str imports
         STRData: [],
         defaultShape: 'circle',
         defaultNodeColor: '#000000',
         defaultEdgeColor: '#000000',
+        // node radius, but is multiplied by relSize, https://github.com/vasturiano/force-graph#node-styling
+        nodeRadius: 12,
+        // link radius
+        linkRadius: 9,
     }
 }
 /**

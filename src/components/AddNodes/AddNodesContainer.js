@@ -24,7 +24,7 @@ export class AddNodesContainer extends Component {
     componentDidMount() {
         this.loadInNodeInputs();
 
-        this.setState({sortable: new Sortable(document.getElementById('add-nodes-container'), {
+        this.setState({sortable: new Sortable(document.getElementById('node-inputs'), {
             onUpdate: (e) => {
                 this.props.setGraphData(UPDATE_DATA_ORDER(e, this.props.data, 'nodes'));
             }
@@ -57,7 +57,6 @@ export class AddNodesContainer extends Component {
                 inputValue={value}
                 setForceCollideRadius={this.props.setForceCollideRadius} 
                 setGraphData={this.props.setGraphData}
-                nodeRadius={this.props.nodeRadius}
                 createNewInput={this.createNewInput}
                 deletePrompt={this.props.deletePrompt}
             />
@@ -144,6 +143,14 @@ export class AddNodesContainer extends Component {
     render() {
         return (
             <div id="add-nodes-container" className="form-step">
+                <p>Node size: {this.props.data.nodeRadius}</p>
+                <input 
+                type="range" 
+                className="form-range mt-1 mb-4" 
+                min="6" max="24" step="0.5" 
+                value={this.props.data.nodeRadius}
+                onChange={(e) => this.props.setNodeRadius(e.target.value)}
+                />
                 <div className="d-flex justify-content-between">
                     <div className="dropdown shapes-dropdown mb-4">
                         <div className="btn-group">
@@ -165,7 +172,7 @@ export class AddNodesContainer extends Component {
                     </button>
                 </div>
                 <div className="d-flex justify-content-between">
-                    <div className="dropdown shapes-dropdown mb-4">
+                    <div className="dropdown shapes-dropdown mb-5">
                         <div className="btn-group">
                             <button className="btn btn-outline-dark" type="button">
                                 Default Color: 
@@ -180,11 +187,13 @@ export class AddNodesContainer extends Component {
                             />
                         </div>
                     </div>
-                    <button className="btn btn-outline-danger mb-4" type="button" onClick={this.resetColorPrompt}>
+                    <button className="btn btn-outline-danger mb-5" type="button" onClick={this.resetColorPrompt}>
                         Reset Nodes to Default Color
                     </button>
                 </div>
-                {this.state.nodeInputs}
+                <div id="node-inputs">
+                    {this.state.nodeInputs}
+                </div>
             </div>
         )
     }

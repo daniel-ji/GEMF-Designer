@@ -110,7 +110,6 @@ export class GraphOverlay extends Component {
                 </a>
                 <GraphComponent 
                 forceCollideRadius={this.props.forceCollideRadius}
-                nodeRadius={this.props.nodeRadius}
                 data={this.props.data}
                 downloading={this.state.downloading}
                 snapMode={this.state.snapMode}

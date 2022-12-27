@@ -275,6 +275,31 @@ body {
     transform: translate(50%, 0);
 }
 
+.form-range::-webkit-slider-thumb {
+    background: black !important;
+
+    &:focus {
+        -webkit-box-shadow: none !important;
+        box-shadow: none !important;
+    }
+}
+
+.form-range::-moz-range-thumb {
+    background: black !important;
+
+    &:focus {
+        -moz-box-shadow: none !important;
+    }
+}
+
+.form-range::-ms-thumb {
+    background: black !important;
+
+    &:focus {
+        box-shadow: none !important;
+    }
+}
+
 @media (min-width: 768px) {
     body {
         height: 100vh;
