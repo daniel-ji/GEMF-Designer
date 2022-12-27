@@ -216,6 +216,7 @@ export class Form extends Component {
                     />,
                     <AddNodesContainer 
                     data={this.props.data} 
+                    nodeRadius={this.props.nodeRadius}
                     setForceCollideRadius={this.props.setForceCollideRadius} 
                     setGraphData={this.props.setGraphData}
                     deletePrompt={this.deletePrompt}

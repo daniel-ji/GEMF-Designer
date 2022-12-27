@@ -4,7 +4,6 @@ code documentation
 magic numbers
 
 New features:
-- Transitions that have no source / inducer state (how will this will fit in with the final STR file - does the transition not appear, or does it come from NULL or something like that?)
 - Adjustable, global font size for states and transitions (one global font size for each of them)
 - Color-based legend
 - Adjustable edge curves

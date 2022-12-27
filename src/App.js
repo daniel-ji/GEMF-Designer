@@ -12,7 +12,7 @@ import SiteModal from './components/SiteModal';
 import './App.scss';    
 
 import {
-    WIDTH_RATIO, NODE_COLLIDE_RADIUS, NODE_RADIUS, FORM_STEPS,
+    WIDTH_RATIO, NODE_COLLIDE_RADIUS, FORM_STEPS,
     GRAPHVIZ_PARSE_DELAY, GRAPHVIZ_PARSE_RETRY_INTERVAL, STR_REGEX, INVALID_STR_FILE_ERROR,
     INVALID_STR_ENTRY_ERROR, INVALID_STR_SELF_LOOP_ERROR, INVALID_STR_NODE_NAME_ERROR,
     INVALID_STR_RATE_ERROR, CREATE_ENTRY_ID, COMPARE_GRAPH, DEFAULT_GRAPH_DATA, UPDATE_DATA_DEL,
@@ -28,6 +28,8 @@ export class App extends Component {
             data: DEFAULT_GRAPH_DATA(),
             // node collision
             forceCollideRadius: NODE_COLLIDE_RADIUS,
+            // node radius, but is multiplied by relSize, https://github.com/vasturiano/force-graph#node-styling
+            nodeRadius: 12,
             // form step counter
             step: 0,
             // graph interaction indicator style
@@ -511,7 +513,7 @@ export class App extends Component {
                     const normalizedY = (rect.top - graphMiddleY) / graphMiddleY;
                     const normalizedR = rect.width / graphDimensions.width;
                     // 2 instead of 1 for spacing out more
-                    const scaleRatio = 2 / normalizedR * NODE_RADIUS;
+                    const scaleRatio = 2 / normalizedR * this.state.nodeRadius;
                     // add node with proper coordinate scaling
                     const node = data.nodes.find(node => node.name === child.getElementsByTagName('title')[0].innerHTML);
                     node.fx = normalizedX * scaleRatio;
@@ -607,6 +609,7 @@ export class App extends Component {
             {this.state.strGraphviz}
             <GraphOverlay 
             forceCollideRadius={this.state.forceCollideRadius}
+            nodeRadius={this.state.nodeRadius}
             data={this.state.data}
             autoDraw={this.autoDraw}
             deleteGraphPrompt={this.deleteGraphPrompt}
@@ -617,6 +620,7 @@ export class App extends Component {
             data={this.state.data}
             step={this.state.step}
             incrementStep={this.incrementStep}
+            nodeRadius={this.state.nodeRadius}
             forceCollideRadius={this.state.forceCollideRadius}
             setForceCollideRadius={this.setForceCollideRadius}
             formError={this.state.formError}

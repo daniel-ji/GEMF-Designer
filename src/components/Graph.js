@@ -9,8 +9,8 @@ import { saveAs } from 'file-saver';
 
 import C2S from '../Canvas2SVG';
 
-import { CSS_BREAKPOINT, GRAPHVIZ_PARSE_DELAY, NODE_FONT_SIZE, NODE_TEXT_OVERFLOW, RATE_FONT_SIZE, 
-    RATE_TEXT_OVERFLOW, WIDTH_RATIO, GRID_GAP, NODE_RADIUS, ARROW_SIZE, TO_RAD} from '../Constants';
+import { CSS_BREAKPOINT, GRAPHVIZ_PARSE_DELAY, NODE_TEXT_OVERFLOW, RATE_FONT_SIZE, 
+    RATE_TEXT_OVERFLOW, WIDTH_RATIO, GRID_GAP, ARROW_SIZE, TO_RAD} from '../Constants';
 
 export class Graph extends Component {
     constructor(props) {
@@ -164,23 +164,23 @@ export class Graph extends Component {
             }
             switch (shape) {
                 case 'hexagon': 
-                    return 1.06 * NODE_RADIUS;
+                    return 1.06 * this.props.nodeRadius;
                 case 'pentagon': 
-                    return 1.09 * NODE_RADIUS;
+                    return 1.09 * this.props.nodeRadius;
                 case 'triangle': 
                     if (dY > 0 || aDY * Math.sqrt(3) <= aDX) {
-                        return NODE_RADIUS * 2 * d / (Math.sqrt(3) * dX * (dX < 0 ? -1 : 1) + dY);
+                        return this.props.nodeRadius * 2 * d / (Math.sqrt(3) * dX * (dX < 0 ? -1 : 1) + dY);
                     } else {
-                        return NODE_RADIUS * Math.abs(d / aDY);
+                        return this.props.nodeRadius * Math.abs(d / aDY);
                     }
                 case 'diamond':
-                    return NODE_RADIUS * Math.sqrt(2) * d / (aDX + aDY)
+                    return this.props.nodeRadius * Math.sqrt(2) * d / (aDX + aDY)
                 case 'square':
-                   return NODE_RADIUS * Math.abs(d / (aDX > aDY ? aDX : aDY))
+                   return this.props.nodeRadius * Math.abs(d / (aDX > aDY ? aDX : aDY))
                 case undefined: 
                 case 'circle':
                 default: 
-                    return NODE_RADIUS;
+                    return this.props.nodeRadius;
             }
         }
 
@@ -261,8 +261,8 @@ export class Graph extends Component {
             let stubX = 0;
             let stubY = 0;
             if (link.shape === 'hexagon' || link.shape === 'pentagon') {
-                stubX = - dx / dist * NODE_RADIUS * 0.25 * (scaledLink.targetX > scaledLink.sourceX);
-                stubY = - dy / dist * NODE_RADIUS * 0.25 * (scaledLink.targetY > scaledLink.sourceY);
+                stubX = - dx / dist * this.props.nodeRadius * 0.25 * (scaledLink.targetX > scaledLink.sourceX);
+                stubY = - dy / dist * this.props.nodeRadius * 0.25 * (scaledLink.targetY > scaledLink.sourceY);
             }
             ctx.moveTo(scaledLink.sourceX + stubX, scaledLink.sourceY + stubY);
             ctx.lineTo(scaledLink.targetX, scaledLink.targetY);
@@ -271,7 +271,7 @@ export class Graph extends Component {
         // curved edge
         } else {
             // vertical height of edge based on distance and repeatedness of edge
-            const h = (Math.sqrt(dist) * 2 + (Math.floor((repeatCount + 1) / 2) - 1) * NODE_RADIUS * 1.5) 
+            const h = (Math.sqrt(dist) * 2 + (Math.floor((repeatCount + 1) / 2) - 1) * this.props.nodeRadius * 1.5) 
             // determining whether or not the line should be flipped based on:
             // edge direction, edge y displacement, alternations of edges  
                 * (link.source.id === src ? 1 : -1) * (dy < 0 ? 1 : -1) * (repeatCount % 2 === 0 ? 1 : -1);
@@ -322,7 +322,7 @@ export class Graph extends Component {
         ctx.beginPath();
         ctx.lineWidth = 2;
         ctx.strokeStyle = link.color;
-        ctx.arc(arcMx, arcMy, NODE_RADIUS * 0.75, 0, 2 * Math.PI);
+        ctx.arc(arcMx, arcMy, this.props.nodeRadius * 0.75, 0, 2 * Math.PI);
         ctx.stroke();
         ctx.strokeStyle = link.color;
         ctx.fillStyle = "white";
@@ -348,7 +348,7 @@ export class Graph extends Component {
         ctx.beginPath();
         switch (node.shape) {
             case 'hexagon': 
-                const hr = NODE_RADIUS / Math.cos(TO_RAD(30));
+                const hr = this.props.nodeRadius / Math.cos(TO_RAD(30));
                 ctx.moveTo(node.x, node.y - hr);
                 ctx.lineTo(node.x + hr * Math.sin(TO_RAD(60)), node.y - hr * Math.cos(TO_RAD(60)));
                 ctx.lineTo(node.x + hr * Math.sin(TO_RAD(60)), node.y + hr * Math.cos(TO_RAD(60)));
@@ -358,7 +358,7 @@ export class Graph extends Component {
                 ctx.lineTo(node.x + 0.25, node.y - hr - 0.25);
                 break;
             case 'pentagon':
-                const pr = NODE_RADIUS / Math.cos(TO_RAD(36))
+                const pr = this.props.nodeRadius / Math.cos(TO_RAD(36))
                 ctx.moveTo(node.x, node.y - pr);
                 ctx.lineTo(node.x + pr *  Math.sin(TO_RAD(72)), node.y - pr *  Math.cos(TO_RAD(72)));
                 ctx.lineTo(node.x + pr *  Math.sin(TO_RAD(36)), node.y + pr *  Math.cos(TO_RAD(36)));
@@ -367,25 +367,25 @@ export class Graph extends Component {
                 ctx.lineTo(node.x + 0.25, node.y - pr - 0.25);
                 break;
             case 'triangle':
-                ctx.moveTo(node.x, node.y - 2 * NODE_RADIUS);
-                ctx.lineTo(node.x + Math.sqrt(3) * NODE_RADIUS, node.y + NODE_RADIUS);
-                ctx.lineTo(node.x - Math.sqrt(3) * NODE_RADIUS, node.y + NODE_RADIUS);
-                ctx.lineTo(node.x + 0.25, node.y - 2 * NODE_RADIUS - 0.25);
+                ctx.moveTo(node.x, node.y - 2 * this.props.nodeRadius);
+                ctx.lineTo(node.x + Math.sqrt(3) * this.props.nodeRadius, node.y + this.props.nodeRadius);
+                ctx.lineTo(node.x - Math.sqrt(3) * this.props.nodeRadius, node.y + this.props.nodeRadius);
+                ctx.lineTo(node.x + 0.25, node.y - 2 * this.props.nodeRadius - 0.25);
                 break; 
             case 'diamond':
-                ctx.moveTo(node.x, node.y - NODE_RADIUS * Math.sqrt(2));
-                ctx.lineTo(node.x + NODE_RADIUS * Math.sqrt(2), node.y);
-                ctx.lineTo(node.x, node.y + NODE_RADIUS * Math.sqrt(2));
-                ctx.lineTo(node.x - NODE_RADIUS * Math.sqrt(2), node.y);
-                ctx.lineTo(node.x + 0.25, node.y - NODE_RADIUS * Math.sqrt(2) - 0.25);
+                ctx.moveTo(node.x, node.y - this.props.nodeRadius * Math.sqrt(2));
+                ctx.lineTo(node.x + this.props.nodeRadius * Math.sqrt(2), node.y);
+                ctx.lineTo(node.x, node.y + this.props.nodeRadius * Math.sqrt(2));
+                ctx.lineTo(node.x - this.props.nodeRadius * Math.sqrt(2), node.y);
+                ctx.lineTo(node.x + 0.25, node.y - this.props.nodeRadius * Math.sqrt(2) - 0.25);
                 break; 
             case 'square':
-                ctx.rect(node.x - NODE_RADIUS, node.y - NODE_RADIUS, NODE_RADIUS * 2, NODE_RADIUS * 2);
+                ctx.rect(node.x - this.props.nodeRadius, node.y - this.props.nodeRadius, this.props.nodeRadius * 2, this.props.nodeRadius * 2);
                 break;
             case undefined:
             case 'circle':
             default:
-                ctx.arc(node.x, node.y, NODE_RADIUS, 0, 2 * Math.PI);              
+                ctx.arc(node.x, node.y, this.props.nodeRadius, 0, 2 * Math.PI);              
                 break;
         }
         ctx.fillStyle = "white";
@@ -393,7 +393,7 @@ export class Graph extends Component {
         ctx.stroke();
         // draw label
         const label = node.name;
-        let fontSizeAdjusted = NODE_FONT_SIZE;
+        let fontSizeAdjusted = this.props.nodeRadius / 2;
         ctx.lineWidth = 1;
         ctx.fillStyle = "black";
         ctx.textAlign = "center";
@@ -438,7 +438,7 @@ export class Graph extends Component {
             ref={this.ref}
             id="graph" 
             graphData={this.props.data}
-            nodeVal={NODE_RADIUS}
+            nodeVal={this.props.nodeRadius}
             nodeLabel=''
             nodeAutoColorBy='group'
             nodeCanvasObject={this.drawNode}

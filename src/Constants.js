@@ -8,14 +8,10 @@ export const WIDTH_RATIO = 0.6;
 export const CSS_BREAKPOINT = 768;
 // other than during node creation, nodes can completely overlap
 export const NODE_COLLIDE_RADIUS = 0;
-// radius of nodes, but is multiplied by relSize, https://github.com/vasturiano/force-graph#node-styling
-export const NODE_RADIUS = 12;
 // arrow size of links
-export const ARROW_SIZE = 4;
+export const ARROW_SIZE = 5;
 // gap between gridlines
 export const GRID_GAP = 30;
-// default font size of node text label
-export const NODE_FONT_SIZE = 6;
 // length for which node text overflows
 export const NODE_TEXT_OVERFLOW = 6; 
 // possible node shapes
