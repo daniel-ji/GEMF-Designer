@@ -262,7 +262,7 @@ export class AddEdgesContainer extends Component {
                 />
                 <div className="d-flex justify-content-between">
                     <div className="dropdown shapes-dropdown mb-4">
-                        <div className="btn-group">
+                        <div className="btn-group h-100 me-3">
                             <button className="btn btn-outline-dark" type="button">
                                 Default Color: 
                             </button>
@@ -276,7 +276,7 @@ export class AddEdgesContainer extends Component {
                             />
                         </div>
                     </div>
-                    <button className="btn btn-outline-danger mb-4" type="button" onClick={this.resetColorPrompt}>
+                    <button className="btn btn-outline-danger mb-4 ms-3" type="button" onClick={this.resetColorPrompt}>
                         Reset Links to Default Color
                     </button>
                 </div>

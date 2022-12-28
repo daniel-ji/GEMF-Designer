@@ -153,7 +153,7 @@ export class AddNodesContainer extends Component {
                 />
                 <div className="d-flex justify-content-between">
                     <div className="dropdown shapes-dropdown mb-4">
-                        <div className="btn-group">
+                        <div className="btn-group me-3">
                             <button className="btn btn-outline-dark" type="button">
                                 Default Shape: 
                             </button>
@@ -167,13 +167,13 @@ export class AddNodesContainer extends Component {
                             </ul>
                         </div>
                     </div>
-                    <button className="btn btn-outline-danger mb-4" type="button" onClick={this.resetShapePrompt}>
+                    <button className="btn btn-outline-danger mb-4 ms-3" type="button" onClick={this.resetShapePrompt}>
                         Reset Nodes to Default Shape 
                     </button>
                 </div>
                 <div className="d-flex justify-content-between">
                     <div className="dropdown shapes-dropdown mb-5">
-                        <div className="btn-group">
+                        <div className="btn-group h-100 me-3">
                             <button className="btn btn-outline-dark" type="button">
                                 Default Color: 
                             </button>
@@ -187,7 +187,7 @@ export class AddNodesContainer extends Component {
                             />
                         </div>
                     </div>
-                    <button className="btn btn-outline-danger mb-5" type="button" onClick={this.resetColorPrompt}>
+                    <button className="btn btn-outline-danger mb-5 ms-3" type="button" onClick={this.resetColorPrompt}>
                         Reset Nodes to Default Color
                     </button>
                 </div>

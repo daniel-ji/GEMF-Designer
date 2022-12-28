@@ -142,6 +142,14 @@ export class AddNodesInput extends Component {
                         </ul>
                     </div>
 
+
+                    <div class="input-group-text">
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Infected: &nbsp;
+                        </label>
+                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
+                    </div>
+
                     <input
                     id={'s-1-input-' + this.state.count}
                     className='form-control'
