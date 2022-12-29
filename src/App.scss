@@ -246,6 +246,21 @@ body {
             box-shadow: none;
         }
     }
+
+    .infected-checkbox {
+        background-color: #F8F9FA;
+        transition: 0.25s;
+
+        &:hover {
+            background-color: #d3d4d5;
+        }
+
+        .form-check-input {
+            &:hover {
+                cursor: pointer;
+            }
+        }
+    }
 }
 
 #add-edges-container {

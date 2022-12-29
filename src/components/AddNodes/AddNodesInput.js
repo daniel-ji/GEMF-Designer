@@ -15,6 +15,7 @@ export class AddNodesInput extends Component {
         inputValue: this.props.inputValue ?? '',
         color: this.props.data.nodes.find(node => node.id === this.props.inputCounter)?.color ?? this.props.data.defaultNodeColor,
         shape: this.props.data.nodes.find(node => node.id === this.props.inputCounter)?.shape ?? this.props.data.defaultShape,
+        infected: this.props.data.nodes.find(node => node.id === this.props.inputCounter)?.infected,
         count: this.props.inputCounter,
       }
     }
@@ -38,6 +39,7 @@ export class AddNodesInput extends Component {
                 color: this.state.color,
                 order: data.nodes.length,
                 shape: this.state.shape,
+                infected: false,
             })
             // temporarily sets the collision force to the whole node radius so that nodes do not intersect on creation
             this.props.setForceCollideRadius(this.props.data.nodeRadius * 1.2);
@@ -81,6 +83,20 @@ export class AddNodesInput extends Component {
             node.shape = shape;
             this.props.setGraphData(data);
         }
+    }
+    
+    /**
+     * Toggles infected status of node.
+     */
+    setInfected = () => {
+        this.setState(prevState => {return {infected: !prevState.infected}}, () => {
+            if (this.state.inputCreated) {
+                const data = Object.assign({}, this.props.data);
+                const node = data.nodes.find(x => x.id === this.state.count);
+                node.infected = this.state.infected;
+                this.props.setGraphData(data);
+            }
+        });
     }
 
     /**
@@ -137,17 +153,23 @@ export class AddNodesInput extends Component {
                         </button>
                         <ul className="dropdown-menu">
                             {NODE_SHAPES.map(shape =>
-                                <li><i className={`dropdown-item bi bi-${shape}`} onClick={() => this.setShape(shape)}/></li>
+                                <li key={shape}><i className={`dropdown-item bi bi-${shape}`} onClick={() => this.setShape(shape)}/></li>
                             )}
                         </ul>
                     </div>
 
 
-                    <div class="input-group-text">
-                        <label class="form-check-label" for="flexCheckDefault">
+                    <div className="input-group-text infected-checkbox">
+                        <label className="form-check-label" htmlFor={"infected-checkbox-" + this.state.count}>
                             Infected: &nbsp;
                         </label>
-                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
+                        <input
+                        className="form-check-input"
+                        type="checkbox"
+                        checked={this.state.infected}
+                        onChange={this.setInfected}
+                        id={"infected-checkbox-" + this.state.count}
+                        />
                     </div>
 
                     <input

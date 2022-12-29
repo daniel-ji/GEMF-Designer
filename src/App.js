@@ -385,6 +385,7 @@ export class App extends Component {
                             color: this.state.data.defaultNodeColor,
                             order: nodes.length,
                             shape: this.state.data.defaultShape,
+                            infected: false,
                         }
                         if (j <= 1 && !foundNode) {
                             newNodes.push(nodeObject);

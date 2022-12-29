@@ -10,9 +10,16 @@ export class FinalData extends Component {
 
         this.state = {
             // store output data, as string (for download) and as react elements (for display)
-            tsvData: "",
-            tableData: [],
+            STRText: "",
+            STRData: [],
+            // for infected states file
+            infectedData: [],
+            infectedText: '',
         }
+    }
+
+    componentDidMount() {
+        this.renderData();
     }
 
     /**
@@ -20,15 +27,15 @@ export class FinalData extends Component {
      */
     renderData = () => {
         const data = this.props.data;
-        let tsvData = ""; 
+        let STRText = ""; 
 
-        const tableData = data.links.map(link => {
+        const STRData = data.links.map(link => {
             const fromState = link.source.name;
             const toState = link.target.name;
             const inducerState = data.nodes.find(node => node.id === link.inducer)?.name ?? "None";
             const rate = link.rate;
 
-            tsvData += fromState + "\t" + toState + "\t" + inducerState + "\t" + rate + "\n";
+            STRText += fromState + "\t" + toState + "\t" + inducerState + "\t" + rate + "\n";
             return (
                 <tr key={fromState + "-" + toState + "-" + inducerState}>
                     <td>{fromState}</td>
@@ -39,17 +46,31 @@ export class FinalData extends Component {
             )
         })
 
-        this.setState({tableData, tsvData})
+        let infectedText = '';
+
+        const infectedData = data.nodes.filter(node => node.infected)
+        .map(node => {
+            infectedText += node.name + '\n';
+            console.log(node.name);
+            return (
+                <tr key={node.id}>
+                    <td>{node.name}</td>
+                </tr>
+            )
+        })
+
+        this.setState({STRData, STRText, infectedData, infectedText})
     }
 
-    componentDidMount() {
-        this.renderData();
+    downloadFiles = () => {
+       saveAs(new Blob([this.state.STRText], {type: "text/plain;charset=utf-8"}), this.props.data.name + " STR.tsv")
+       saveAs(new Blob([this.state.infectedText], {type: "text/plain;charset=utf-8"}), this.props.data.name + " INFECTED_STATES.tsv")
     }
 
     render() {
         return (
             <div className="form-step">
-                <h3 className="title">Finished State Transition Rates</h3>
+                <h3 className="title">State Transition Rates</h3>
                 <table className="table">
                     <thead>
                         <tr>
@@ -60,11 +81,22 @@ export class FinalData extends Component {
                         </tr>
                     </thead>
                     <tbody>
-                        {this.state.tableData}
+                        {this.state.STRData}
+                    </tbody>
+                </table>
+                <h3 className="title">Infected States</h3>
+                <table className="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">States</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {this.state.infectedData}
                     </tbody>
                 </table>
                 <button className="w-100 btn btn-primary" id="btn" 
-                    onClick={() => saveAs(new Blob([this.state.tsvData], {type: "text/plain;charset=utf-8"}), "STR.tsv")}>
+                    onClick={this.downloadFiles}>
                     Download
                 </button>
             </div>

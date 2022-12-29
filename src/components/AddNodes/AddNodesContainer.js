@@ -162,7 +162,7 @@ export class AddNodesContainer extends Component {
                             </button>
                             <ul className="dropdown-menu">
                                 {NODE_SHAPES.map(shape =>
-                                    <li><i className={`dropdown-item bi bi-${shape}`} onClick={() => this.setDefaultShape(shape)}/></li>
+                                    <li key={shape}><i className={`dropdown-item bi bi-${shape}`} onClick={() => this.setDefaultShape(shape)}/></li>
                                 )}
                             </ul>
                         </div>

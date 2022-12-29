@@ -236,7 +236,7 @@ export class Form extends Component {
                     setGraphData={this.props.setGraphData}
                     />
                 ][this.props.step]}
-                <div id="button-container" className={this.props.step === 0 ? "justify-content-end" : "justify-content-between"}>
+                <div id="button-container" className={`mt-4 ${this.props.step === 0 ? "justify-content-end" : "justify-content-between"}`}>
                     {this.props.step !== 0 && <button onClick={this.handleBack} type="button" className="btn btn-secondary">Back</button>}
                     {this.props.step !== FORM_STEPS - 1 && <button onClick={this.handleNext} type="button" className="btn btn-success">Next</button>}
                 </div>
