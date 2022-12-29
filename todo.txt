@@ -4,10 +4,18 @@ code documentation
 magic numbers
 
 features to add:
-- Color-based legend
 - Adjustable edge curves
+    - probably have to make an "edge" into four nodes
+    - learn some stuff about cubic beziers
 
-- Ctrl-Z (Undo) feature (gotta think about this one) (recording changes in data?, just graph? also form actions? which form actions)
+- Ctrl-Z (Undo) features
+    - store a history of node positions (in an efficient manner)
+    - on node movement or auto-draw, check if the node positions changed, and if so, add to the undo "stack"
+        - if this is not a redo or undo, clear the redo stack
+    - on undo, revert to the previous history log and add the top to the redo "stack"
+    - on redo, revert to the previous history log and add the top to the undo "stack"
+
+- Color-based legend (probably have to ask Jonathan some more)
 
 - with shapes, still need to:
     - triangle shape dilemma
