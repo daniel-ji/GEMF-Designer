@@ -14,7 +14,7 @@ export class SiteModal extends Component {
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         {this.props.modalBody !== undefined && this.props.modalBody !== '' &&
-                        <div class="modal-body">
+                        <div className="modal-body">
                             <p>{this.props.modalBody}</p>
                         </div>
                         }

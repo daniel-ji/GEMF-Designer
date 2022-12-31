@@ -4,21 +4,34 @@
 import React, { Component } from 'react'
 
 import GraphComponent from './Graph';
-import githubIcon from '../images/githubicon.png';
 
 export class GraphOverlay extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            snapMode: true,
+            // ruler / gridlines snap mode delay
             snapModeDelayed: false,
-            downloadDelayed: false,
-            shortcutMode: false,
-            graphFocused: false,
+            // downloading graph as graphic
             downloading: false,
+            downloadDelayed: false,
+            // for recording when shortcut button is pressed
+            shortcutMode: false,
+            // if user is hovering mouse over graph
+            graphFocused: false,
+            // graph interaction indicator style
+            indicatorStyle: {},
+            hoveringUndo: false,
         }
     }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.graphUndo && !prevProps.graphUndo) {
+            setTimeout(() => {
+                this.props.hideGraphUndo();
+            }, 10000)
+        }
+    } 
 
     componentDidMount() {
         // Snap feature for graph
@@ -63,7 +76,8 @@ export class GraphOverlay extends Component {
      */
     toggleGrid = () => {
         if (!this.state.snapModeDelayed) {
-            this.setState(prevState => {return {snapMode: !prevState.snapMode, snapModeDelayed: true}})
+            this.props.toggleSnapMode();
+            this.setState({snapModeDelayed: true})
             setTimeout(() => this.setState({snapModeDelayed: false}), 100)
         }
     }
@@ -80,9 +94,27 @@ export class GraphOverlay extends Component {
         }
     }
 
+    /**
+     * Fade out graph interaction indicator. 
+     */
+    indicatorFadeOut = () => {
+        if (Object.keys(this.state.indicatorStyle).length === 0) {
+            this.setState({indicatorStyle: {opacity: 0}});
+            setTimeout(() => {
+                this.setState({indicatorStyle: {display: "none"}});
+            }, 500)
+        }
+    }
+
     render() {
         return (
             <div id="graph-cover">
+                <div className="graph-overlay" id="graph-indicator"
+                onMouseDown={this.indicatorFadeOut}
+                onTouchStart={this.indicatorFadeOut}
+                style={this.state.indicatorStyle}>
+                    <p className="noselect">Click and Drag Graph to Interact</p>
+                </div>
                 <div className="graph-tl">
                     <h1 className="noselect">Graph View </h1>
                 </div>
@@ -105,17 +137,20 @@ export class GraphOverlay extends Component {
                         <i className="bi bi-trash"></i>
                     </button>
                 </div>
-                <a className="github-button" href="https://github.com/daniel-ji/GEMF-Designer" target="_blank" rel="noreferrer" aria-label="github repo link">
-                    <button className="btn btn-outline-dark p-0" aria-label="github repo button"><img src={githubIcon} alt="" /></button>
-                </a>
                 <GraphComponent 
                 forceCollideRadius={this.props.forceCollideRadius}
                 data={this.props.data}
                 downloading={this.state.downloading}
-                snapMode={this.state.snapMode}
+                snapMode={this.props.snapMode}
                 shortcutLink={this.props.shortcutLink}
                 setModal={this.props.setModal}
                 /> 
+                {this.props.graphUndo &&
+                <div className="alert alert-dark" id="undo-alert" role="alert" onMouseLeave={this.delayHideGraphUndo}>
+                    <p>Auto-draw complete.</p>
+                    <button type="button" className="btn btn-outline-primary" onClick={this.props.undoGraph}>Undo</button>
+                </div>
+                }
             </div>
         )
     }

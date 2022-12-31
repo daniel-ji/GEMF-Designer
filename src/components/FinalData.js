@@ -63,8 +63,8 @@ export class FinalData extends Component {
     }
 
     downloadFiles = () => {
-       saveAs(new Blob([this.state.STRText], {type: "text/plain;charset=utf-8"}), this.props.data.name + " STR.tsv")
-       saveAs(new Blob([this.state.infectedText], {type: "text/plain;charset=utf-8"}), this.props.data.name + " INFECTED_STATES.tsv")
+       saveAs(new Blob([this.state.STRText], {type: "text/plain;charset=utf-8"}), this.props.data.name + "_STR.tsv")
+       saveAs(new Blob([this.state.infectedText], {type: "text/plain;charset=utf-8"}), this.props.data.name + "_INFECTED_STATES.tsv")
     }
 
     render() {

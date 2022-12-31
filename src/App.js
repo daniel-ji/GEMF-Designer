@@ -16,7 +16,7 @@ import {
     GRAPHVIZ_PARSE_DELAY, GRAPHVIZ_PARSE_RETRY_INTERVAL, STR_REGEX, INVALID_STR_FILE_ERROR,
     INVALID_STR_ENTRY_ERROR, INVALID_STR_SELF_LOOP_ERROR, INVALID_STR_NODE_NAME_ERROR,
     INVALID_STR_RATE_ERROR, CREATE_ENTRY_ID, COMPARE_GRAPH, DEFAULT_GRAPH_DATA, UPDATE_DATA_DEL,
-    LINK_NODE_SELECT_IDS
+    LINK_NODE_SELECT_IDS, GRID_GAP
 } from './Constants';
 
 export class App extends Component {
@@ -24,34 +24,42 @@ export class App extends Component {
         super(props)
 
         this.state = {
+            /* GRAPH-RELATED DATA */
             // current graph data
             data: DEFAULT_GRAPH_DATA(),
             // node collision
             forceCollideRadius: NODE_COLLIDE_RADIUS,
-            // form step counter
-            step: 0,
-            // graph interaction indicator style
-            indicatorStyle: {},
-            // stores graphviz component (dot-engine based graph rendering of user-inputted existing STR)
-            strGraphviz: undefined,
-            // form error messages
-            formError: "",
-            // if form error message is being hidden by user
-            formErrorTrans: false,
-            // if form error message is hidden
-            formErrorHide: false,
             // number of nodes selected for shortcut link creation
             nodesAutoSel: 0,
+            // previous node positions before auto-draw
+            oldNodePos: [],
+            // stores graphviz component (dot-engine based graph rendering of user-inputted existing STR)
+            strGraphviz: undefined,
             // database for indexeddb
             db: undefined,
             // list of saved graphs
             savedGraphs: undefined,
             // currently selected graph
             selectedGraph: undefined,
-            // site modal
+            // ruler / gridlines alignment mode
+            snapMode: true, 
+
+            /* FORM-RELATED DATA */
+            // form step counter
+            step: 0,
+            // form error messages
+            formError: "",
+            // if form error message is being hidden by user
+            formErrorTrans: false,
+            // if form error message is hidden
+            formErrorHide: false,
+
+
+            /* SITE MODAL */
             modal: undefined,
             modalTitle: undefined,
             modalBody: undefined,
+            // modal action button function
             modalAction: () => {},
             modalActionText: undefined,
             modalButtonType: undefined,
@@ -59,7 +67,7 @@ export class App extends Component {
     }
 
     componentDidMount() {
-        // modal
+        // modal setup
         this.setState({modal: new bootstrap.Modal(document.getElementById('siteModal'))});
 
         // IndexedDB for Graph Loading / Saving
@@ -98,18 +106,6 @@ export class App extends Component {
         // on indexeddb load error
         openRequest.onerror = () => {
             console.error(openRequest.error);
-        }
-    }
-
-    /**
-     * Fade out graph interaction indicator. 
-     */
-    indicatorFadeOut = () => {
-        if (Object.keys(this.state.indicatorStyle).length === 0) {
-            this.setState({indicatorStyle: {opacity: 0}});
-            setTimeout(() => {
-                this.setState({indicatorStyle: {display: "none"}});
-            }, 500)
         }
     }
     
@@ -300,6 +296,14 @@ export class App extends Component {
         const links = this.state.data.links;
 
         if (nodes.length > 0) {
+            // save node positions
+            this.setState({oldNodePos: this.state.data.nodes.map(node => {
+                return {
+                    id: node.id,
+                    x: node.x,
+                    y: node.y
+                }
+            })})
             // create graphviz from current data
             let dotNodeContent = '';
             for (const node of nodes) {
@@ -314,6 +318,30 @@ export class App extends Component {
 
             this.generateGraphviz(dotNodeContent, dotLinkContent);
         }
+    }
+
+    /**
+     * Hides graph undo alert.
+     */
+    hideGraphUndo = () => {
+        this.setState({graphUndo: false, oldNodePos: []})
+    }
+
+    /**
+     * Reverts graph auto-draw.
+     */
+    undoGraph = () => {
+        const data = Object.assign({}, this.state.data);
+        data.nodes = [];
+        for (const nodePos of this.state.oldNodePos) {
+            data.nodes.push(this.state.data.nodes.find(node => node.id === nodePos.id));
+            data.nodes[data.nodes.length - 1].fx = nodePos.x;
+            data.nodes[data.nodes.length - 1].x = nodePos.x;
+            data.nodes[data.nodes.length - 1].fy = nodePos.y;
+            data.nodes[data.nodes.length - 1].y = nodePos.y;
+        }
+        this.setGraphData(data);
+        this.hideGraphUndo();
     }
 
     /**
@@ -546,8 +574,21 @@ export class App extends Component {
                 }
             }
 
+            if (this.state.snapMode) {
+                for (const node of data.nodes) {
+                    node.fx = Math.round(node.x / GRID_GAP) * GRID_GAP;
+                    node.fy = Math.round(node.y / GRID_GAP) * GRID_GAP;
+                    node.x = Math.round(node.x / GRID_GAP) * GRID_GAP;
+                    node.y = Math.round(node.y / GRID_GAP) * GRID_GAP;
+                }
+            }
+
             this.setGraphData(data);
-            this.setState({strGraphviz: undefined});
+            this.setState({strGraphviz: undefined}, () => {
+                if (this.state.oldNodePos.length === this.state.data.nodes.length) {
+                    this.setState({graphUndo: true})
+                }
+            });
         } else {
             // retry in 200ms if graph has not rendered yet
             setTimeout(() => this.parseGraphvizSVG(nodes, links), GRAPHVIZ_PARSE_RETRY_INTERVAL);
@@ -599,6 +640,10 @@ export class App extends Component {
         })
     }
 
+    toggleSnapMode = () => {
+        this.setState(prevState => {return {snapMode: !prevState.snapMode}});
+    }
+
     /**
      * Auto-fills in select input on node click during transition creation. 
      * 
@@ -623,12 +668,6 @@ export class App extends Component {
     render() {        
         return (
         <div className="App">
-            <div className="graph-overlay graph-indicator"
-            onMouseDown={this.indicatorFadeOut}
-            onTouchStart={this.indicatorFadeOut}
-            style={this.state.indicatorStyle}>
-                <p className="noselect">Click and Drag Graph to Interact</p>
-            </div>
             {this.state.strGraphviz}
             <GraphOverlay 
             forceCollideRadius={this.state.forceCollideRadius}
@@ -637,6 +676,11 @@ export class App extends Component {
             deleteGraphPrompt={this.deleteGraphPrompt}
             shortcutLink={this.shortcutLink}
             setModal={this.setModal}
+            graphUndo={this.state.graphUndo}
+            hideGraphUndo={this.hideGraphUndo}
+            undoGraph={this.undoGraph}
+            snapMode={this.state.snapMode}
+            toggleSnapMode={this.toggleSnapMode}
             />
             <Form
             data={this.state.data}

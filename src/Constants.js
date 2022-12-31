@@ -11,7 +11,7 @@ export const NODE_COLLIDE_RADIUS = 0;
 // arrow size of links
 export const ARROW_SIZE = 5;
 // gap between gridlines
-export const GRID_GAP = 30;
+export const GRID_GAP = 20;
 // length for which node text overflows
 export const NODE_TEXT_OVERFLOW = 6; 
 // possible node shapes
