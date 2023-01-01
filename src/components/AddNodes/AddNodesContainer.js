@@ -32,7 +32,8 @@ export class AddNodesContainer extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (prevProps.data.nodes.length !== this.props.data.nodes.length) {
+        if (prevProps.data.nodes.length !== this.props.data.nodes.length ||
+            prevProps.data.nodeRadius !== this.props.data.nodeRadius) {
             this.loadInNodeInputs();
         }
     }
@@ -155,7 +156,7 @@ export class AddNodesContainer extends Component {
                 className="form-range mt-1 mb-4" 
                 min="6" max="24" step="0.5" 
                 value={this.props.data.nodeRadius}
-                onChange={(e) => this.props.setNodeRadius(e.target.value)}
+                onChange={(e) => this.props.setNodeRadius(parseInt(e.target.value))}
                 />
                 <div className="d-flex justify-content-between">
                     <div className="dropdown shapes-dropdown mb-4">

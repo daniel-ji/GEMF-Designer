@@ -62,7 +62,7 @@ export const CREATE_ENTRY_ID = () => {
 /**
  * Compare two sets of graph data and returns if equal
  */
-export const COMPARE_GRAPH = (graph1, graph2) => {
+export const GRAPHS_EQUAL = (graph1, graph2) => {
     // names
     if (graph1.name !== graph2.name) {
         return false;

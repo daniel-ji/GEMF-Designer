@@ -35,7 +35,6 @@ export class AddEdgesContainer extends Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.data.links.length !== this.props.data.links.length) {
-            console.log(this.props.data.links)
             this.refreshEdges();
         }
     }

@@ -15,7 +15,7 @@ export class AddNodesInput extends Component {
         inputValue: this.props.inputValue ?? '',
         color: this.props.data.nodes.find(node => node.id === this.props.inputCounter)?.color ?? this.props.data.defaultNodeColor,
         shape: this.props.data.nodes.find(node => node.id === this.props.inputCounter)?.shape ?? this.props.data.defaultShape,
-        infected: this.props.data.nodes.find(node => node.id === this.props.inputCounter)?.infected,
+        infected: this.props.data.nodes.find(node => node.id === this.props.inputCounter)?.infected ?? false,
         count: this.props.inputCounter,
       }
     }

@@ -12,9 +12,11 @@ export class FinalData extends Component {
             // store output data, as string (for download) and as react elements (for display)
             STRText: "",
             STRData: [],
+            downloadSTR: true,
             // for infected states file
             infectedData: [],
             infectedText: '',
+            downloadInfected: true,
         }
     }
 
@@ -51,7 +53,6 @@ export class FinalData extends Component {
         const infectedData = data.nodes.filter(node => node.infected)
         .map(node => {
             infectedText += node.name + '\n';
-            console.log(node.name);
             return (
                 <tr key={node.id}>
                     <td>{node.name}</td>
@@ -62,15 +63,33 @@ export class FinalData extends Component {
         this.setState({STRData, STRText, infectedData, infectedText})
     }
 
+    setDownloadSTR = (e) => {
+        this.setState({downloadSTR: e.target.checked})
+    }
+
+    setDownloadInfected = (e) => {
+        this.setState({downloadInfected: e.target.checked})
+    }
+
     downloadFiles = () => {
-       saveAs(new Blob([this.state.STRText], {type: "text/plain;charset=utf-8"}), this.props.data.name + "_STR.tsv")
-       saveAs(new Blob([this.state.infectedText], {type: "text/plain;charset=utf-8"}), this.props.data.name + "_INFECTED_STATES.tsv")
+        this.state.downloadSTR && 
+        saveAs(new Blob([this.state.STRText], {type: "text/plain;charset=utf-8"}), this.props.data.name + "_STR.tsv")
+        this.state.downloadInfected && 
+        saveAs(new Blob([this.state.infectedText], {type: "text/plain;charset=utf-8"}), this.props.data.name + "_INFECTED_STATES.tsv")
     }
 
     render() {
         return (
             <div className="form-step">
-                <h3 className="title">State Transition Rates</h3>
+                <div className="d-flex">
+                    <h3 className="title">State Transition Rates &nbsp;</h3>
+                    <h4><input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="downloadSTR"
+                    checked={this.state.downloadSTR}
+                    onChange={this.setDownloadSTR}/></h4>
+                </div>
                 <table className="table">
                     <thead>
                         <tr>
@@ -84,7 +103,15 @@ export class FinalData extends Component {
                         {this.state.STRData}
                     </tbody>
                 </table>
-                <h3 className="title">Infected States</h3>
+                <div className="d-flex">
+                    <h3 className="title">Infected States &nbsp;</h3>
+                    <h4><input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="downloadInfected"
+                    checked={this.state.downloadInfected}
+                    onChange={this.setDownloadInfected}/></h4>
+                </div>
                 <table className="table">
                     <thead>
                         <tr>

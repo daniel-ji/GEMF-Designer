@@ -15,7 +15,7 @@ import {
     WIDTH_RATIO, NODE_COLLIDE_RADIUS, FORM_STEPS,
     GRAPHVIZ_PARSE_DELAY, GRAPHVIZ_PARSE_RETRY_INTERVAL, STR_REGEX, INVALID_STR_FILE_ERROR,
     INVALID_STR_ENTRY_ERROR, INVALID_STR_SELF_LOOP_ERROR, INVALID_STR_NODE_NAME_ERROR,
-    INVALID_STR_RATE_ERROR, CREATE_ENTRY_ID, COMPARE_GRAPH, DEFAULT_GRAPH_DATA, UPDATE_DATA_DEL,
+    INVALID_STR_RATE_ERROR, CREATE_ENTRY_ID, GRAPHS_EQUAL, DEFAULT_GRAPH_DATA, UPDATE_DATA_DEL,
     LINK_NODE_SELECT_IDS, GRID_GAP
 } from './Constants';
 
@@ -178,7 +178,7 @@ export class App extends Component {
         if (this.state.db !== undefined) {
             this.state.db.transaction('graphs').objectStore('graphs').get(data.id).onsuccess = (e) => {
                 if (e.target.result !== undefined) {
-                    if (!COMPARE_GRAPH(data, e.target.result)) {
+                    if (!GRAPHS_EQUAL(data, e.target.result)) {
                         data.lastModified = new Date();
                     }
                     this.state.db.transaction('graphs', 'readwrite')
@@ -392,7 +392,7 @@ export class App extends Component {
                 } else if (parsedSTR[i].length === 1 && parsedSTR[i][0] === '') {
                     // do nothing
                 } else {
-                    this.setFormError([INVALID_STR_ENTRY_ERROR]);
+                    this.setFormError([INVALID_STR_ENTRY_ERROR], true);
                     // clear file upload
                     document.getElementById("STRFileUpload").value = "";
                     return;
@@ -518,7 +518,7 @@ export class App extends Component {
             if (event.target.files[i].type.match(/^\s*$|(text)/)) {
                 reader.readAsText(event.target.files[0]);
             } else {
-                this.setFormError([INVALID_STR_FILE_ERROR]);
+                this.setFormError([INVALID_STR_FILE_ERROR], true);
                 break;
             }
         }

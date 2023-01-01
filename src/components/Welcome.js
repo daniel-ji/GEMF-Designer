@@ -28,7 +28,7 @@ export class Welcome extends Component {
                 <li>Shift + S: Download Graph as SVG.</li>
                 <li>Shift + P: Download Graph as PNG.</li>
             </ul>
-            <h6>Note: Entries are rearrangeable, just click and drag. </h6>
+            <h6>Note: Entries (Graph, STR Import, State, Transition) are re-arrangeable, just click and drag. </h6>
             <br></br>
             <footer className="text-center mb-3">Created by Daniel Ji (daji@ucsd.edu)<br></br> UCSD Undergraduate Student Researcher for Professor <a href="https://www.niema.net" target="_blank" rel="noreferrer">Niema Moshiri</a></footer>
         </div>
