@@ -438,7 +438,7 @@ export class Graph extends Component {
             ref={this.ref}
             id="graph" 
             graphData={this.props.data}
-            nodeVal={this.props.data.nodeRadius}
+            nodeRelSize={this.props.data.nodeRadius}
             nodeLabel=''
             nodeAutoColorBy='group'
             nodeCanvasObject={this.drawNode}

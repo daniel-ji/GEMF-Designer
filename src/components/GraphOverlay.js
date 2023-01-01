@@ -133,7 +133,7 @@ export class GraphOverlay extends Component {
                     <button type="button"
                     id="deleteGraphBtn"
                     className="btn btn-danger"
-                    onClick={this.props.deleteGraphPrompt}>
+                    onClick={this.props.deleteGraphDataPrompt}>
                         <i className="bi bi-trash"></i>
                     </button>
                 </div>

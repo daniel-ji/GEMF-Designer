@@ -24,19 +24,32 @@ export class AddEdgesContainer extends Component {
      * Create entries for all pre-existing edge.
      */
     componentDidMount() {
+        this.refreshEdges();
+
+        this.setState({sortable: new Sortable(document.getElementById('linkEntries'), {
+            onUpdate: (e) => {
+                this.props.setGraphData(UPDATE_DATA_ORDER(e, this.props.data, 'links'));
+            }
+        })})
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.data.links.length !== this.props.data.links.length) {
+            console.log(this.props.data.links)
+            this.refreshEdges();
+        }
+    }
+
+    refreshEdges = () => {
         const data = Object.assign({}, this.props.data);
         for (const link of data.links) {
             link.shortName = LINK_SHORT_NAME(link, data);
         }
 
         this.props.setGraphData(data);
-        this.createEdgeEntry(this.props.data.links);
-        this.setState({sortable: new Sortable(document.getElementById('linkEntries'), {
-            onUpdate: (e) => {
-                this.props.setGraphData(UPDATE_DATA_ORDER(e, this.props.data, 'links'));
-            }
-        })})
-
+        this.setState({edgeEntries: []}, () => {
+            this.createEdgeEntry(this.props.data.links);
+        })
         this.props.setNodesAutoSel(0);
     }
 

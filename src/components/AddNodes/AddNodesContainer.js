@@ -31,6 +31,12 @@ export class AddNodesContainer extends Component {
         })})
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.data.nodes.length !== this.props.data.nodes.length) {
+            this.loadInNodeInputs();
+        }
+    }
+
     loadInNodeInputs = () => {
         const data = this.props.data;
         this.setState({nodeInputs: [data.nodes.map(node => this.nodeInput(node.id, node.name)), 

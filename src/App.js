@@ -271,21 +271,21 @@ export class App extends Component {
     /**
      * Shows prompt to delete current graph.
      */
-    deleteGraphPrompt = () => {
-        this.setModal('Delete Current Graph Data?', undefined, this.deleteGraph, 'Delete', 'danger')
+    deleteGraphDataPrompt = () => {
+        this.setModal('Delete Current Graph Data?', undefined, this.deleteGraphData, 'Delete', 'danger')
     }
 
     /**
      * Deletes current graph data. 
      */
-    deleteGraph = () => {
-        // update indexeddb
-        this.state.db.transaction('graphs', 'readwrite')
-        .objectStore('graphs')
-        .delete(this.state.data.id)
-        // update graph data
-        this.setGraphData(DEFAULT_GRAPH_DATA());
-        this.incrementStep(-10);
+    deleteGraphData = () => {
+        const newData = DEFAULT_GRAPH_DATA();
+        newData.id = this.state.data.id;
+        newData.name = this.state.data.name;
+        newData.order = this.state.data.order;
+        newData.lastModified = this.state.data.lastModified;
+        this.setGraphData(newData)
+        this.setFormError("");
     }
 
     /**
@@ -393,12 +393,16 @@ export class App extends Component {
                     // do nothing
                 } else {
                     this.setFormError([INVALID_STR_ENTRY_ERROR]);
+                    // clear file upload
+                    document.getElementById("STRFileUpload").value = "";
                     return;
                 }
             }
 
             if (errors.length > 0) {
                 this.setFormError(errors);
+                // clear file upload
+                document.getElementById("STRFileUpload").value = "";
                 return;
             }
 
@@ -495,7 +499,14 @@ export class App extends Component {
                 order: data.STRData.length
             }]
 
-            this.setGraphData(data);
+            this.setGraphData(data, () => {
+                setTimeout(() => {
+                    // clear file upload
+                    if (document.getElementById("STRFileUpload") !== null) {
+                        document.getElementById("STRFileUpload").value = "";
+                    }
+                }, 1000)
+            });
 
             if (newNodes.length > 0) {
                 this.generateGraphviz(dotNodeContent, dotLinkContent);
@@ -673,7 +684,7 @@ export class App extends Component {
             forceCollideRadius={this.state.forceCollideRadius}
             data={this.state.data}
             autoDraw={this.autoDraw}
-            deleteGraphPrompt={this.deleteGraphPrompt}
+            deleteGraphDataPrompt={this.deleteGraphDataPrompt}
             shortcutLink={this.shortcutLink}
             setModal={this.setModal}
             graphUndo={this.state.graphUndo}
@@ -699,7 +710,7 @@ export class App extends Component {
             setNodesAutoSel={this.setNodesAutoSel}
             processSTR={this.processSTR}
             deleteSTR={this.deleteSTR}
-            deleteGraph={this.deleteGraph}
+            deleteGraphData={this.deleteGraphData}
             getSavedGraphs={this.getSavedGraphs}
             savedGraphs={this.state.savedGraphs}
             setGraph={this.setGraph}
@@ -708,7 +719,6 @@ export class App extends Component {
             db={this.state.db}
             />
             <SiteModal 
-            deleteGraph={this.deleteGraph}
             modalTitle={this.state.modalTitle}
             modalBody={this.state.modalBody}
             modalActionText={this.state.modalActionText}

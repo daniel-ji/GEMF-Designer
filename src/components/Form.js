@@ -260,9 +260,10 @@ export class Form extends Component {
                         </div>
                     </div>
                 </div>
+                {this.props.step === 0 && 
                 <a className="github-button" href="https://github.com/daniel-ji/GEMF-Designer" target="_blank" rel="noreferrer" aria-label="github repo link">
                     <button className="btn btn-outline-dark p-0" aria-label="github repo button"><img src={githubIcon} alt="" /></button>
-                </a>
+                </a>}
             </div>
         )
     }

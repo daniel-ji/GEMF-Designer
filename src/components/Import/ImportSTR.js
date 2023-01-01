@@ -28,7 +28,7 @@ export class ImportSTR extends Component {
         return (
             <div id="import-str-container" className="form-step">
                 <div className="w-100">
-                    <input type="file" id="formFile" className="form-control" accept=".tsv,.csv,.txt" onChange={this.props.processSTR}/>
+                    <input type="file" id="STRFileUpload" className="form-control" accept=".tsv,.csv,.txt" onChange={this.props.processSTR}/>
                     <div id="strEntries">
                         {this.props.data.STRData.map(entry => 
                             <STREntry
