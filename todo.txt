@@ -3,6 +3,14 @@ bug testing!!! (especially indexeddb, modal, loading in graphs, graph saving, gr
 code documentation
 magic numbers
 
+rename str option
+exclude existing nodes from auto-draw str
+Undo feature for STR import
+expand button for graph entries
+description to graphs
+
+preset graphs
+
 features to add:
 - Adjustable edge curves
     - probably have to make an "edge" into four nodes

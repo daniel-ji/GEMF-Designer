@@ -211,6 +211,7 @@ export class Form extends Component {
                     />,
                     <ImportSTR
                     processSTR={this.props.processSTR}
+                    processSTRUpload={this.props.processSTRUpload}
                     data={this.props.data}
                     deleteSTR={this.props.deleteSTR}
                     deletePrompt={this.deletePrompt}

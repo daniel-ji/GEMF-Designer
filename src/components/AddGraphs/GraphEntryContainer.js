@@ -5,7 +5,7 @@ import React, { Component } from 'react'
 import Sortable from 'sortablejs';
 
 import GraphEntry from './GraphEntry';
-import { CREATE_ENTRY_ID, DEFAULT_GRAPH_DATA, UPDATE_DATA_DEL, UPDATE_DATA_ORDER } from '../../Constants';
+import { CREATE_ENTRY_ID, DEFAULT_GRAPH_DATA, FETCH_STR_TEMPLATES, UPDATE_DATA_DEL, UPDATE_DATA_ORDER } from '../../Constants';
 
 export class GraphEntryContainer extends Component {
     constructor(props) {
@@ -27,10 +27,12 @@ export class GraphEntryContainer extends Component {
             onUpdate: (e) => {
                 const savedGraphs = JSON.parse(JSON.stringify(this.props.savedGraphs));
                 const updatedGraphs = UPDATE_DATA_ORDER(e, savedGraphs);
+                console.log(updatedGraphs);
                 for (const savedGraph of updatedGraphs) {
                     this.props.db.transaction('graphs', 'readwrite')
                     .objectStore('graphs')
                     .put(savedGraph)
+                    console.log(savedGraph);
                 }
             }
         })})
@@ -48,7 +50,7 @@ export class GraphEntryContainer extends Component {
     /**
      * Create new graph and update IndexedDB and components.
      */
-    createGraph = () => {
+    createGraph = async () => {
         // ensure graph name doesn't exist already
         if (this.state.newGraphName === '') {
             this.props.setFormError("Graph name cannot be empty.", true);
@@ -58,6 +60,7 @@ export class GraphEntryContainer extends Component {
             data.id = CREATE_ENTRY_ID();
             data.lastModified = new Date();
             data.order = this.props.savedGraphs.length;
+            data.STRTemplates = await FETCH_STR_TEMPLATES();
             this.setState({newGraphName: ''});
     
             // update graph data with new name and put data in IndexedDB

@@ -53,6 +53,7 @@ export class App extends Component {
             formErrorTrans: false,
             // if form error message is hidden
             formErrorHide: false,
+            STRTemplates: [],
 
 
             /* SITE MODAL */
@@ -351,166 +352,11 @@ export class App extends Component {
      * Generates graphviz svg visualization of nodes and edges as well.  
      * @param {*} event event that contains file contents
      */
-    processSTR = (event) => {
+    processSTRUpload = (event) => {
         const reader = new FileReader();
-        const data = Object.assign({}, this.state.data);
-        const nodes = data.nodes;
-        const links = data.links;
 
         reader.onload = (e) => {
-            let errors = [];            
-            let nodeID = this.state.data.nodes.length === 0 ? 
-                0 : Math.max(...this.state.data.nodes.map(node => parseInt(node.id))) + 1;
-
-            const newNodes = [];
-            const newLinks = [];
-
-            // parse STR for both graphviz and force-graph use
-            const parsedSTR = e.target.result.split(/\r?\n/).map(row => row.split(/\t/));
-            const getNodeID = (i, j) => nodes.find(node => node.name === parsedSTR[i][j]).id;
-            const getNode = (id) => nodes.find(node => (node.id === id || node === id));
-
-            // STR validation
-            for (let i = 0; i < parsedSTR.length; i++) {
-                // entry format check
-                if (parsedSTR[i].length === 4) {
-                    // valid node name check
-                    if (parsedSTR[i][0].match(STR_REGEX) && parsedSTR[i][1].match(STR_REGEX) &&
-                        parsedSTR[i][2].match(STR_REGEX)) {
-                            // valid link (no self-loop) check 
-                            if (parsedSTR[i][0] === parsedSTR[i][1]) {
-                                !errors.includes(INVALID_STR_SELF_LOOP_ERROR) && errors.push(INVALID_STR_SELF_LOOP_ERROR);
-                            }
-                    } else {
-                        !errors.includes(INVALID_STR_NODE_NAME_ERROR) && errors.push(INVALID_STR_NODE_NAME_ERROR);
-                    }
-
-                    // valid rate check
-                    if (!(parseFloat(parsedSTR[i][3]) > 0)) {
-                        !errors.includes(INVALID_STR_RATE_ERROR) && errors.push(INVALID_STR_RATE_ERROR);
-                    }
-                } else if (parsedSTR[i].length === 1 && parsedSTR[i][0] === '') {
-                    // do nothing
-                } else {
-                    this.setFormError([INVALID_STR_ENTRY_ERROR], true);
-                    // clear file upload
-                    document.getElementById("STRFileUpload").value = "";
-                    return;
-                }
-            }
-
-            if (errors.length > 0) {
-                this.setFormError(errors);
-                // clear file upload
-                document.getElementById("STRFileUpload").value = "";
-                return;
-            }
-
-            for (let i = 0; i < parsedSTR.length; i++) {
-                if (parsedSTR[i].length === 4) {
-                    for (let j = 0; j < parsedSTR[i].length; j++) {
-                        const foundNode = nodes.map(node => node.name).indexOf(parsedSTR[i][j]) !== -1;
-                        // source and target node
-                        const nodeObject = {
-                            id: nodeID, 
-                            name: parsedSTR[i][j], 
-                            color: this.state.data.defaultNodeColor,
-                            order: nodes.length,
-                            shape: this.state.data.defaultShape,
-                            infected: false,
-                        }
-                        if (j <= 1 && !foundNode) {
-                            newNodes.push(nodeObject);
-                            nodes.push(nodeObject);
-                            nodeID++;
-                        // inducer node
-                        } else if (j === 2) {
-                            if (parsedSTR[i][j] !== "None" && !foundNode) {
-                                newNodes.push(nodeObject);
-                                nodes.push(nodeObject);
-                                nodeID++;
-                            }
-                        }
-                    }
-                    
-                    
-                    // add edge / node-based transition to links 
-                    if (parsedSTR[i][2] === "None") {
-                        const linkExists = links.find(link => 
-                            (link.source.id ?? link.source) === getNodeID(i, 0) && 
-                            (link.target.id ?? link.target) === getNodeID(i, 1) && 
-                            link.inducer === undefined);
-                        if (linkExists === undefined) {                            
-                            const linkObject = {
-                                id: getNodeID(i, 0) + "-" + getNodeID(i, 1),
-                                shortName: parsedSTR[i][0] + " to " + parsedSTR[i][1] + " (nodal) ",
-                                source: getNodeID(i, 0),
-                                target: getNodeID(i, 1),
-                                inducer: undefined,
-                                rate: parseFloat(parsedSTR[i][3]),
-                                color: this.state.data.defaultEdgeColor,
-                                order: links.length,
-                            }
-                            newLinks.push(linkObject);
-                            links.push(linkObject);
-                        }
-                    } else {
-                        const linkExists = links.find(link => 
-                            (link.source.id ?? link.source) === getNodeID(i, 0) &&
-                            (link.target.id ?? link.target) === getNodeID(i, 1) && 
-                            (link.inducer?.id ?? link.inducer) === getNodeID(i, 2));
-                        if (linkExists === undefined) {
-                            const linkObject = {
-                                id: getNodeID(i, 0) + "-" + getNodeID(i, 1) + "-" 
-                                    + getNodeID(i, 2),
-                                shortName: parsedSTR[i][0] + " to " + parsedSTR[i][1] + " by " + parsedSTR[i][2],
-                                source: getNodeID(i, 0),
-                                target: getNodeID(i, 1),
-                                inducer: getNodeID(i, 2),
-                                rate: parseFloat(parsedSTR[i][3]), 
-                                color: this.state.data.defaultEdgeColor,
-                                order: links.length
-                            }
-                            newLinks.push(linkObject);
-                            links.push(linkObject);
-                        }
-                    }
-                }
-            }
-
-            // create graphviz 
-            let dotNodeContent = '';
-            for (const node of nodes) {
-                dotNodeContent += node.name + ' ';
-            }
-
-            let dotLinkContent = '';
-            for (const link of links) {
-                dotLinkContent += 
-                    `${getNode(link.source).name} -> ${getNode(link.target).name} [label = "${(link.inducer !== undefined ? getNode(link.inducer).name + ", " : "") + link.rate}"];\n`;
-            }
-
-            // add data to strdata
-            data.STRData = [...data.STRData, {
-                id: CREATE_ENTRY_ID(),
-                nodes: newNodes.map(node => node.id),
-                links: newLinks.map(link => link.id),
-                name: event.target.files[0].name,
-                order: data.STRData.length
-            }]
-
-            this.setGraphData(data, () => {
-                setTimeout(() => {
-                    // clear file upload
-                    if (document.getElementById("STRFileUpload") !== null) {
-                        document.getElementById("STRFileUpload").value = "";
-                    }
-                }, 1000)
-            });
-
-            if (newNodes.length > 0) {
-                this.generateGraphviz(dotNodeContent, dotLinkContent);
-            }
+            this.processSTR(e.target.result, event.target.files[0].name);
         }
 
         // valid plaintext file
@@ -521,6 +367,171 @@ export class App extends Component {
                 this.setFormError([INVALID_STR_FILE_ERROR], true);
                 break;
             }
+        }
+    }
+
+    processSTR = (text, name, template = false) => {
+        const data = Object.assign({}, this.state.data);
+        const nodes = data.nodes;
+        const links = data.links;
+
+        let errors = [];            
+        let nodeID = this.state.data.nodes.length === 0 ? 
+            0 : Math.max(...this.state.data.nodes.map(node => parseInt(node.id))) + 1;
+
+        const newNodes = [];
+        const newLinks = [];
+
+        // parse STR for both graphviz and force-graph use
+        const parsedSTR = text.split(/\r?\n/).map(row => row.split(/\t/));
+        const getNodeID = (i, j) => nodes.find(node => node.name === parsedSTR[i][j]).id;
+        const getNode = (id) => nodes.find(node => (node.id === id || node === id));
+
+        // STR validation
+        for (let i = 0; i < parsedSTR.length; i++) {
+            // entry format check
+            if (parsedSTR[i].length === 4) {
+                // valid node name check
+                if (parsedSTR[i][0].match(STR_REGEX) && parsedSTR[i][1].match(STR_REGEX) &&
+                    parsedSTR[i][2].match(STR_REGEX)) {
+                        // valid link (no self-loop) check 
+                        if (parsedSTR[i][0] === parsedSTR[i][1]) {
+                            !errors.includes(INVALID_STR_SELF_LOOP_ERROR) && errors.push(INVALID_STR_SELF_LOOP_ERROR);
+                        }
+                } else {
+                    !errors.includes(INVALID_STR_NODE_NAME_ERROR) && errors.push(INVALID_STR_NODE_NAME_ERROR);
+                }
+
+                // valid rate check
+                if (!(parseFloat(parsedSTR[i][3]) >= 0)) {
+                    !errors.includes(INVALID_STR_RATE_ERROR) && errors.push(INVALID_STR_RATE_ERROR);
+                }
+            } else if (parsedSTR[i].length === 1 && parsedSTR[i][0] === '') {
+                // do nothing
+            } else {
+                this.setFormError([INVALID_STR_ENTRY_ERROR], true);
+                // clear file upload
+                document.getElementById("STRFileUpload").value = "";
+                return;
+            }
+        }
+
+        if (errors.length > 0) {
+            this.setFormError(errors);
+            // clear file upload
+            document.getElementById("STRFileUpload").value = "";
+            return;
+        }
+
+        for (let i = 0; i < parsedSTR.length; i++) {
+            if (parsedSTR[i].length === 4) {
+                for (let j = 0; j < parsedSTR[i].length; j++) {
+                    const foundNode = nodes.map(node => node.name).indexOf(parsedSTR[i][j]) !== -1;
+                    // source and target node
+                    const nodeObject = {
+                        id: nodeID, 
+                        name: parsedSTR[i][j], 
+                        color: this.state.data.defaultNodeColor,
+                        order: nodes.length,
+                        shape: this.state.data.defaultShape,
+                        infected: false,
+                    }
+                    if (j <= 1 && !foundNode) {
+                        newNodes.push(nodeObject);
+                        nodes.push(nodeObject);
+                        nodeID++;
+                    // inducer node
+                    } else if (j === 2) {
+                        if (parsedSTR[i][j] !== "None" && !foundNode) {
+                            newNodes.push(nodeObject);
+                            nodes.push(nodeObject);
+                            nodeID++;
+                        }
+                    }
+                }
+                
+                
+                // add edge / node-based transition to links 
+                if (parsedSTR[i][2] === "None") {
+                    const linkExists = links.find(link => 
+                        (link.source.id ?? link.source) === getNodeID(i, 0) && 
+                        (link.target.id ?? link.target) === getNodeID(i, 1) && 
+                        link.inducer === undefined);
+                    if (linkExists === undefined) {                            
+                        const linkObject = {
+                            id: getNodeID(i, 0) + "-" + getNodeID(i, 1),
+                            shortName: parsedSTR[i][0] + " to " + parsedSTR[i][1] + " (nodal) ",
+                            source: getNodeID(i, 0),
+                            target: getNodeID(i, 1),
+                            inducer: undefined,
+                            rate: parseFloat(parsedSTR[i][3]),
+                            color: this.state.data.defaultEdgeColor,
+                            order: links.length,
+                        }
+                        newLinks.push(linkObject);
+                        links.push(linkObject);
+                    }
+                } else {
+                    const linkExists = links.find(link => 
+                        (link.source.id ?? link.source) === getNodeID(i, 0) &&
+                        (link.target.id ?? link.target) === getNodeID(i, 1) && 
+                        (link.inducer?.id ?? link.inducer) === getNodeID(i, 2));
+                    if (linkExists === undefined) {
+                        const linkObject = {
+                            id: getNodeID(i, 0) + "-" + getNodeID(i, 1) + "-" 
+                                + getNodeID(i, 2),
+                            shortName: parsedSTR[i][0] + " to " + parsedSTR[i][1] + " by " + parsedSTR[i][2],
+                            source: getNodeID(i, 0),
+                            target: getNodeID(i, 1),
+                            inducer: getNodeID(i, 2),
+                            rate: parseFloat(parsedSTR[i][3]), 
+                            color: this.state.data.defaultEdgeColor,
+                            order: links.length
+                        }
+                        newLinks.push(linkObject);
+                        links.push(linkObject);
+                    }
+                }
+            }
+        }
+
+        // create graphviz 
+        let dotNodeContent = '';
+        for (const node of nodes) {
+            dotNodeContent += node.name + ' ';
+        }
+
+        let dotLinkContent = '';
+        for (const link of links) {
+            dotLinkContent += 
+                `${getNode(link.source).name} -> ${getNode(link.target).name} [label = "${(link.inducer !== undefined ? getNode(link.inducer).name + ", " : "") + link.rate}"];\n`;
+        }
+
+        // add data to strdata
+        data.STRData = [...data.STRData, {
+            id: template ? this.state.data.STRTemplates.find(template => template.name === name).id
+                : CREATE_ENTRY_ID(),
+            nodes: newNodes.map(node => node.id),
+            links: newLinks.map(link => link.id),
+            name,
+            order: data.STRData.length,
+            template
+        }]
+
+        console.log(data);
+        this.setGraphData(data, () => {
+            console.log(this.state.data);
+            console.log(data);
+            setTimeout(() => {
+                // clear file upload
+                if (document.getElementById("STRFileUpload") !== null) {
+                    document.getElementById("STRFileUpload").value = "";
+                }
+            }, 1000)
+        });
+
+        if (newNodes.length > 0) {
+            this.generateGraphviz(dotNodeContent, dotLinkContent);
         }
     }
 
@@ -709,6 +720,7 @@ export class App extends Component {
             setFormError={this.setFormError}
             setNodesAutoSel={this.setNodesAutoSel}
             processSTR={this.processSTR}
+            processSTRUpload={this.processSTRUpload}
             deleteSTR={this.deleteSTR}
             deleteGraphData={this.deleteGraphData}
             getSavedGraphs={this.getSavedGraphs}

@@ -33,7 +33,7 @@ export const INVALID_STR_FILE_ERROR = 'Invalid STR file. Please upload a plainte
 export const INVALID_STR_ENTRY_ERROR = 'Invalid STR file entry. Please ensure correct formatting.';
 export const INVALID_STR_NODE_NAME_ERROR = 'Invalid state name. Please ensure valid characters.';
 export const INVALID_STR_SELF_LOOP_ERROR = 'Invalid link entry. Please ensure no self-loops.';
-export const INVALID_STR_RATE_ERROR = 'Invalid rate. Please ensure numeric, positive transition rate.';
+export const INVALID_STR_RATE_ERROR = 'Invalid rate. Please ensure numeric, non-negative transition rate.';
 /**
  * Convert deg to radians.
  */
@@ -54,6 +54,16 @@ export const LINK_SHORT_NAME = (link, data) => {
     ", " + parseFloat(parseFloat(link.rate).toFixed(3)))
 }
 /**
+ * Create shortened name from link entry from an STR import.
+ * 
+ * @param {*} transition transition array consisting of names of nodes and rate value 
+ * @returns shortened name
+ */
+export const LINK_NAME_FROM_NAMES = (transition) => {
+    return (
+    transition[0] + " to " + transition[1] + (transition.length === 4 ? " by " + transition[2] : '') +  ", " + parseFloat(parseFloat(transition[transition.length - 1]).toFixed(3)))
+}
+/**
  * Creates a new id for entries.
  */
 export const CREATE_ENTRY_ID = () => {
@@ -63,22 +73,21 @@ export const CREATE_ENTRY_ID = () => {
  * Compare two sets of graph data and returns if equal
  */
 export const GRAPHS_EQUAL = (graph1, graph2) => {
-    // names
-    if (graph1.name !== graph2.name) {
-        return false;
+    let equal = true;
+
+    const oldOrder1 = graph1.order;
+    const oldOrder2 = graph2.order;
+    graph1.order = undefined;
+    graph2.order = undefined;
+
+
+    if (JSON.stringify(graph1) !== JSON.stringify(graph2)) {
+        equal = false;
     }
 
-    // nodes
-    if (JSON.stringify(graph1.nodes) !== JSON.stringify(graph2.nodes)) {
-        return false;
-    }
-
-    // links
-    if (JSON.stringify(graph1.links) !== JSON.stringify(graph2.links)) {
-        return false;
-    }
-
-    return true;
+    graph1.order = oldOrder1;
+    graph2.order = oldOrder2;
+    return equal;
 }
 /**
  * Return graph data as loads (everything empty). Used for when graph is reset.
@@ -97,6 +106,7 @@ export const DEFAULT_GRAPH_DATA = () => {
         links: [],
         // str imports
         STRData: [],
+        STRTemplates: undefined,
         defaultShape: 'circle',
         defaultNodeColor: '#000000',
         defaultEdgeColor: '#000000',
@@ -105,6 +115,47 @@ export const DEFAULT_GRAPH_DATA = () => {
         // link radius
         linkRadius: 9,
     }
+}
+export const FETCH_STR_TEMPLATES = () => {
+    return fetch('https://raw.githubusercontent.com/niemasd/FAVITES-Lite/main/global.json')
+    .then(response => {
+        if (response.status === 200) {
+            return response.json();
+        }
+
+        return;
+    })
+    .then(json => {
+        if (json !== undefined) {
+            const STRTemplates = [];
+            const STRs = json['MODELS']['Transmission Network']
+
+            for (const STR in STRs) {
+                let STRText = "";
+                for (const link in STRs[STR]['PARAM']) {
+                    if (link.slice(0, 2) === 'R_') {
+                        const linkNodes = link.slice(2).split(/-|_/);
+                        STRText += link.slice(2).split(/-|_/).join("\t")
+                        if (linkNodes.length === 2) {
+                            STRText += "\tNone";
+                        }
+                        STRText += "\t0\n";
+                    }
+                }
+        
+                STRTemplates.push({
+                    id: CREATE_ENTRY_ID(),
+                    STRText,
+                    name: STR,
+                    infectedStates: STRs[STR]['INF_STATES'],
+                    order: STRTemplates.length,
+                    imported: false,
+                })
+            }
+
+            return STRTemplates;
+        }
+    })
 }
 /**
  * Updates order of given entries of data, used after entries are re-arranged by user.
@@ -129,13 +180,17 @@ export const UPDATE_DATA_ORDER = (e, providedData, entry = false) => {
     } else {
         for (const item of iterable) {
             if (item.order === e.oldIndex) {
+                console.log('moved down og')
                 item.order = e.newIndex;
             } else if (item.order > e.oldIndex && item.order <= e.newIndex) {
+                console.log('moved up other')
                 item.order--;
             }
         }
     }
     iterable.sort((a, b) => a.order - b.order)
+    console.log(iterable);
+    console.log(providedData);
     return providedData;
 }
 /**

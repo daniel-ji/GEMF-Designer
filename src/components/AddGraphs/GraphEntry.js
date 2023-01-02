@@ -127,7 +127,7 @@ export class GraphEntry extends Component {
                 id={"collapseWidth-" + data.id}>
                     <div className="card card-body d-flex w-100 str-collapse">
                         <div>
-                            {data.lastModified !== undefined && <h6>Last Modified: {data.lastModified.toLocaleString()}</h6>}
+                            {data.lastModified !== undefined && <h6>Last Modified: {new Date(data.lastModified).toLocaleString()}</h6>}
                             <h6 className="mb-3">Graph Nodes: </h6>
                             <ul className="list-group">
                                 {data.nodes.length === 0 ? 
