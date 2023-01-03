@@ -1,11 +1,11 @@
 bug testing
 code documentation
 
-rename str option
-exclude existing nodes from auto-draw str
+link hitbox fix
+CUBIC BEZIER LINKS
+rectangle select multiple nodes
+better STR parsing
 Undo feature for STR import
-expand button for graph entries
-description to graphs
 
 features to add:
 - Adjustable edge curves

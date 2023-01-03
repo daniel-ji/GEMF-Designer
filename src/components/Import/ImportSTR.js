@@ -43,6 +43,7 @@ export class ImportSTR extends Component {
                             entry={entry}
                             deleteSTR={this.props.deleteSTR}
                             deletePrompt={this.props.deletePrompt}
+                            setGraphData={this.props.setGraphData}
                             />
                         )}
                     </div>
@@ -50,7 +51,7 @@ export class ImportSTR extends Component {
                     id="str-templates-open" 
                     onClick={this.toggleShowTemplates}>
                         <h4 className="mb-0">STR Template List &nbsp;</h4>
-                        <h5 className="mb-0"><i className="bi bi-caret-down-fill" /></h5>
+                        <h5 className="mb-0"><i className={`bi bi-caret-${this.state.showTemplates ? 'up' : 'down'}-fill`} /></h5>
                     </div>
                     {this.state.showTemplates &&
                         <div id="strTemplates">

@@ -75,7 +75,7 @@ export class GraphEntry extends Component {
                     <div style={{width: this.state.edit ? "50%" : "60%"}}>
                         {this.state.edit ?
                         <div className="input-group mb-3">
-                            <input type="text" className="form-control" placeholder="Graph Name" aria-label="Username" 
+                            <input type="text" className="form-control" placeholder="Graph Name" aria-label="Graph Name" 
                             value={this.state.graphName} onChange={this.editGraphName} />
                         </div>
                         :
@@ -84,7 +84,8 @@ export class GraphEntry extends Component {
                         className="btn btn-primary mb-3 w-100"
                         onClick={this.toggleShowEntry}
                         >
-                            Saved Graph: {this.state.graphName}
+                            Saved Graph: {this.state.graphName} &nbsp;
+                            <i className={`bi bi-caret-${this.state.show ? 'up' : 'down'}-fill`} />
                         </button>}
                     </div>
                     {this.state.edit && 
@@ -92,7 +93,7 @@ export class GraphEntry extends Component {
                     className="btn btn-success p-0 mb-3"
                     style={{minWidth: "10%"}}
                     onClick={this.setGraphName}>
-                        <i className="bi bi-check-square" />
+                        <i className="bi bi-check-square finish-edit-btn" />
                     </button>
                     }
                     <button 

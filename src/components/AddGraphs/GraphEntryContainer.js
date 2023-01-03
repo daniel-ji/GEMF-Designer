@@ -117,7 +117,7 @@ export class GraphEntryContainer extends Component {
                 <h4 className="w-100 mb-4 text-center">Create New Graph</h4>
                 <div className="d-flex flex-wrap justify-content-between w-100 mb-3">
                     <div className="input-group mb-4" style={{width: '77.5%'}}>
-                        <input type="text" className="form-control" placeholder="Graph Name" aria-label="Username" 
+                        <input type="text" className="form-control" placeholder="Graph Name" aria-label="Graph Name" 
                         value={this.state.newGraphName} onChange={this.updateNewGraphName}/>
                     </div>
                     <button 

@@ -10,7 +10,42 @@ export class STREntry extends Component {
 
         this.state = {
             show: false,
+            STRName: this.props.entry.name,
+            oldSTRName: this.props.entry.name
         }
+    }
+
+    /**
+     * Toggle editable state of STR entry.
+     */
+    toggleEditSTRName = () => {
+        this.setState(prevState => {
+            if (prevState.edit) {
+                return {edit: false, STRName: this.state.oldSTRName}
+            } else {
+                return {edit: true}
+            }
+        })
+    }
+
+    /**
+     * Edit STR name.
+     * 
+     * @param {*} e event 
+     */
+    editSTRName = (e) => {
+        this.setState({STRName: e.target.value})
+    }
+
+    /**
+     * Set STR name, after editing has been completed.
+     */
+    setSTRName = () => {
+        const data = Object.assign({}, this.props.data);
+        const STR = data.STRData.find(entry => entry.id === this.props.entry.id);
+        STR.name = this.state.STRName;
+        this.props.setGraphData(data);
+        this.setState({edit: false})
     }
 
     /**
@@ -36,15 +71,36 @@ export class STREntry extends Component {
         return (
             <div key={entry.id}>
                 <div className="d-flex flex-wrap justify-content-between mt-4 w-100">
-                    <div style={{width: "80%"}}>
+                    <div style={{width: this.state.edit ? "60%" : "70%"}}>
+                        {this.state.edit ?
+                        <div className="input-group mb-3">
+                            <input type="text" className="form-control" placeholder="STR Name"
+                            value={this.state.STRName} onChange={this.editSTRName} />
+                        </div>
+                        :
                         <button
                         type="button"
                         className="btn btn-primary mb-3 w-100"
                         onClick={this.toggleShowEntry}
                         >
-                            {entry.template ? 'Import' : 'Template'}: {entry.name}
-                        </button>
+                            STR {entry.template ? 'Import' : 'Template'}: {entry.name}
+                            &nbsp;<i className={`bi bi-caret-${this.state.show ? 'up' : 'down'}-fill`} />
+                        </button>}
                     </div>
+                    {this.state.edit && 
+                    <button 
+                    className="btn btn-success p-0 mb-3 finish-edit-btn"
+                    style={{minWidth: "10%"}}
+                    onClick={this.setSTRName}>
+                        <i className="bi bi-check-square" />
+                    </button>
+                    }
+                    <button 
+                    className={`btn btn-${this.state.edit ? 'danger' : 'warning'} p-0 mb-3`} 
+                    style={{minWidth: "10%"}}
+                    onClick={this.toggleEditSTRName}>
+                        <i className={`bi bi-${this.state.edit ? 'x-square' : 'pencil'}`} />
+                    </button>
                     <button 
                     className="btn btn-danger p-0 mb-3" 
                     style={{minWidth: "10%"}}

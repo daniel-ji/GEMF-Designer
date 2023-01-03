@@ -62,7 +62,7 @@ export class STRTemplate extends Component {
                         className="btn btn-primary mb-3 w-100"
                         onClick={this.toggleShowEntry}
                         >
-                            {this.props.template.name}
+                            {this.props.template.name} &nbsp;<i className={`bi bi-caret-${this.state.show ? 'up' : 'down'}-fill`} />
                         </button>
                     </div>
                     <button 
