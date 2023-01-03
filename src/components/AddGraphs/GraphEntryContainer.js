@@ -27,12 +27,12 @@ export class GraphEntryContainer extends Component {
             onUpdate: (e) => {
                 const savedGraphs = JSON.parse(JSON.stringify(this.props.savedGraphs));
                 const updatedGraphs = UPDATE_DATA_ORDER(e, savedGraphs);
-                console.log(updatedGraphs);
+                const tx = this.props.db.transaction('graphs', 'readwrite');
+                tx.oncomplete = () => {
+                    this.props.getSavedGraphs();
+                }
                 for (const savedGraph of updatedGraphs) {
-                    this.props.db.transaction('graphs', 'readwrite')
-                    .objectStore('graphs')
-                    .put(savedGraph)
-                    console.log(savedGraph);
+                    tx.objectStore('graphs').put(savedGraph)
                 }
             }
         })})

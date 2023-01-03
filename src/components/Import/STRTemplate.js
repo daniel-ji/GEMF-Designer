@@ -32,17 +32,17 @@ export class STRTemplate extends Component {
         this.setState({newNodes: Array.from(newNodes)})
     }
 
-    importTemplate = () => {
+    toggleTemplate = () => {
         if (this.props.template.imported) {
             this.props.deleteSTR(this.props.template.id);
         } else {
-            this.props.processSTR(this.props.template.STRText, this.props.template.name, true);
+            this.props.processSTR(this.props.template.STRText, this.props.template.name, true, () => {                
+                const data = Object.assign({}, this.props.data);
+                const template = data.STRTemplates.find(template => template.id === this.props.template.id);
+                template.imported = !template.imported;
+                this.props.setGraphData(data);
+            });
         }
-
-        const data = Object.assign({}, this.props.data);
-        const template = data.STRTemplates.find(template => template.id === this.props.template.id);
-        template.imported = !template.imported;
-        this.props.setGraphData(data);
     }
 
     /**
@@ -68,7 +68,7 @@ export class STRTemplate extends Component {
                     <button 
                     className={`btn btn-${this.props.template.imported ? 'success': 'secondary'} p-0 mb-3`} 
                     style={{minWidth: "10%"}}
-                    onClick={this.importTemplate}>
+                    onClick={this.toggleTemplate}>
                         <i className="bi bi-check-square" />
                     </button>
                 </div>

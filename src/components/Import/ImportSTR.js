@@ -40,10 +40,7 @@ export class ImportSTR extends Component {
                             <STREntry
                             key={entry.id}
                             data={this.props.data}
-                            id={entry.id}
-                            nodes={entry.nodes}
-                            links={entry.links}
-                            name={entry.name}
+                            entry={entry}
                             deleteSTR={this.props.deleteSTR}
                             deletePrompt={this.props.deletePrompt}
                             />

@@ -65,13 +65,6 @@ export class GraphEntry extends Component {
     deletePrompt = (id) => {
         this.props.deletePrompt(() => this.props.deleteGraphEntry(id));
     } 
-    
-    /**
-     * Prevent transition from occuring on first render.
-     */
-    componentDidMount() {
-        setTimeout(() => this.setState({transition: "0.5s"}), 50);
-    }
 
     render() {
         const data = this.props.data;

@@ -86,7 +86,6 @@ export class App extends Component {
         openRequest.onsuccess = () => {
             const db = openRequest.result;
             this.setState({db}, this.getSavedGraphs);
-
             db.onversionchange = () => {
                 db.close();
             }
@@ -182,9 +181,12 @@ export class App extends Component {
                     if (!GRAPHS_EQUAL(data, e.target.result)) {
                         data.lastModified = new Date();
                     }
-                    this.state.db.transaction('graphs', 'readwrite')
-                    .objectStore('graphs')
-                    .put(data)
+                    this.getSavedGraphs(() => {
+                        data.order = this.state.savedGraphs.find(graph => graph.id === data.id)?.order ?? data.order;
+                        this.state.db.transaction('graphs', 'readwrite')
+                        .objectStore('graphs')
+                        .put(data)
+                    })
                 }
             }
         }
@@ -370,7 +372,7 @@ export class App extends Component {
         }
     }
 
-    processSTR = (text, name, template = false) => {
+    processSTR = (text, name, template = false, callback) => {
         const data = Object.assign({}, this.state.data);
         const nodes = data.nodes;
         const links = data.links;
@@ -518,10 +520,7 @@ export class App extends Component {
             template
         }]
 
-        console.log(data);
         this.setGraphData(data, () => {
-            console.log(this.state.data);
-            console.log(data);
             setTimeout(() => {
                 // clear file upload
                 if (document.getElementById("STRFileUpload") !== null) {
@@ -531,7 +530,7 @@ export class App extends Component {
         });
 
         if (newNodes.length > 0) {
-            this.generateGraphviz(dotNodeContent, dotLinkContent);
+            this.generateGraphviz(dotNodeContent, dotLinkContent, callback);
         }
     }
 
@@ -540,7 +539,7 @@ export class App extends Component {
      * @param {*} dotNodeContent node content to pass into dot engine 
      * @param {*} dotLinkContent link content to pass into dot engine
      */
-    generateGraphviz = (dotNodeContent, dotLinkContent) => {
+    generateGraphviz = (dotNodeContent, dotLinkContent, callback) => {
         this.setState({strGraphviz: 
             <Graphviz 
             className="graph-overlay graph-viz"
@@ -555,7 +554,7 @@ export class App extends Component {
                 rankdir=LR;
                 ${dotLinkContent}
             }`}/>
-        }, () => setTimeout(() => this.parseGraphvizSVG(this.state.data.nodes, this.state.data.links), GRAPHVIZ_PARSE_DELAY));
+        }, () => setTimeout(() => this.parseGraphvizSVG(this.state.data.nodes, this.state.data.links, callback), GRAPHVIZ_PARSE_DELAY));
     }
 
     /**
@@ -566,7 +565,7 @@ export class App extends Component {
      * @param {*} nodes 
      * @param {*} links 
      */
-    parseGraphvizSVG = (nodes, links) => {
+    parseGraphvizSVG = (nodes, links, callback) => {
         const graph = document.getElementById("graph0");
 
         // in the case that rendering had not finished yet
@@ -605,7 +604,7 @@ export class App extends Component {
                 }
             }
 
-            this.setGraphData(data);
+            this.setGraphData(data, callback);
             this.setState({strGraphviz: undefined}, () => {
                 if (this.state.oldNodePos.length === this.state.data.nodes.length) {
                     this.setState({graphUndo: true})
@@ -627,12 +626,19 @@ export class App extends Component {
     deleteSTR = (id) => {
         const data = Object.assign({}, this.state.data);
         const entryData = this.state.data.STRData.find(entry => entry.id === id);
+        // unimport template if STR was a template
+        const template = this.state.data.STRTemplates.find(template => template.id === id);
+        if (template !== undefined) {
+            template.imported = false;
+        }
+        // delete links
         for (const linkID of entryData.links) {
             if (data.links.findIndex(entry => entry.id === linkID) !== -1) {
                 UPDATE_DATA_DEL(data.links.find(entry => entry.id === linkID).order, data.links);
                 data.links.splice(data.links.findIndex(entry => entry.id === linkID), 1);
             }
         }
+        // delete nodes that are not part of any links anymore
         for (const nodeID of entryData.nodes) {
             const otherLinks = data.links.filter(link => (link.source.id === nodeID || 
                 link.target.id === nodeID || link.inducer === nodeID) && !entryData.links.includes(link.id))

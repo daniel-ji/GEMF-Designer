@@ -1,7 +1,5 @@
-bug testing!!! (especially indexeddb, modal, loading in graphs, graph saving, graph deletion)
-
+bug testing
 code documentation
-magic numbers
 
 rename str option
 exclude existing nodes from auto-draw str
@@ -9,16 +7,7 @@ Undo feature for STR import
 expand button for graph entries
 description to graphs
 
-preset graphs
-
 features to add:
 - Adjustable edge curves
     - probably have to make an "edge" into four nodes
     - learn some stuff about cubic beziers
-
-- Color-based legend (probably have to ask Jonathan some more)
-
-- with shapes, still need to:
-    - triangle shape dilemma
-
-- preset STRs? 

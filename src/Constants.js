@@ -180,17 +180,13 @@ export const UPDATE_DATA_ORDER = (e, providedData, entry = false) => {
     } else {
         for (const item of iterable) {
             if (item.order === e.oldIndex) {
-                console.log('moved down og')
                 item.order = e.newIndex;
             } else if (item.order > e.oldIndex && item.order <= e.newIndex) {
-                console.log('moved up other')
                 item.order--;
             }
         }
     }
     iterable.sort((a, b) => a.order - b.order)
-    console.log(iterable);
-    console.log(providedData);
     return providedData;
 }
 /**
