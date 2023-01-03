@@ -144,6 +144,7 @@ export class GraphOverlay extends Component {
                 snapMode={this.props.snapMode}
                 shortcutLink={this.props.shortcutLink}
                 setModal={this.props.setModal}
+                setGraphData={this.props.setGraphData}
                 /> 
                 {this.props.graphUndo &&
                 <div className="alert alert-dark" id="undo-alert" role="alert" onMouseLeave={this.delayHideGraphUndo}>

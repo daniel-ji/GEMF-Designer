@@ -700,6 +700,7 @@ export class App extends Component {
             <GraphOverlay 
             forceCollideRadius={this.state.forceCollideRadius}
             data={this.state.data}
+            setGraphData={this.setGraphData}
             autoDraw={this.autoDraw}
             deleteGraphDataPrompt={this.deleteGraphDataPrompt}
             shortcutLink={this.shortcutLink}

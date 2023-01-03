@@ -1,10 +1,16 @@
-bug testing
-code documentation
+bug testing!
+code documentation!
 
-link hitbox fix
 CUBIC BEZIER LINKS
+    - drawing STR imported links
+    - create toggle cubic edit links mode + cursor when dragging knot? 
+    - remove from graph when saving image
+    - bug: panning while clicking on link causes link to act up
+        - disable link click when panning
+    - refactor all code related to this
+    - drawing curves for repeats 
+
 rectangle select multiple nodes
-better STR parsing
 Undo feature for STR import
 
 features to add:

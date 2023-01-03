@@ -10,11 +10,17 @@ import { saveAs } from 'file-saver';
 import C2S from '../Canvas2SVG';
 
 import { CSS_BREAKPOINT, GRAPHVIZ_PARSE_DELAY, NODE_TEXT_OVERFLOW, 
-    RATE_TEXT_OVERFLOW, WIDTH_RATIO, GRID_GAP, ARROW_SIZE, TO_RAD} from '../Constants';
+    RATE_TEXT_OVERFLOW, WIDTH_RATIO, GRID_GAP, ARROW_SIZE, TO_RAD, CALCULATE_KNOT_POINT, KNOT_NODE_RATIO, CALCULATE_KNOT_RATIO} from '../Constants';
+
+let moveLinkCancelled = false;
 
 export class Graph extends Component {
     constructor(props) {
         super(props)
+
+        this.state = {
+            movingControlPoint: false,
+        }
 
         this.ref = React.createRef();
     }
@@ -222,13 +228,150 @@ export class Graph extends Component {
         ctx.fill();
     };
 
+    drawLink = (link, ctx, globalScale, pointerColor) => {
+        const points = [link.source, link.knot1, link.knot2, link.target];
+
+        const ctrlPointsX = this.calcControlPoints(points.map(point => point.x));
+        const ctrlPointsY = this.calcControlPoints(points.map(point => point.y));
+
+        ctx.strokeStyle = pointerColor ?? link.color;
+        for (let i = 0; i < 3; i++) {
+            ctx.beginPath();
+            ctx.moveTo(points[i].x, points[i].y);
+            ctx.bezierCurveTo(ctrlPointsX.p1[i], ctrlPointsY.p1[i], ctrlPointsX.p2[i], ctrlPointsY.p2[i], points[i+1].x, points[i+1].y);
+            ctx.stroke();
+        }
+
+        this.drawKnot(ctx, link, link.knot1, pointerColor);
+        this.drawKnot(ctx, link, link.knot2, pointerColor);
+    }
+
+    drawKnot = (ctx, link, knotCoords, pointerColor) => {
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.strokeStyle = pointerColor ?? link.color;
+        ctx.arc(knotCoords.x, knotCoords.y, this.props.data.nodeRadius * KNOT_NODE_RATIO * (pointerColor ? 2 : 1), 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.strokeStyle = pointerColor ?? link.color;
+        ctx.fillStyle = pointerColor ?? "white";
+        ctx.fill();
+    }
+
+    // https://www.particleincell.com/2012/bezier-splines/
+    calcControlPoints = (K) => {
+        const p1 = [];
+        const p2 = [];
+        const n = K.length-1;
+        
+        /*rhs vector*/
+        const a = [];
+        const b = [];
+        const c = [];
+        const r = [];
+        
+        /*left most segment*/
+        a[0] = 0;
+        b[0] = 2;
+        c[0] = 1;
+        r[0] = K[0] + 2* K[1];
+        
+        /*internal segments*/
+        for (let i = 1; i < n - 1; i++)
+        {
+            a[i] = 1;
+            b[i] = 4;
+            c[i] = 1;
+            r[i] = 4 * K[i] + 2 * K[i+1];
+        }
+                
+        /*right segment*/
+        a[n-1] = 2;
+        b[n-1] = 7;
+        c[n-1] = 0;
+        r[n-1] = 8 * K[n-1] + K[n];
+        
+        /*solves Ax=b with the Thomas algorithm (from Wikipedia)*/
+        for (let i = 1; i < n; i++)
+        {
+            const m = a[i] / b[i-1];
+            b[i] = b[i] - m * c[i - 1];
+            r[i] = r[i] - m*r[i-1];
+        }
+     
+        p1[n-1] = r[n-1] / b[n-1];
+        for (let i = n - 2; i >= 0; --i) {
+            p1[i] = (r[i] - c[i] * p1[i+1]) / b[i];
+        }
+            
+        /*we have p1, now compute p2*/
+        for (let i = 0; i < n-1; i++) {
+            p2[i] = 2 * K[i+1] - p1[i+1];
+        }
+        
+        p2[n-1] = 0.5 * (K[n]+p1[n-1]);
+        
+        return {p1:p1, p2:p2};
+    }
+
+    linkPointerAreaPaint = (link, color, ctx, globalScale) => {
+        this.drawLink(link, ctx, globalScale, color)
+    }
+
+    linkClick = (link, event) => {
+        if (moveLinkCancelled) {
+            return;
+        }
+
+        if (this.state.movingControlPoint) {
+            this.setState({movingControlPoint: false});
+            return;
+        }
+
+        const pointClicked = this.ref.current.screen2GraphCoords(event.x, event.y);
+        let clicked1 = Math.sqrt(Math.pow(link.knot1.x - pointClicked.x, 2) + Math.pow(link.knot1.y - pointClicked.y, 2)) < 
+        this.props.data.nodeRadius * KNOT_NODE_RATIO * 2;
+        let clicked2 = Math.sqrt(Math.pow(link.knot2.x - pointClicked.x, 2) + Math.pow(link.knot2.y - pointClicked.y, 2)) < 
+        this.props.data.nodeRadius * KNOT_NODE_RATIO * 2;
+        
+        const data = Object.assign({}, this.props.data);
+        const currLink = data.links.find(entry => entry.id === link.id);
+
+        if (clicked1 || clicked2) {
+            const moveLink = (e) => {
+                if (this.state.movingControlPoint) {
+                    const coord = this.ref.current.screen2GraphCoords(e.x, e.y);
+                    if (clicked1) {
+                        currLink.knot1 = coord;
+                    } else {
+                        currLink.knot2 = coord;
+                    }
+                    this.props.setGraphData(data);
+                } else {
+                    document.removeEventListener("mousemove", moveLink);
+                }
+            }
+
+            const cancelMoveLink = (e) => {
+                this.setState({movingControlPoint: false})
+                moveLinkCancelled = true;
+                setTimeout(() => {moveLinkCancelled = false}, 50)
+                document.removeEventListener("click", cancelMoveLink)
+            }
+
+            this.setState({movingControlPoint: true})
+            moveLinkCancelled = false;
+            document.addEventListener("mousemove", moveLink)
+            document.addEventListener("click", cancelMoveLink);
+        }
+    }
+
     /**
      * Draw links between nodes, both curved and straight.
      * @param {*} link link to draw
      * @param {*} ctx canvas to draw on
      * @param {*} globalScale zoom / scale of canvas 
      */
-    drawLink = (link, ctx, globalScale) => {
+    drawLinkOld = (link, ctx, globalScale) => {
         const data = this.props.data;
         // create array of edges that also link between source and target node (regardless of direction)
         const repeats = data.links.filter(
@@ -405,6 +548,15 @@ export class Graph extends Component {
         ctx.fillText(label, node.x, node.y);
     }
 
+    nodeDragEnd = (node, translate) => {
+        if (this.props.snapMode) {
+            node.fx = Math.round(node.x / GRID_GAP) * GRID_GAP;
+            node.fy = Math.round(node.y / GRID_GAP) * GRID_GAP;
+            node.x = Math.round(node.x / GRID_GAP) * GRID_GAP;
+            node.y = Math.round(node.y / GRID_GAP) * GRID_GAP;
+        }
+    }
+
     /**
      * Draws canvas.
      * @param {*} ctx canvas to draw on
@@ -434,35 +586,40 @@ export class Graph extends Component {
 
     render() {
         return (
-            <ForceGraph2D 
-            ref={this.ref}
-            id="graph" 
-            graphData={this.props.data}
-            nodeRelSize={this.props.data.nodeRadius}
-            nodeLabel=''
-            nodeAutoColorBy='group'
-            nodeCanvasObject={this.drawNode}
-            onNodeClick={this.props.shortcutLink}
-            // snap mode feature
-            onNodeDragEnd={(node, translate) => {
-                if (this.props.snapMode) {
-                    node.fx = Math.round(node.x / GRID_GAP) * GRID_GAP;
-                    node.fy = Math.round(node.y / GRID_GAP) * GRID_GAP;
-                    node.x = Math.round(node.x / GRID_GAP) * GRID_GAP;
-                    node.y = Math.round(node.y / GRID_GAP) * GRID_GAP;
-                }
-            }}
-            onNodeHover={(node) => {document.body.style.cursor = (node === null ? "pointer" : "grab")}}
-            linkCanvasObject={this.drawLink}
-            cooldownTime={1000}
-            width={window.innerWidth >= CSS_BREAKPOINT ? window.innerWidth * WIDTH_RATIO : window.innerWidth}
-            height={window.innerWidth >= CSS_BREAKPOINT ? window.innerHeight : window.innerHeight * WIDTH_RATIO}
-            maxZoom={5}
-            minZoom={1}
-            onRenderFramePre={this.drawCanvas}
+            <div
             onMouseOver={() => {document.body.style.cursor = "pointer"}}
-            onMouseLeave={() => {document.body.style.cursor = "default"}}
-            />
+            onMouseLeave={() => {
+                document.body.style.cursor = "default"
+                this.setState({movingControlPoint: false})
+            }}
+            >
+                <ForceGraph2D 
+                ref={this.ref}
+                id="graph" 
+                graphData={this.props.data}
+                nodeRelSize={this.props.data.nodeRadius}
+                nodeLabel=''
+                nodeAutoColorBy='group'
+                nodeCanvasObject={this.drawNode}
+                onNodeClick={this.props.shortcutLink}
+                // snap mode feature
+                onNodeDragEnd={this.nodeDragEnd}
+                onNodeHover={(node) => {document.body.style.cursor = (node === null ? "pointer" : "grab")}}
+                linkCanvasObject={this.drawLink}
+                onLinkClick={this.linkClick}
+                linkPointerAreaPaint={this.linkPointerAreaPaint}
+                cooldownTime={1000}
+                width={window.innerWidth >= CSS_BREAKPOINT ? window.innerWidth * WIDTH_RATIO : window.innerWidth}
+                height={window.innerWidth >= CSS_BREAKPOINT ? window.innerHeight : window.innerHeight * WIDTH_RATIO}
+                maxZoom={5}
+                minZoom={1}
+                onRenderFramePre={this.drawCanvas}
+                onEngineStop={() => {
+                    this.ref.current.d3ReheatSimulation();
+                }}
+                enablePanInteraction={!this.state.movingControlPoint}
+                />
+            </div>
             )
         }
     }

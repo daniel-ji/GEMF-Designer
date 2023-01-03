@@ -20,6 +20,8 @@ export const NODE_SHAPES = ['circle', 'square', 'diamond', 'triangle', 'pentagon
 export const LINK_NODE_SELECT_IDS = ["selectSource", "selectTarget", "selectInducer"];
 // length for which rate text overflows
 export const RATE_TEXT_OVERFLOW = 6; 
+// ratio between radius of link knot and node
+export const KNOT_NODE_RATIO = 0.25;
 // number of form steps, including welcome
 export const FORM_STEPS = 6;
 // time to delay graphiz parse procedure, ms
@@ -39,6 +41,11 @@ export const INVALID_STR_RATE_ERROR = 'Invalid rate. Please ensure numeric, non-
  */
 export const TO_RAD = (deg) => {
     return deg * Math.PI / 180;
+}
+export const CALCULATE_KNOT_POINT = (sourceID, targetID, data, tx, ty = tx) => {
+    const source = data.nodes.find(node => node.id === sourceID);
+    const target = data.nodes.find(node => node.id === targetID);
+    return ({x: source.x * (1 - tx) + target.x * tx, y: source.y * (1 - ty) + target.y * ty})
 }
 /**
  * Create shortened name from link object.

@@ -6,7 +6,7 @@ import Sortable from 'sortablejs';
 
 import AddEdgesEntry from './AddEdgesEntry'
 
-import { CREATE_ENTRY_ID, LINK_NODE_SELECT_IDS, LINK_SHORT_NAME, UPDATE_DATA_DEL, UPDATE_DATA_ORDER } from '../../Constants';
+import { CALCULATE_KNOT_POINT, CREATE_ENTRY_ID, LINK_NODE_SELECT_IDS, LINK_SHORT_NAME, UPDATE_DATA_DEL, UPDATE_DATA_ORDER } from '../../Constants';
 
 export class AddEdgesContainer extends Component {
     constructor(props) {
@@ -110,7 +110,9 @@ export class AddEdgesContainer extends Component {
                 inducer: inducerID === -1 ? undefined : inducerID,
                 rate: rateInput.value,
                 color: this.props.data.defaultEdgeColor,
-                order: this.props.data.links.length
+                order: this.props.data.links.length,
+                knot1: CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.333),
+                knot2: CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.667)
             }
             newLink.shortName = LINK_SHORT_NAME(newLink, data);
             data.links.push(newLink)
