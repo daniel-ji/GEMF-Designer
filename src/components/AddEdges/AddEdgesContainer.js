@@ -102,6 +102,26 @@ export class AddEdgesContainer extends Component {
         // if edge-based link doesn't exist already 
         if (!linkExists) {
             // add link 
+            const knot1 = {
+                id: CREATE_ENTRY_ID(),
+                linkID: sourceID + "-" + targetID + 
+                (inducerID === -1 ? "" : "-" + inducerID),
+                knot: 1,
+                x: CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.333).x,
+                y: CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.333).y
+            }
+
+            const knot2 = {
+                id: CREATE_ENTRY_ID(),
+                linkID: sourceID + "-" + targetID + 
+                (inducerID === -1 ? "" : "-" + inducerID),
+                knot: 2,
+                x: CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.667).x,
+                y: CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.667).y
+            }
+
+            data.nodes.push(knot1, knot2);
+
             const newLink = {
                 id: sourceID + "-" + targetID + 
                 (inducerID === -1 ? "" : "-" + inducerID),
@@ -111,9 +131,10 @@ export class AddEdgesContainer extends Component {
                 rate: rateInput.value,
                 color: this.props.data.defaultEdgeColor,
                 order: this.props.data.links.length,
-                knot1: CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.333),
-                knot2: CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.667)
+                knot1: knot1.id,
+                knot2: knot2.id
             }
+            
             newLink.shortName = LINK_SHORT_NAME(newLink, data);
             data.links.push(newLink)
 
@@ -143,10 +164,12 @@ export class AddEdgesContainer extends Component {
      * @param {*} id id of link to delete
      */
     deleteEdgeEntry = (id) => {
-        const newData = Object.assign({}, this.props.data);
-        UPDATE_DATA_DEL(newData.links.find(l => l.id === id).order, newData.links);
-        newData.links = newData.links.filter(l => l.id !== id);
-        this.props.setGraphData(newData);
+        const data = Object.assign({}, this.props.data);
+        UPDATE_DATA_DEL(data.links.find(l => l.id === id).order, data.links);
+        const link = data.links.find(l => l.id === id);
+        data.nodes = data.nodes.filter(node => node.id !== link.knot1 && node.id !== link.knot2);
+        data.links = data.links.filter(l => l.id !== id);
+        this.props.setGraphData(data);
         this.setState({
             edgeEntries: this.state.edgeEntries.filter(element => element.key !== id),
         })
@@ -157,9 +180,10 @@ export class AddEdgesContainer extends Component {
     }
 
     deleteAllEdges = () => {
-        const newData = Object.assign({}, this.props.data);
-        newData.links = [];
-        this.props.setGraphData(newData);
+        const data = Object.assign({}, this.props.data);
+        data.nodes = data.nodes.filter(node => node.knot === undefined);
+        data.links = [];
+        this.props.setGraphData(data);
         this.setState({edgeEntries: []})
     }
     
@@ -262,7 +286,8 @@ export class AddEdgesContainer extends Component {
 
 
     render() {
-        const data = this.props.data;
+        const data = Object.assign({}, this.props.data);
+        data.nodes = data.nodes.filter(node => node.knot === undefined);
 
         return (
             <div id="add-edges-container" className="form-step">

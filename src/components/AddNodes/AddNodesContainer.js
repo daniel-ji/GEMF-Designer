@@ -39,7 +39,8 @@ export class AddNodesContainer extends Component {
     }
 
     loadInNodeInputs = () => {
-        const data = this.props.data;
+        const data = Object.assign({}, this.props.data);
+        data.nodes = data.nodes.filter(node => node.knot === undefined);
         this.setState({nodeInputs: [data.nodes.map(node => this.nodeInput(node.id, node.name)), 
             this.nodeInput(CREATE_ENTRY_ID())
         ]}, () => {
@@ -107,6 +108,7 @@ export class AddNodesContainer extends Component {
      */
     resetShape = () => {
         const data = Object.assign({}, this.props.data);
+        data.nodes = data.nodes.filter(node => node.knot === undefined);
         for (const node of data.nodes) {
             node.shape = data.defaultShape;
         }
@@ -140,6 +142,7 @@ export class AddNodesContainer extends Component {
      */
     resetColor = () => {
         const data = Object.assign({}, this.props.data);
+        data.nodes = data.nodes.filter(node => node.knot === undefined);
         for (const node of data.nodes) {
             node.color = data.defaultNodeColor;
         }

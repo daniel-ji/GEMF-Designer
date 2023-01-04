@@ -295,12 +295,12 @@ export class App extends Component {
      * Automatically draw graph from current nodes / links.
      */
     autoDraw = () => {
-        const nodes = this.state.data.nodes;
+        const nodes = this.state.data.nodes.filter(node => node.knot === undefined);
         const links = this.state.data.links;
 
         if (nodes.length > 0) {
             // save node positions
-            this.setState({oldNodePos: this.state.data.nodes.map(node => {
+            this.setState({oldNodePos: nodes.map(node => {
                 return {
                     id: node.id,
                     x: node.x,
@@ -374,12 +374,12 @@ export class App extends Component {
 
     processSTR = (text, name, template = false, callback) => {
         const data = Object.assign({}, this.state.data);
-        const nodes = data.nodes;
+        const nodes = data.nodes.filter(node => node.knot === undefined);
         const links = data.links;
 
         let errors = [];            
-        let nodeID = this.state.data.nodes.length === 0 ? 
-            0 : Math.max(...this.state.data.nodes.map(node => parseInt(node.id))) + 1;
+        let nodeID = data.nodes.length === 0 ? 
+            0 : Math.max(...data.nodes.map(node => parseInt(node.id))) + 1;
 
         const newNodes = [];
         const newLinks = [];
@@ -451,7 +451,6 @@ export class App extends Component {
                         }
                     }
                 }
-                
                 
                 // add edge / node-based transition to links 
                 if (parsedSTR[i][2] === "None") {
@@ -554,7 +553,7 @@ export class App extends Component {
                 rankdir=LR;
                 ${dotLinkContent}
             }`}/>
-        }, () => setTimeout(() => this.parseGraphvizSVG(this.state.data.nodes, this.state.data.links, callback), GRAPHVIZ_PARSE_DELAY));
+        }, () => setTimeout(() => this.parseGraphvizSVG(this.state.data.nodes.filter(node => node.knot === undefined), this.state.data.links, callback), GRAPHVIZ_PARSE_DELAY));
     }
 
     /**
@@ -596,7 +595,7 @@ export class App extends Component {
             }
 
             if (this.state.snapMode) {
-                for (const node of data.nodes) {
+                for (const node of data.nodes.filter(node => node.knot === undefined)) {
                     node.fx = Math.round(node.x / GRID_GAP) * GRID_GAP;
                     node.fy = Math.round(node.y / GRID_GAP) * GRID_GAP;
                     node.x = Math.round(node.x / GRID_GAP) * GRID_GAP;
@@ -606,7 +605,7 @@ export class App extends Component {
 
             this.setGraphData(data, callback);
             this.setState({strGraphviz: undefined}, () => {
-                if (this.state.oldNodePos.length === this.state.data.nodes.length) {
+                if (this.state.oldNodePos.length === this.state.data.nodes.filter(node => node.knot === undefined).length) {
                     this.setState({graphUndo: true})
                 }
             });
@@ -633,8 +632,10 @@ export class App extends Component {
         }
         // delete links
         for (const linkID of entryData.links) {
-            if (data.links.findIndex(entry => entry.id === linkID) !== -1) {
-                UPDATE_DATA_DEL(data.links.find(entry => entry.id === linkID).order, data.links);
+            const linkToDel = data.links.find(entry => entry.id === linkID);
+            if (linkToDel !== undefined) {
+                data.nodes = data.nodes.filter(node => node.id !== linkToDel.knot1 && node.id !== linkToDel.knot2);
+                UPDATE_DATA_DEL(linkToDel.order, data.links);
                 data.links.splice(data.links.findIndex(entry => entry.id === linkID), 1);
             }
         }

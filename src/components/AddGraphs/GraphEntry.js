@@ -67,7 +67,8 @@ export class GraphEntry extends Component {
     } 
 
     render() {
-        const data = this.props.data;
+        const data = Object.assign({}, this.props.data);
+        data.nodes = data.nodes.filter(node => node.knot === undefined);
 
         return (
             <div key={data.id}>

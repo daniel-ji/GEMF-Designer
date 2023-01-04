@@ -10,7 +10,7 @@ import { saveAs } from 'file-saver';
 import C2S from '../Canvas2SVG';
 
 import { CSS_BREAKPOINT, GRAPHVIZ_PARSE_DELAY, NODE_TEXT_OVERFLOW, 
-    RATE_TEXT_OVERFLOW, WIDTH_RATIO, GRID_GAP, ARROW_SIZE, TO_RAD, CALCULATE_KNOT_POINT, KNOT_NODE_RATIO, CALCULATE_KNOT_RATIO} from '../Constants';
+    RATE_TEXT_OVERFLOW, WIDTH_RATIO, GRID_GAP, ARROW_SIZE, TO_RAD, KNOT_NODE_RATIO} from '../Constants';
 
 let moveLinkCancelled = false;
 
@@ -87,7 +87,7 @@ export class Graph extends Component {
             const width = this.ref.current.screen2GraphCoords(canvas.width, canvas.height).x  - this.ref.current.screen2GraphCoords(0, 0).x;
             const height = this.ref.current.screen2GraphCoords(canvas.width, canvas.height).y  - this.ref.current.screen2GraphCoords(0, 0).y;
             const ctx = new C2S(width, height);
-            const nodes = JSON.parse(JSON.stringify(this.props.data.nodes));
+            const nodes = JSON.parse(JSON.stringify(this.props.data.nodes.filter(node => node.knot === undefined)));
             const links = JSON.parse(JSON.stringify(this.props.data.links))
             const leftX = this.ref.current.screen2GraphCoords(0, 0).x;
             const topY = this.ref.current.screen2GraphCoords(0, 0).y;
@@ -229,30 +229,29 @@ export class Graph extends Component {
     };
 
     drawLink = (link, ctx, globalScale, pointerColor) => {
-        const points = [link.source, link.knot1, link.knot2, link.target];
+        const knot1 = this.props.data.nodes.find(node => node.id === link.knot1);
+        const knot2 = this.props.data.nodes.find(node => node.id === link.knot2);
+        const points = [link.source, knot1, knot2, link.target];
 
         const ctrlPointsX = this.calcControlPoints(points.map(point => point.x));
         const ctrlPointsY = this.calcControlPoints(points.map(point => point.y));
 
         ctx.strokeStyle = pointerColor ?? link.color;
+        ctx.lineWidth = 1;
         for (let i = 0; i < 3; i++) {
             ctx.beginPath();
             ctx.moveTo(points[i].x, points[i].y);
             ctx.bezierCurveTo(ctrlPointsX.p1[i], ctrlPointsY.p1[i], ctrlPointsX.p2[i], ctrlPointsY.p2[i], points[i+1].x, points[i+1].y);
             ctx.stroke();
         }
-
-        this.drawKnot(ctx, link, link.knot1, pointerColor);
-        this.drawKnot(ctx, link, link.knot2, pointerColor);
     }
 
-    drawKnot = (ctx, link, knotCoords, pointerColor) => {
+    drawKnot = (ctx, link, knot, pointerColor) => {
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.strokeStyle = pointerColor ?? link.color;
-        ctx.arc(knotCoords.x, knotCoords.y, this.props.data.nodeRadius * KNOT_NODE_RATIO * (pointerColor ? 2 : 1), 0, 2 * Math.PI);
+        ctx.arc(knot.x, knot.y, this.props.data.nodeRadius * KNOT_NODE_RATIO * (pointerColor ? 2 : 1), 0, 2 * Math.PI);
         ctx.stroke();
-        ctx.strokeStyle = pointerColor ?? link.color;
         ctx.fillStyle = pointerColor ?? "white";
         ctx.fill();
     }
@@ -315,6 +314,8 @@ export class Graph extends Component {
 
     linkPointerAreaPaint = (link, color, ctx, globalScale) => {
         this.drawLink(link, ctx, globalScale, color)
+        this.drawNode(this.props.data.nodes.find(node => node.id === link.knot1), ctx, globalScale, color)
+        this.drawNode(this.props.data.nodes.find(node => node.id === link.knot2), ctx, globalScale, color)
     }
 
     linkClick = (link, event) => {
@@ -486,7 +487,13 @@ export class Graph extends Component {
      * @param {*} ctx canvas to draw on 
      * @param {*} globalScale zoom / scale of graph
      */
-    drawNode = (node, ctx, globalScale) => {
+    drawNode = (node, ctx, globalScale, pointerColor) => {
+        if (node.knot) {
+            this.drawKnot(ctx, this.props.data.links.find(link => link.id === node.linkID), node, pointerColor);
+            return;
+        }
+
+        ctx.lineWidth = 1;
         ctx.strokeStyle = node.color;
         ctx.beginPath();
         switch (node.shape) {
@@ -549,7 +556,7 @@ export class Graph extends Component {
     }
 
     nodeDragEnd = (node, translate) => {
-        if (this.props.snapMode) {
+        if (this.props.snapMode && node.knot === undefined) {
             node.fx = Math.round(node.x / GRID_GAP) * GRID_GAP;
             node.fy = Math.round(node.y / GRID_GAP) * GRID_GAP;
             node.x = Math.round(node.x / GRID_GAP) * GRID_GAP;
@@ -566,6 +573,7 @@ export class Graph extends Component {
         if (this.props.snapMode) {
             const bh = 3 * Math.ceil(ctx.canvas.clientWidth / GRID_GAP) * GRID_GAP;
             const bw = 3 * Math.ceil(ctx.canvas.clientHeight / GRID_GAP) * GRID_GAP
+            ctx.lineWidth = 1;
             ctx.strokeStyle = "#b3b3b3";
 
             for (let x = -bw; x <= bw; x += GRID_GAP) {

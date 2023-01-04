@@ -174,6 +174,10 @@ export const FETCH_STR_TEMPLATES = () => {
  */
 export const UPDATE_DATA_ORDER = (e, providedData, entry = false) => {
     const iterable = entry ? Object.assign({}, providedData)[entry] : providedData;
+    // special case for nodes
+    if (entry === 'nodes') {
+        iterable = iterable.filter(node => node.knot === undefined);
+    }
     // moved item up
     if (e.newIndex < e.oldIndex) {
         for (const item of iterable) {
@@ -205,6 +209,10 @@ export const UPDATE_DATA_ORDER = (e, providedData, entry = false) => {
  */
 export const UPDATE_DATA_DEL = (order, entries) => {
     for (const entry of entries) {
+        if (entry.order === undefined) {
+            continue;
+        }
+        
         if (entry.order > order) {
             entry.order--;
         }
