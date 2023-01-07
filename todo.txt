@@ -2,12 +2,11 @@ bug testing!
 code documentation!
 
 CUBIC BEZIER LINKS
-    - drawing STR imported links
-    - create toggle cubic edit links mode + cursor when dragging knot? 
-    - remove from graph when saving image
-    - refactor all code related to this
-    - drawing curves for repeats
-    - draw label
+    #1 drawing STR imported links (exact replication will require rewriting of draw link code and node creation code)
+    #2 create toggle cubic edit links mode
+    #3 remove from graph when saving image (easily implemented after #2)
+    #5 refactor all code related to this
+    #4 drawing curves for repeats
 
 rectangle select multiple nodes
 Undo feature for STR import
@@ -16,3 +15,5 @@ features to add:
 - Adjustable edge curves
     - probably have to make an "edge" into four nodes
     - learn some stuff about cubic beziers
+
+draw arrow correctly 

@@ -12,15 +12,9 @@ import C2S from '../Canvas2SVG';
 import { CSS_BREAKPOINT, GRAPHVIZ_PARSE_DELAY, NODE_TEXT_OVERFLOW, 
     RATE_TEXT_OVERFLOW, WIDTH_RATIO, GRID_GAP, ARROW_SIZE, TO_RAD, KNOT_NODE_RATIO} from '../Constants';
 
-let moveLinkCancelled = false;
-
 export class Graph extends Component {
     constructor(props) {
         super(props)
-
-        this.state = {
-            movingControlPoint: false,
-        }
 
         this.ref = React.createRef();
     }
@@ -153,15 +147,18 @@ export class Graph extends Component {
      * @returns object of start and end coordinates of scaled link
      */
     scaleLinkToNodeRadius = (link) => {
-        // distance between links
-        const d = Math.sqrt((Math.pow(link.target.x - link.source.x, 2) + Math.pow(link.target.y - link.source.y, 2)))
-        // y distance between links
-        const tDY = link.target.y - link.source.y;
-        // x distance between links
-        const tDX = link.target.x - link.source.x;
-        const aDY = Math.abs(tDY);
-        const aDX = Math.abs(tDX);
-        const scaleByShape = (shape, node) => {
+        const scaleByShape = (shape, node, axis) => {
+            let result = 0;
+
+            // distance between link and knot
+            const d = ((link.target.x - link.source.x) ** 2 + (link.target.y - link.source.y) ** 2) ** 0.5
+            // y distance between links
+            const tDY = link.target.y - link.source.y;
+            // x distance between links
+            const tDX = link.target.x - link.source.x;
+            const aDY = Math.abs(tDY);
+            const aDX = Math.abs(tDX);
+
             let dY = tDY;
             let dX = tDX;
             if (node === 'source') {
@@ -170,30 +167,38 @@ export class Graph extends Component {
             }
             switch (shape) {
                 case 'hexagon': 
-                    return 1.06 * this.props.data.nodeRadius;
+                    result = 1.06 * this.props.data.nodeRadius;
+                    break;
                 case 'pentagon': 
-                    return 1.09 * this.props.data.nodeRadius;
+                    result =  1.09 * this.props.data.nodeRadius;
+                    break;
                 case 'triangle': 
                     if (dY > 0 || aDY * Math.sqrt(3) <= aDX) {
-                        return this.props.data.nodeRadius * 2 * d / (Math.sqrt(3) * dX * (dX < 0 ? -1 : 1) + dY);
+                        result = this.props.data.nodeRadius * 2 * d / (Math.sqrt(3) * dX * (dX < 0 ? -1 : 1) + dY);
                     } else {
-                        return this.props.data.nodeRadius * Math.abs(d / aDY);
+                        result = this.props.data.nodeRadius * Math.abs(d / aDY);
                     }
+                    break;
                 case 'diamond':
-                    return this.props.data.nodeRadius * Math.sqrt(2) * d / (aDX + aDY)
+                    result = this.props.data.nodeRadius * Math.sqrt(2) * d / (aDX + aDY)
+                    break;
                 case 'square':
-                   return this.props.data.nodeRadius * Math.abs(d / (aDX > aDY ? aDX : aDY))
+                   result = this.props.data.nodeRadius * Math.abs(d / (aDX > aDY ? aDX : aDY))
+                   break;
                 case undefined: 
                 case 'circle':
                 default: 
-                    return this.props.data.nodeRadius;
+                    result = this.props.data.nodeRadius;
+                    break;
             }
+
+            result *= (axis === 'Y' ? tDY : tDX) / d;
         }
 
-        const yIS = ((scaleByShape(link.source.shape, 'source') * tDY) / d);
-        const yIT = ((scaleByShape(link.source.shape, 'target') * tDY) / d);
-        const xIS = ((scaleByShape(link.target.shape, 'source') * tDX) / d);
-        const xIT = ((scaleByShape(link.target.shape, 'target') * tDX) / d);
+        const yIS = scaleByShape(link.source.shape, 'source', 'Y');
+        const yIT = scaleByShape(link.source.shape, 'target', 'Y');
+        const xIS = scaleByShape(link.target.shape, 'source', 'X');
+        const xIT = scaleByShape(link.target.shape, 'target', 'X');
         return {
             sourceX: xIS + link.source.x, sourceY: yIS + link.source.y, 
             targetX: -xIT + link.target.x, targetY: -yIT + link.target.y
@@ -229,21 +234,46 @@ export class Graph extends Component {
     };
 
     drawLink = (link, ctx, globalScale, pointerColor) => {
-        const knot1 = this.props.data.nodes.find(node => node.id === link.knot1);
-        const knot2 = this.props.data.nodes.find(node => node.id === link.knot2);
-        const points = [link.source, knot1, knot2, link.target];
+        const data = this.props.data;
+
+        const scaledLink = this.scaleLinkToNodeRadius(link);
+        const knot1 = data.nodes.find(node => node.id === link.knot1);
+        const knot2 = data.nodes.find(node => node.id === link.knot2);
+        const points = [{x: scaledLink.sourceX, y: scaledLink.sourceY}, knot1, knot2, {x: scaledLink.targetX, y: scaledLink.targetY}];
 
         const ctrlPointsX = this.calcControlPoints(points.map(point => point.x));
         const ctrlPointsY = this.calcControlPoints(points.map(point => point.y));
 
+        const midpointX = points[1].x / 8 + 3 * ctrlPointsX.p1[1] / 8 + 3 * ctrlPointsX.p2[1] / 8 + points[2].x / 8;
+        const midpointY = points[1].y / 8 + 3 * ctrlPointsY.p1[1] / 8 + 3 * ctrlPointsY.p2[1] / 8 + points[2].y / 8;
+
         ctx.strokeStyle = pointerColor ?? link.color;
         ctx.lineWidth = 1;
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < points.length - 1; i++) {
             ctx.beginPath();
             ctx.moveTo(points[i].x, points[i].y);
             ctx.bezierCurveTo(ctrlPointsX.p1[i], ctrlPointsY.p1[i], ctrlPointsX.p2[i], ctrlPointsY.p2[i], points[i+1].x, points[i+1].y);
             ctx.stroke();
         }
+
+        // draw label 
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = link.color;
+        ctx.arc(midpointX, midpointY, data.linkRadius, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.strokeStyle = link.color;
+        ctx.fillStyle = "white";
+        ctx.fill();
+        ctx.fillStyle = "black";
+        let adjustedRateFontSize = data.linkRadius / 2;
+        const rateText = (link.rate === undefined ? "" : link.rate) + (link.inducer === undefined ? "" : ("," + data.nodes.find(node => node.id === link.inducer).name));
+        if (rateText.length > RATE_TEXT_OVERFLOW) {
+            adjustedRateFontSize *= RATE_TEXT_OVERFLOW / rateText.length;
+        }
+        ctx.font = "bold " + adjustedRateFontSize + "px monospace";
+        ctx.fillText(rateText, midpointX, midpointY);
+
     }
 
     drawKnot = (ctx, link, knot, pointerColor) => {
@@ -316,54 +346,6 @@ export class Graph extends Component {
         this.drawLink(link, ctx, globalScale, color)
         this.drawNode(this.props.data.nodes.find(node => node.id === link.knot1), ctx, globalScale, color)
         this.drawNode(this.props.data.nodes.find(node => node.id === link.knot2), ctx, globalScale, color)
-    }
-
-    linkClick = (link, event) => {
-        if (moveLinkCancelled) {
-            return;
-        }
-
-        if (this.state.movingControlPoint) {
-            this.setState({movingControlPoint: false});
-            return;
-        }
-
-        const pointClicked = this.ref.current.screen2GraphCoords(event.x, event.y);
-        let clicked1 = Math.sqrt(Math.pow(link.knot1.x - pointClicked.x, 2) + Math.pow(link.knot1.y - pointClicked.y, 2)) < 
-        this.props.data.nodeRadius * KNOT_NODE_RATIO * 2;
-        let clicked2 = Math.sqrt(Math.pow(link.knot2.x - pointClicked.x, 2) + Math.pow(link.knot2.y - pointClicked.y, 2)) < 
-        this.props.data.nodeRadius * KNOT_NODE_RATIO * 2;
-        
-        const data = Object.assign({}, this.props.data);
-        const currLink = data.links.find(entry => entry.id === link.id);
-
-        if (clicked1 || clicked2) {
-            const moveLink = (e) => {
-                if (this.state.movingControlPoint) {
-                    const coord = this.ref.current.screen2GraphCoords(e.x, e.y);
-                    if (clicked1) {
-                        currLink.knot1 = coord;
-                    } else {
-                        currLink.knot2 = coord;
-                    }
-                    this.props.setGraphData(data);
-                } else {
-                    document.removeEventListener("mousemove", moveLink);
-                }
-            }
-
-            const cancelMoveLink = (e) => {
-                this.setState({movingControlPoint: false})
-                moveLinkCancelled = true;
-                setTimeout(() => {moveLinkCancelled = false}, 50)
-                document.removeEventListener("click", cancelMoveLink)
-            }
-
-            this.setState({movingControlPoint: true})
-            moveLinkCancelled = false;
-            document.addEventListener("mousemove", moveLink)
-            document.addEventListener("click", cancelMoveLink);
-        }
     }
 
     /**
@@ -594,13 +576,6 @@ export class Graph extends Component {
 
     render() {
         return (
-            <div
-            onMouseOver={() => {document.body.style.cursor = "pointer"}}
-            onMouseLeave={() => {
-                document.body.style.cursor = "default"
-                this.setState({movingControlPoint: false})
-            }}
-            >
                 <ForceGraph2D 
                 ref={this.ref}
                 id="graph" 
@@ -612,9 +587,7 @@ export class Graph extends Component {
                 onNodeClick={this.props.shortcutLink}
                 // snap mode feature
                 onNodeDragEnd={this.nodeDragEnd}
-                onNodeHover={(node) => {document.body.style.cursor = (node === null ? "pointer" : "grab")}}
                 linkCanvasObject={this.drawLink}
-                onLinkClick={this.linkClick}
                 linkPointerAreaPaint={this.linkPointerAreaPaint}
                 cooldownTime={1000}
                 width={window.innerWidth >= CSS_BREAKPOINT ? window.innerWidth * WIDTH_RATIO : window.innerWidth}
@@ -625,9 +598,7 @@ export class Graph extends Component {
                 onEngineStop={() => {
                     this.ref.current.d3ReheatSimulation();
                 }}
-                enablePanInteraction={!this.state.movingControlPoint}
                 />
-            </div>
             )
         }
     }
