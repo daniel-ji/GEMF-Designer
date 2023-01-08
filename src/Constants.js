@@ -47,6 +47,17 @@ export const CALCULATE_KNOT_POINT = (sourceID, targetID, data, tx, ty = tx) => {
     const target = data.nodes.find(node => node.id === targetID);
     return ({x: source.x * (1 - tx) + target.x * tx, y: source.y * (1 - ty) + target.y * ty})
 }
+export const CALCULATE_KNOT_RATIO = (link, knot1, knot2, data) => {
+    const source = data.nodes.find(node => node.id === link.source.id);
+    const target = data.nodes.find(node => node.id === link.target.id);
+    return ({knot1: {
+        x: (knot1.x - source.x) / (target.x - source.x), 
+        y: (knot1.y - source.y) / (target.y - source.y)
+    }, knot2: {
+        x: (knot2.x - source.x) / (target.x - source.x), 
+        y: (knot2.y - source.y) / (target.y - source.y)
+    }})
+}
 /**
  * Create shortened name from link object.
  * @param {*} link link object 

@@ -16,7 +16,7 @@ import {
     GRAPHVIZ_PARSE_DELAY, GRAPHVIZ_PARSE_RETRY_INTERVAL, STR_REGEX, INVALID_STR_FILE_ERROR,
     INVALID_STR_ENTRY_ERROR, INVALID_STR_SELF_LOOP_ERROR, INVALID_STR_NODE_NAME_ERROR,
     INVALID_STR_RATE_ERROR, CREATE_ENTRY_ID, GRAPHS_EQUAL, DEFAULT_GRAPH_DATA, UPDATE_DATA_DEL,
-    LINK_NODE_SELECT_IDS, GRID_GAP
+    LINK_NODE_SELECT_IDS, GRID_GAP, CALCULATE_KNOT_RATIO
 } from './Constants';
 
 export class App extends Component {
@@ -43,6 +43,8 @@ export class App extends Component {
             selectedGraph: undefined,
             // ruler / gridlines alignment mode
             snapMode: true, 
+            // adjustable bezier curves mode
+            bezierMode: false, 
 
             /* FORM-RELATED DATA */
             // form step counter
@@ -669,8 +671,28 @@ export class App extends Component {
         })
     }
 
-    toggleSnapMode = () => {
-        this.setState(prevState => {return {snapMode: !prevState.snapMode}});
+    toggleSnapMode = (value) => {
+        this.setState(prevState => {return {snapMode: value ?? !prevState.snapMode}});
+    }
+
+    toggleBezierMode = (value) => {
+        this.setState(prevState => {return {bezierMode: value ?? !prevState.bezierMode}}, () => {
+            if (!this.state.bezierMode) {
+                const data = Object.assign({}, this.state.data);
+
+                for (const link of data.links) {
+                    const knot1 = data.nodes.find(node => node.id === link.knot1);
+                    const knot2 = data.nodes.find(node => node.id === link.knot2);
+                    const knotRatio = CALCULATE_KNOT_RATIO(link, knot1, knot2, data)
+                    knot1.xRatio = knotRatio.knot1.x;
+                    knot1.yRatio = knotRatio.knot1.y;
+                    knot2.xRatio = knotRatio.knot2.x;
+                    knot2.yRatio = knotRatio.knot2.y;
+                }
+
+                this.setGraphData(data);
+            }
+        });
     }
 
     /**
@@ -711,6 +733,8 @@ export class App extends Component {
             undoGraph={this.undoGraph}
             snapMode={this.state.snapMode}
             toggleSnapMode={this.toggleSnapMode}
+            bezierMode={this.state.bezierMode}
+            toggleBezierMode={this.toggleBezierMode}
             />
             <Form
             data={this.state.data}

@@ -10,7 +10,7 @@ import { saveAs } from 'file-saver';
 import C2S from '../Canvas2SVG';
 
 import { CSS_BREAKPOINT, GRAPHVIZ_PARSE_DELAY, NODE_TEXT_OVERFLOW, 
-    RATE_TEXT_OVERFLOW, WIDTH_RATIO, GRID_GAP, ARROW_SIZE, TO_RAD, KNOT_NODE_RATIO} from '../Constants';
+    RATE_TEXT_OVERFLOW, WIDTH_RATIO, GRID_GAP, ARROW_SIZE, TO_RAD, KNOT_NODE_RATIO, CALCULATE_KNOT_POINT} from '../Constants';
 
 export class Graph extends Component {
     constructor(props) {
@@ -149,22 +149,32 @@ export class Graph extends Component {
     scaleLinkToNodeRadius = (link) => {
         const scaleByShape = (shape, node, axis) => {
             let result = 0;
-
             // distance between link and knot
-            const d = ((link.target.x - link.source.x) ** 2 + (link.target.y - link.source.y) ** 2) ** 0.5
+            let d = 0;
             // y distance between links
-            const tDY = link.target.y - link.source.y;
+            let dY = 0;
             // x distance between links
-            const tDX = link.target.x - link.source.x;
-            const aDY = Math.abs(tDY);
-            const aDX = Math.abs(tDX);
+            let dX = 0;
+            let aDY = 0;
+            let aDX = 0;
 
-            let dY = tDY;
-            let dX = tDX;
-            if (node === 'source') {
-                dY *= -1;
-                dX *= -1;
+            if (node === 'source') {        
+                const knot = this.props.data.nodes.find(node => node.id === link.knot1);        
+                d = ((link.source.x - knot.x) ** 2 + (link.source.y - knot.y) ** 2) ** 0.5
+                dY = knot.y - link.source.y;
+                dX = knot.x - link.source.x;
+                aDY = Math.abs(dY);
+                aDX = Math.abs(dX);
+            } else {
+                const knot = this.props.data.nodes.find(node => node.id === link.knot2);        
+                d = ((link.target.x - knot.x) ** 2 + (link.target.y - knot.y) ** 2) ** 0.5
+                dY = link.target.y - knot.y;
+                dX = link.target.x - knot.x;
+                aDY = Math.abs(dY);
+                aDX = Math.abs(dX);
             }
+
+
             switch (shape) {
                 case 'hexagon': 
                     result = 1.06 * this.props.data.nodeRadius;
@@ -192,7 +202,7 @@ export class Graph extends Component {
                     break;
             }
 
-            result *= (axis === 'Y' ? tDY : tDX) / d;
+            return result * (axis === 'Y' ? dY : dX) / d;
         }
 
         const yIS = scaleByShape(link.source.shape, 'source', 'Y');
@@ -222,6 +232,7 @@ export class Graph extends Component {
         const tdy = ARROW_SIZE * ady / dist;      // arrow triangle dy
         const arrowBaseX = x2 - tdx; 
         const arrowBaseY = y2 - tdy; 
+        ctx.lineWidth = 0.3;
         ctx.beginPath();
         // extrapolate arrow vertices from base and triangle dimensions 
         ctx.moveTo(arrowBaseX + 0.5 * tdy, arrowBaseY - 0.5 * tdx);
@@ -239,6 +250,14 @@ export class Graph extends Component {
         const scaledLink = this.scaleLinkToNodeRadius(link);
         const knot1 = data.nodes.find(node => node.id === link.knot1);
         const knot2 = data.nodes.find(node => node.id === link.knot2);
+        if (!this.props.bezierMode) {
+            const knot1Coords = CALCULATE_KNOT_POINT(link.source.id, link.target.id, this.props.data, knot1.xRatio, knot1.yRatio);
+            const knot2Coords = CALCULATE_KNOT_POINT(link.source.id, link.target.id, this.props.data, knot2.xRatio, knot2.yRatio);
+            knot1.x = knot1Coords.x;
+            knot1.y = knot1Coords.y;
+            knot2.x = knot2Coords.x;
+            knot2.y = knot2Coords.y;
+        }
         const points = [{x: scaledLink.sourceX, y: scaledLink.sourceY}, knot1, knot2, {x: scaledLink.targetX, y: scaledLink.targetY}];
 
         const ctrlPointsX = this.calcControlPoints(points.map(point => point.x));
@@ -274,6 +293,8 @@ export class Graph extends Component {
         ctx.font = "bold " + adjustedRateFontSize + "px monospace";
         ctx.fillText(rateText, midpointX, midpointY);
 
+        // draw arrow
+        this.drawArrow(ctx, ctrlPointsX.p2[2], ctrlPointsY.p2[2], points[3].x, points[3].y, link);
     }
 
     drawKnot = (ctx, link, knot, pointerColor) => {
@@ -344,8 +365,10 @@ export class Graph extends Component {
 
     linkPointerAreaPaint = (link, color, ctx, globalScale) => {
         this.drawLink(link, ctx, globalScale, color)
-        this.drawNode(this.props.data.nodes.find(node => node.id === link.knot1), ctx, globalScale, color)
-        this.drawNode(this.props.data.nodes.find(node => node.id === link.knot2), ctx, globalScale, color)
+        if (this.props.bezierMode) {
+            this.drawNode(this.props.data.nodes.find(node => node.id === link.knot1), ctx, globalScale, color)
+            this.drawNode(this.props.data.nodes.find(node => node.id === link.knot2), ctx, globalScale, color)
+        }
     }
 
     /**
@@ -471,7 +494,9 @@ export class Graph extends Component {
      */
     drawNode = (node, ctx, globalScale, pointerColor) => {
         if (node.knot) {
-            this.drawKnot(ctx, this.props.data.links.find(link => link.id === node.linkID), node, pointerColor);
+            if (this.props.bezierMode) {
+                this.drawKnot(ctx, this.props.data.links.find(link => link.id === node.linkID), node, pointerColor);
+            }
             return;
         }
 

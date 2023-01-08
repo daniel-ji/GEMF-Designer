@@ -108,7 +108,9 @@ export class AddEdgesContainer extends Component {
                 (inducerID === -1 ? "" : "-" + inducerID),
                 knot: 1,
                 x: CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.333).x,
-                y: CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.333).y
+                y: CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.333).y,
+                xRatio: 0.333,
+                yRatio: 0.333,
             }
 
             const knot2 = {
@@ -117,7 +119,9 @@ export class AddEdgesContainer extends Component {
                 (inducerID === -1 ? "" : "-" + inducerID),
                 knot: 2,
                 x: CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.667).x,
-                y: CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.667).y
+                y: CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.667).y,
+                xRatio: 0.667,
+                yRatio: 0.667,
             }
 
             data.nodes.push(knot1, knot2);
