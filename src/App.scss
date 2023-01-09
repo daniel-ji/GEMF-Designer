@@ -24,6 +24,7 @@ body {
         box-sizing: content-box;
         width: 100vw;
         height: 60vh;
+        cursor: pointer;
     }
     
     #graph-indicator {
@@ -365,6 +366,12 @@ body {
         border-left: 4px solid black;
         border-top: 0;
         width: 40vw;
+
+        #welcome-container {
+            footer {
+                position: absolute;
+            }
+        }
     }
 
     .form-step {

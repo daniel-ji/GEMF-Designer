@@ -10,7 +10,7 @@ import { saveAs } from 'file-saver';
 import C2S from '../Canvas2SVG';
 
 import { CSS_BREAKPOINT, GRAPHVIZ_PARSE_DELAY, NODE_TEXT_OVERFLOW, 
-    RATE_TEXT_OVERFLOW, WIDTH_RATIO, GRID_GAP, ARROW_SIZE, TO_RAD, KNOT_NODE_RATIO, CALCULATE_KNOT_POINT, CALCULATE_KNOT_POINT_FROM_OFFSET} from '../Constants';
+    RATE_TEXT_OVERFLOW, WIDTH_RATIO, GRID_GAP, ARROW_SIZE, TO_RAD} from '../Constants';
 
 export class Graph extends Component {
     constructor(props) {
@@ -81,7 +81,7 @@ export class Graph extends Component {
             const width = this.ref.current.screen2GraphCoords(canvas.width, canvas.height).x  - this.ref.current.screen2GraphCoords(0, 0).x;
             const height = this.ref.current.screen2GraphCoords(canvas.width, canvas.height).y  - this.ref.current.screen2GraphCoords(0, 0).y;
             const ctx = new C2S(width, height);
-            const nodes = JSON.parse(JSON.stringify(this.props.data.nodes.filter(node => node.knot === undefined)));
+            const nodes = JSON.parse(JSON.stringify(this.props.data.nodes));
             const links = JSON.parse(JSON.stringify(this.props.data.links))
             const leftX = this.ref.current.screen2GraphCoords(0, 0).x;
             const topY = this.ref.current.screen2GraphCoords(0, 0).y;
@@ -147,67 +147,47 @@ export class Graph extends Component {
      * @returns object of start and end coordinates of scaled link
      */
     scaleLinkToNodeRadius = (link) => {
-        const scaleByShape = (shape, node, axis) => {
-            let result = 0;
-            // distance between link and knot
-            let d = 0;
-            // y distance between links
-            let dY = 0;
-            // x distance between links
-            let dX = 0;
-            let aDY = 0;
-            let aDX = 0;
-
-            if (node === 'source') {        
-                const knot = this.props.data.nodes.find(node => node.id === link.knot1);        
-                d = ((link.source.x - knot.x) ** 2 + (link.source.y - knot.y) ** 2) ** 0.5
-                dY = knot.y - link.source.y;
-                dX = knot.x - link.source.x;
-                aDY = Math.abs(dY);
-                aDX = Math.abs(dX);
-            } else {
-                const knot = this.props.data.nodes.find(node => node.id === link.knot2);        
-                d = ((link.target.x - knot.x) ** 2 + (link.target.y - knot.y) ** 2) ** 0.5
-                dY = link.target.y - knot.y;
-                dX = link.target.x - knot.x;
-                aDY = Math.abs(dY);
-                aDX = Math.abs(dX);
+        // distance between links
+        const d = Math.sqrt((Math.pow(link.target.x - link.source.x, 2) + Math.pow(link.target.y - link.source.y, 2)))
+        // y distance between links
+        const tDY = link.target.y - link.source.y;
+        // x distance between links
+        const tDX = link.target.x - link.source.x;
+        const aDY = Math.abs(tDY);
+        const aDX = Math.abs(tDX);
+        const scaleByShape = (shape, node) => {
+            let dY = tDY;
+            let dX = tDX;
+            if (node === 'source') {
+                dY *= -1;
+                dX *= -1;
             }
-
             switch (shape) {
                 case 'hexagon': 
-                    result = 1.06 * this.props.data.nodeRadius;
-                    break;
+                    return 1.06 * this.props.data.nodeRadius;
                 case 'pentagon': 
-                    result =  1.09 * this.props.data.nodeRadius;
-                    break;
+                    return 1.09 * this.props.data.nodeRadius;
                 case 'triangle': 
                     if (dY > 0 || aDY * Math.sqrt(3) <= aDX) {
-                        result = this.props.data.nodeRadius * 2 * d / (Math.sqrt(3) * dX * (dX < 0 ? -1 : 1) + dY);
+                        return this.props.data.nodeRadius * 2 * d / (Math.sqrt(3) * dX * (dX < 0 ? -1 : 1) + dY);
                     } else {
-                        result = this.props.data.nodeRadius * Math.abs(d / aDY);
+                        return this.props.data.nodeRadius * Math.abs(d / aDY);
                     }
-                    break;
                 case 'diamond':
-                    result = this.props.data.nodeRadius * Math.sqrt(2) * d / (aDX + aDY)
-                    break;
+                    return this.props.data.nodeRadius * Math.sqrt(2) * d / (aDX + aDY)
                 case 'square':
-                   result = this.props.data.nodeRadius * Math.abs(d / (aDX > aDY ? aDX : aDY))
-                   break;
+                   return this.props.data.nodeRadius * Math.abs(d / (aDX > aDY ? aDX : aDY))
                 case undefined: 
                 case 'circle':
                 default: 
-                    result = this.props.data.nodeRadius;
-                    break;
+                    return this.props.data.nodeRadius;
             }
-
-            return result * (axis === 'Y' ? dY : dX) / d;
         }
 
-        const yIS = scaleByShape(link.source.shape, 'source', 'Y');
-        const yIT = scaleByShape(link.source.shape, 'target', 'Y');
-        const xIS = scaleByShape(link.target.shape, 'source', 'X');
-        const xIT = scaleByShape(link.target.shape, 'target', 'X');
+        const yIS = ((scaleByShape(link.source.shape, 'source') * tDY) / d);
+        const yIT = ((scaleByShape(link.source.shape, 'target') * tDY) / d);
+        const xIS = ((scaleByShape(link.target.shape, 'source') * tDX) / d);
+        const xIT = ((scaleByShape(link.target.shape, 'target') * tDX) / d);
         return {
             sourceX: xIS + link.source.x, sourceY: yIS + link.source.y, 
             targetX: -xIT + link.target.x, targetY: -yIT + link.target.y
@@ -231,7 +211,6 @@ export class Graph extends Component {
         const tdy = ARROW_SIZE * ady / dist;      // arrow triangle dy
         const arrowBaseX = x2 - tdx; 
         const arrowBaseY = y2 - tdy; 
-        ctx.lineWidth = 0.3;
         ctx.beginPath();
         // extrapolate arrow vertices from base and triangle dimensions 
         ctx.moveTo(arrowBaseX + 0.5 * tdy, arrowBaseY - 0.5 * tdx);
@@ -243,150 +222,13 @@ export class Graph extends Component {
         ctx.fill();
     };
 
-    drawLink = (link, ctx, globalScale, pointerColor) => {
-        const data = this.props.data;
-
-        const scaledLink = this.scaleLinkToNodeRadius(link);
-        const knot1 = data.nodes.find(node => node.id === link.knot1);
-        const knot2 = data.nodes.find(node => node.id === link.knot2);
-        if (!this.props.bezierMode) {
-            knot1.x = link.source.x + knot1.xOffset;
-            knot1.y = link.source.y + knot1.yOffset;
-            knot2.x = link.target.x + knot2.xOffset;
-            knot2.y = link.target.y + knot2.yOffset;
-        }
-        const points = [{x: scaledLink.sourceX, y: scaledLink.sourceY}, knot1, knot2, {x: scaledLink.targetX, y: scaledLink.targetY}];
-
-        const ctrlPointsX = this.calcControlPoints(points.map(point => point.x));
-        const ctrlPointsY = this.calcControlPoints(points.map(point => point.y));
-
-        const midpointX = points[1].x / 8 + 3 * ctrlPointsX.p1[1] / 8 + 3 * ctrlPointsX.p2[1] / 8 + points[2].x / 8;
-        const midpointY = points[1].y / 8 + 3 * ctrlPointsY.p1[1] / 8 + 3 * ctrlPointsY.p2[1] / 8 + points[2].y / 8;
-
-        ctx.strokeStyle = pointerColor ?? link.color;
-        ctx.lineWidth = 1;
-        for (let i = 0; i < points.length - 1; i++) {
-            ctx.beginPath();
-            ctx.moveTo(points[i].x, points[i].y);
-            ctx.bezierCurveTo(ctrlPointsX.p1[i], ctrlPointsY.p1[i], ctrlPointsX.p2[i], ctrlPointsY.p2[i], points[i+1].x, points[i+1].y);
-            ctx.stroke();
-        }
-
-        // draw label 
-        ctx.beginPath();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = link.color;
-        ctx.arc(midpointX, midpointY, data.linkRadius, 0, 2 * Math.PI);
-        ctx.stroke();
-        ctx.strokeStyle = link.color;
-        ctx.fillStyle = "white";
-        ctx.fill();
-        ctx.fillStyle = "black";
-        let adjustedRateFontSize = data.linkRadius / 2;
-        const rateText = (link.rate === undefined ? "" : link.rate) + (link.inducer === undefined ? "" : ("," + data.nodes.find(node => node.id === link.inducer).name));
-        if (rateText.length > RATE_TEXT_OVERFLOW) {
-            adjustedRateFontSize *= RATE_TEXT_OVERFLOW / rateText.length;
-        }
-        ctx.font = "bold " + adjustedRateFontSize + "px monospace";
-        ctx.fillText(rateText, midpointX, midpointY);
-
-        // draw arrow
-        this.drawArrow(ctx, ctrlPointsX.p2[2], ctrlPointsY.p2[2], points[3].x, points[3].y, link);
-    }
-
-    drawKnot = (ctx, link, knot, pointerColor) => {
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.strokeStyle = pointerColor ?? link.color;
-        ctx.arc(this.props.bezierMode ? knot.x : (knot.knot === 1 ? link.source.x : link.target.x) + knot.xOffset, 
-            this.props.bezierMode ? knot.y : (knot.knot === 1 ? link.source.y : link.target.y) + knot.yOffset, 
-            this.props.data.nodeRadius * KNOT_NODE_RATIO * (pointerColor ? 2 : 1),
-            0, 2 * Math.PI);
-        ctx.stroke();
-        ctx.fillStyle = pointerColor ?? "white";
-        ctx.fill();
-    }
-
-    // https://www.particleincell.com/2012/bezier-splines/
-    calcControlPoints = (K) => {
-        const p1 = [];
-        const p2 = [];
-        const n = K.length-1;
-        
-        /*rhs vector*/
-        const a = [];
-        const b = [];
-        const c = [];
-        const r = [];
-        
-        /*left most segment*/
-        a[0] = 0;
-        b[0] = 2;
-        c[0] = 1;
-        r[0] = K[0] + 2* K[1];
-        
-        /*internal segments*/
-        for (let i = 1; i < n - 1; i++)
-        {
-            a[i] = 1;
-            b[i] = 4;
-            c[i] = 1;
-            r[i] = 4 * K[i] + 2 * K[i+1];
-        }
-                
-        /*right segment*/
-        a[n-1] = 2;
-        b[n-1] = 7;
-        c[n-1] = 0;
-        r[n-1] = 8 * K[n-1] + K[n];
-        
-        /*solves Ax=b with the Thomas algorithm (from Wikipedia)*/
-        for (let i = 1; i < n; i++)
-        {
-            const m = a[i] / b[i-1];
-            b[i] = b[i] - m * c[i - 1];
-            r[i] = r[i] - m*r[i-1];
-        }
-     
-        p1[n-1] = r[n-1] / b[n-1];
-        for (let i = n - 2; i >= 0; --i) {
-            p1[i] = (r[i] - c[i] * p1[i+1]) / b[i];
-        }
-            
-        /*we have p1, now compute p2*/
-        for (let i = 0; i < n-1; i++) {
-            p2[i] = 2 * K[i+1] - p1[i+1];
-        }
-        
-        p2[n-1] = 0.5 * (K[n]+p1[n-1]);
-        
-        return {p1:p1, p2:p2};
-    }
-
-    linkPointerAreaPaint = (link, color, ctx, globalScale) => {
-        this.drawLink(link, ctx, globalScale, color)
-        if (this.props.bezierMode) {
-            this.drawNode(this.props.data.nodes.find(node => node.id === link.knot1), ctx, globalScale, color)
-            this.drawNode(this.props.data.nodes.find(node => node.id === link.knot2), ctx, globalScale, color)
-        }
-    }
-
-    nodePointerAreaPaint = (node, color, ctx, globalScale) => {
-        if (node.knot) {
-            if (this.props.bezierMode) {
-                const link = this.props.data.links.find(link => link.knot1 === node.id || link.knot2 === node.id);
-                this.drawKnot(ctx, link, node, color);
-            }
-        }
-    }
-
     /**
      * Draw links between nodes, both curved and straight.
      * @param {*} link link to draw
      * @param {*} ctx canvas to draw on
      * @param {*} globalScale zoom / scale of canvas 
      */
-    drawLinkOld = (link, ctx, globalScale) => {
+    drawLink = (link, ctx, globalScale) => {
         const data = this.props.data;
         // create array of edges that also link between source and target node (regardless of direction)
         const repeats = data.links.filter(
@@ -501,15 +343,7 @@ export class Graph extends Component {
      * @param {*} ctx canvas to draw on 
      * @param {*} globalScale zoom / scale of graph
      */
-    drawNode = (node, ctx, globalScale, pointerColor) => {
-        if (node.knot) {
-            if (this.props.bezierMode) {
-                this.drawKnot(ctx, this.props.data.links.find(link => link.id === node.linkID), node, pointerColor);
-            }
-            return;
-        }
-
-        ctx.lineWidth = 1;
+    drawNode = (node, ctx, globalScale) => {
         ctx.strokeStyle = node.color;
         ctx.beginPath();
         switch (node.shape) {
@@ -571,21 +405,6 @@ export class Graph extends Component {
         ctx.fillText(label, node.x, node.y);
     }
 
-    nodeDragEnd = (node, translate) => {
-        if (this.props.snapMode && node.knot === undefined) {
-            node.fx = Math.round(node.x / GRID_GAP) * GRID_GAP;
-            node.fy = Math.round(node.y / GRID_GAP) * GRID_GAP;
-            node.x = Math.round(node.x / GRID_GAP) * GRID_GAP;
-            node.y = Math.round(node.y / GRID_GAP) * GRID_GAP;
-        }
-
-        // if (node.knot) {
-        //     const link = this.props.data.links.find(link => link.knot1 === node.id || link.knot2 === node.id);
-        //     link.adjusted = true;
-        //     console.log('hit');
-        // }
-    }
-
     /**
      * Draws canvas.
      * @param {*} ctx canvas to draw on
@@ -595,7 +414,6 @@ export class Graph extends Component {
         if (this.props.snapMode) {
             const bh = 3 * Math.ceil(ctx.canvas.clientWidth / GRID_GAP) * GRID_GAP;
             const bw = 3 * Math.ceil(ctx.canvas.clientHeight / GRID_GAP) * GRID_GAP
-            ctx.lineWidth = 1;
             ctx.strokeStyle = "#b3b3b3";
 
             for (let x = -bw; x <= bw; x += GRID_GAP) {
@@ -616,29 +434,35 @@ export class Graph extends Component {
 
     render() {
         return (
-                <ForceGraph2D 
-                ref={this.ref}
-                id="graph" 
-                graphData={this.props.data}
-                nodeRelSize={this.props.data.nodeRadius}
-                nodeLabel=''
-                nodeAutoColorBy='group'
-                nodeCanvasObject={this.drawNode}
-                onNodeClick={this.props.shortcutLink}
-                // snap mode feature
-                onNodeDragEnd={this.nodeDragEnd}
-                linkCanvasObject={this.drawLink}
-                linkPointerAreaPaint={this.linkPointerAreaPaint}
-                cooldownTime={1000}
-                width={window.innerWidth >= CSS_BREAKPOINT ? window.innerWidth * WIDTH_RATIO : window.innerWidth}
-                height={window.innerWidth >= CSS_BREAKPOINT ? window.innerHeight : window.innerHeight * WIDTH_RATIO}
-                maxZoom={5}
-                minZoom={1}
-                onRenderFramePre={this.drawCanvas}
-                onEngineStop={() => {
-                    this.ref.current.d3ReheatSimulation();
-                }}
-                />
+            <ForceGraph2D 
+            ref={this.ref}
+            id="graph" 
+            graphData={this.props.data}
+            nodeRelSize={this.props.data.nodeRadius}
+            nodeLabel=''
+            nodeAutoColorBy='group'
+            nodeCanvasObject={this.drawNode}
+            onNodeClick={this.props.shortcutLink}
+            // snap mode feature
+            onNodeDragEnd={(node, translate) => {
+                if (this.props.snapMode) {
+                    node.fx = Math.round(node.x / GRID_GAP) * GRID_GAP;
+                    node.fy = Math.round(node.y / GRID_GAP) * GRID_GAP;
+                    node.x = Math.round(node.x / GRID_GAP) * GRID_GAP;
+                    node.y = Math.round(node.y / GRID_GAP) * GRID_GAP;
+                }
+            }}
+            onNodeHover={(node) => {document.body.style.cursor = (node === null ? "pointer" : "grab")}}
+            linkCanvasObject={this.drawLink}
+            cooldownTime={1000}
+            width={window.innerWidth >= CSS_BREAKPOINT ? window.innerWidth * WIDTH_RATIO : window.innerWidth}
+            height={window.innerWidth >= CSS_BREAKPOINT ? window.innerHeight : window.innerHeight * WIDTH_RATIO}
+            maxZoom={5}
+            minZoom={1}
+            onRenderFramePre={this.drawCanvas}
+            onMouseOver={() => {document.body.style.cursor = "pointer"}}
+            onMouseLeave={() => {document.body.style.cursor = "default"}}
+            />
             )
         }
     }

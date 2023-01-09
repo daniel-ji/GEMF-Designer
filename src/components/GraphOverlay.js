@@ -12,8 +12,6 @@ export class GraphOverlay extends Component {
         this.state = {
             // ruler / gridlines snap mode delay
             snapModeDelayed: false,
-            // adjustable bezier curves mode delay
-            bezierModeDelayed: false,
             // downloading graph as graphic
             downloading: false,
             downloadDelayed: false,
@@ -85,17 +83,6 @@ export class GraphOverlay extends Component {
     }
 
     /**
-     * Toggle adjustable bezier curves mode 
-     */
-    toggleBezierMode = () => {
-        if (!this.state.bezierModeDelayed) {
-            this.props.toggleBezierMode();
-            this.setState({bezierModeDelayed: true})
-            setTimeout(() => this.setState({bezierModeDelayed: false}), 100)
-        }
-    }
-
-    /**
      * Start download of graph as PNG / SVG. 
      * @param {*} fileType file type of graphic to download
      */
@@ -133,7 +120,6 @@ export class GraphOverlay extends Component {
                 </div>
                 <div className="graph-buttons">
                     <button className="btn btn-primary toggle-grid" onClick={this.toggleGrid}>Toggle Grid</button>
-                    <button className="btn btn-primary toggle-bezier" onClick={this.toggleBezierMode}>Toggle Custom Curves</button>
                     <button className="btn btn-primary auto-draw" onClick={this.props.autoDraw}>Auto-Draw</button>
                     <div className="dropdown">
                         <button className="btn btn-success download-graph" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -156,10 +142,8 @@ export class GraphOverlay extends Component {
                 data={this.props.data}
                 downloading={this.state.downloading}
                 snapMode={this.props.snapMode}
-                bezierMode={this.props.bezierMode}
                 shortcutLink={this.props.shortcutLink}
                 setModal={this.props.setModal}
-                setGraphData={this.props.setGraphData}
                 /> 
                 {this.props.graphUndo &&
                 <div className="alert alert-dark" id="undo-alert" role="alert" onMouseLeave={this.delayHideGraphUndo}>

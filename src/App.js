@@ -16,7 +16,7 @@ import {
     GRAPHVIZ_PARSE_DELAY, GRAPHVIZ_PARSE_RETRY_INTERVAL, STR_REGEX, INVALID_STR_FILE_ERROR,
     INVALID_STR_ENTRY_ERROR, INVALID_STR_SELF_LOOP_ERROR, INVALID_STR_NODE_NAME_ERROR,
     INVALID_STR_RATE_ERROR, CREATE_ENTRY_ID, GRAPHS_EQUAL, DEFAULT_GRAPH_DATA, UPDATE_DATA_DEL,
-    LINK_NODE_SELECT_IDS, GRID_GAP, CALCULATE_KNOT_OFFSET
+    LINK_NODE_SELECT_IDS, GRID_GAP
 } from './Constants';
 
 export class App extends Component {
@@ -43,8 +43,6 @@ export class App extends Component {
             selectedGraph: undefined,
             // ruler / gridlines alignment mode
             snapMode: true, 
-            // adjustable bezier curves mode
-            bezierMode: false, 
 
             /* FORM-RELATED DATA */
             // form step counter
@@ -297,12 +295,12 @@ export class App extends Component {
      * Automatically draw graph from current nodes / links.
      */
     autoDraw = () => {
-        const nodes = this.state.data.nodes.filter(node => node.knot === undefined);
+        const nodes = this.state.data.nodes;
         const links = this.state.data.links;
 
         if (nodes.length > 0) {
             // save node positions
-            this.setState({oldNodePos: nodes.map(node => {
+            this.setState({oldNodePos: this.state.data.nodes.map(node => {
                 return {
                     id: node.id,
                     x: node.x,
@@ -376,12 +374,12 @@ export class App extends Component {
 
     processSTR = (text, name, template = false, callback) => {
         const data = Object.assign({}, this.state.data);
-        const nodes = data.nodes.filter(node => node.knot === undefined);
+        const nodes = data.nodes;
         const links = data.links;
 
         let errors = [];            
-        let nodeID = data.nodes.length === 0 ? 
-            0 : Math.max(...data.nodes.map(node => parseInt(node.id))) + 1;
+        let nodeID = this.state.data.nodes.length === 0 ? 
+            0 : Math.max(...this.state.data.nodes.map(node => parseInt(node.id))) + 1;
 
         const newNodes = [];
         const newLinks = [];
@@ -453,6 +451,7 @@ export class App extends Component {
                         }
                     }
                 }
+                
                 
                 // add edge / node-based transition to links 
                 if (parsedSTR[i][2] === "None") {
@@ -555,7 +554,7 @@ export class App extends Component {
                 rankdir=LR;
                 ${dotLinkContent}
             }`}/>
-        }, () => setTimeout(() => this.parseGraphvizSVG(this.state.data.nodes.filter(node => node.knot === undefined), this.state.data.links, callback), GRAPHVIZ_PARSE_DELAY));
+        }, () => setTimeout(() => this.parseGraphvizSVG(this.state.data.nodes, this.state.data.links, callback), GRAPHVIZ_PARSE_DELAY));
     }
 
     /**
@@ -597,7 +596,7 @@ export class App extends Component {
             }
 
             if (this.state.snapMode) {
-                for (const node of data.nodes.filter(node => node.knot === undefined)) {
+                for (const node of data.nodes) {
                     node.fx = Math.round(node.x / GRID_GAP) * GRID_GAP;
                     node.fy = Math.round(node.y / GRID_GAP) * GRID_GAP;
                     node.x = Math.round(node.x / GRID_GAP) * GRID_GAP;
@@ -607,7 +606,7 @@ export class App extends Component {
 
             this.setGraphData(data, callback);
             this.setState({strGraphviz: undefined}, () => {
-                if (this.state.oldNodePos.length === this.state.data.nodes.filter(node => node.knot === undefined).length) {
+                if (this.state.oldNodePos.length === this.state.data.nodes.length) {
                     this.setState({graphUndo: true})
                 }
             });
@@ -634,10 +633,8 @@ export class App extends Component {
         }
         // delete links
         for (const linkID of entryData.links) {
-            const linkToDel = data.links.find(entry => entry.id === linkID);
-            if (linkToDel !== undefined) {
-                data.nodes = data.nodes.filter(node => node.id !== linkToDel.knot1 && node.id !== linkToDel.knot2);
-                UPDATE_DATA_DEL(linkToDel.order, data.links);
+            if (data.links.findIndex(entry => entry.id === linkID) !== -1) {
+                UPDATE_DATA_DEL(data.links.find(entry => entry.id === linkID).order, data.links);
                 data.links.splice(data.links.findIndex(entry => entry.id === linkID), 1);
             }
         }
@@ -671,30 +668,8 @@ export class App extends Component {
         })
     }
 
-    toggleSnapMode = (value) => {
-        this.setState(prevState => {return {snapMode: value ?? !prevState.snapMode}});
-    }
-
-    toggleBezierMode = (value) => {
-        this.setState(prevState => {return {bezierMode: value ?? !prevState.bezierMode}}, () => {
-            if (!this.state.bezierMode) {
-                const data = Object.assign({}, this.state.data);
-
-                for (const link of data.links) {
-                    const knot1 = data.nodes.find(node => node.id === link.knot1);
-                    const knot2 = data.nodes.find(node => node.id === link.knot2);
-                    const ratio = CALCULATE_KNOT_OFFSET(link, knot1, knot2, data);
-                    knot1.xOffset = ratio[0];
-                    knot1.yOffset = ratio[1];
-                    knot2.xOffset = ratio[2];
-                    knot2.yOffset = ratio[3];
-                }
-
-                this.setGraphData(data, () => {
-                    console.log(data);
-                });
-            }
-        });
+    toggleSnapMode = () => {
+        this.setState(prevState => {return {snapMode: !prevState.snapMode}});
     }
 
     /**
@@ -725,7 +700,6 @@ export class App extends Component {
             <GraphOverlay 
             forceCollideRadius={this.state.forceCollideRadius}
             data={this.state.data}
-            setGraphData={this.setGraphData}
             autoDraw={this.autoDraw}
             deleteGraphDataPrompt={this.deleteGraphDataPrompt}
             shortcutLink={this.shortcutLink}
@@ -735,8 +709,6 @@ export class App extends Component {
             undoGraph={this.undoGraph}
             snapMode={this.state.snapMode}
             toggleSnapMode={this.toggleSnapMode}
-            bezierMode={this.state.bezierMode}
-            toggleBezierMode={this.toggleBezierMode}
             />
             <Form
             data={this.state.data}

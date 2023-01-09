@@ -109,8 +109,7 @@ export class Form extends Component {
      * Proceed from node creation step, validates nodes. 
      */
     addNodesNext = () => {
-        const data = Object.assign({}, this.props.data);
-        data.nodes = data.nodes.filter(node => node.knot === undefined);
+        const data = this.props.data;
         // create empty set that will hold duplicate / empty nodes
         let badNodes = new Set();
         for (let i = 0; i < data.nodes.length; i++) {

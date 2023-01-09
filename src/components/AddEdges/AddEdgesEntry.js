@@ -207,8 +207,7 @@ export class AddEdgesEntry extends Component {
     }
 
     render() {
-        const data = Object.assign({}, this.props.data);
-        data.nodes = data.nodes.filter(node => node.knot === undefined);
+        const data = this.props.data;
         const link = this.props.link;
 
         return (
@@ -276,7 +275,6 @@ export class AddEdgesEntry extends Component {
                         disabled={!this.state.edit}>
                             {data.nodes.map(node => {
                                 return (
-                                    node.knot !== undefined ? '' :
                                     <option key={node.id} value={node.id} id={"target-node-" + node.id}>{node.name}</option>
                                 )
                             })}
@@ -294,7 +292,6 @@ export class AddEdgesEntry extends Component {
                             <option key={-1} value={-1} id={"inducer-node-none"}>None</option>
                             {data.nodes.map(node => {
                                 return (
-                                    node.knot !== undefined ? '' :
                                     <option key={node.id} value={node.id} id={"inducer-node-" + node.id}>{node.name}</option>
                                 )
                             })}

@@ -1,21 +1,13 @@
-bug testing!
-code documentation!
+bug testing
+code documentation
 
+link hitbox fix
 CUBIC BEZIER LINKS
-    #1 drawing STR imported links (exact replication will require rewriting of draw link code and node creation code)
-    #2 create toggle cubic edit links mode
-    #3 remove from graph when saving image (easily implemented after #2)
-    #5 refactor all code related to this
-    #4 drawing curves for repeats
-
 rectangle select multiple nodes
+better STR parsing
 Undo feature for STR import
 
 features to add:
 - Adjustable edge curves
     - probably have to make an "edge" into four nodes
     - learn some stuff about cubic beziers
-
-ensure data equal check is up-to-date
-
-adjustable edges: will have to store control points, not knots
