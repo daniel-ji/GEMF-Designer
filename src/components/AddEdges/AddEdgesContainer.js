@@ -6,7 +6,7 @@ import Sortable from 'sortablejs';
 
 import AddEdgesEntry from './AddEdgesEntry'
 
-import { CALCULATE_KNOT_POINT, CREATE_ENTRY_ID, LINK_NODE_SELECT_IDS, LINK_SHORT_NAME, UPDATE_DATA_DEL, UPDATE_DATA_ORDER } from '../../Constants';
+import { CALCULATE_KNOT_POINT_FROM_RATIO, CREATE_ENTRY_ID, LINK_NODE_SELECT_IDS, LINK_SHORT_NAME, UPDATE_DATA_DEL, UPDATE_DATA_ORDER } from '../../Constants';
 
 export class AddEdgesContainer extends Component {
     constructor(props) {
@@ -102,28 +102,29 @@ export class AddEdgesContainer extends Component {
         // if edge-based link doesn't exist already 
         if (!linkExists) {
             // add link 
+            const knot1Coords = CALCULATE_KNOT_POINT_FROM_RATIO(sourceID, targetID, this.props.data, 0.333);
             const knot1 = {
                 id: CREATE_ENTRY_ID(),
                 linkID: sourceID + "-" + targetID + 
                 (inducerID === -1 ? "" : "-" + inducerID),
                 knot: 1,
-                x: CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.333).x,
-                y: CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.333).y,
-                xRatio: 0.333,
-                yRatio: 0.333,
+                x: knot1Coords.x,
+                y: knot1Coords.y,
+                xOffset: knot1Coords.xOffset,
+                yOffset: knot1Coords.yOffset,
             }
 
-            console.log(CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.333).y)
-
+            // flip around since the offset should be from target
+            const knot2Coords = CALCULATE_KNOT_POINT_FROM_RATIO(targetID, sourceID, this.props.data, 0.333);
             const knot2 = {
                 id: CREATE_ENTRY_ID(),
                 linkID: sourceID + "-" + targetID + 
                 (inducerID === -1 ? "" : "-" + inducerID),
                 knot: 2,
-                x: CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.667).x,
-                y: CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.667).y,
-                xRatio: 0.667,
-                yRatio: 0.667,
+                x: knot2Coords.x,
+                y: knot2Coords.y,
+                xOffset: knot2Coords.xOffset,
+                yOffset: knot2Coords.yOffset,
             }
 
             data.nodes.push(knot1, knot2);

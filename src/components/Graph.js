@@ -10,7 +10,7 @@ import { saveAs } from 'file-saver';
 import C2S from '../Canvas2SVG';
 
 import { CSS_BREAKPOINT, GRAPHVIZ_PARSE_DELAY, NODE_TEXT_OVERFLOW, 
-    RATE_TEXT_OVERFLOW, WIDTH_RATIO, GRID_GAP, ARROW_SIZE, TO_RAD, KNOT_NODE_RATIO, CALCULATE_KNOT_POINT} from '../Constants';
+    RATE_TEXT_OVERFLOW, WIDTH_RATIO, GRID_GAP, ARROW_SIZE, TO_RAD, KNOT_NODE_RATIO, CALCULATE_KNOT_POINT, CALCULATE_KNOT_POINT_FROM_OFFSET} from '../Constants';
 
 export class Graph extends Component {
     constructor(props) {
@@ -250,12 +250,10 @@ export class Graph extends Component {
         const knot1 = data.nodes.find(node => node.id === link.knot1);
         const knot2 = data.nodes.find(node => node.id === link.knot2);
         if (!this.props.bezierMode) {
-            const knot1Coords = CALCULATE_KNOT_POINT(link.source.id, link.target.id, this.props.data, knot1.xRatio, knot1.yRatio);
-            const knot2Coords = CALCULATE_KNOT_POINT(link.source.id, link.target.id, this.props.data, knot2.xRatio, knot2.yRatio);
-            knot1.x = knot1Coords.x;
-            knot1.y = knot1Coords.y;
-            knot2.x = knot2Coords.x;
-            knot2.y = knot2Coords.y;
+            knot1.x = link.source.x + knot1.xOffset;
+            knot1.y = link.source.y + knot1.yOffset;
+            knot2.x = link.target.x + knot2.xOffset;
+            knot2.y = link.target.y + knot2.yOffset;
         }
         const points = [{x: scaledLink.sourceX, y: scaledLink.sourceY}, knot1, knot2, {x: scaledLink.targetX, y: scaledLink.targetY}];
 
@@ -300,7 +298,10 @@ export class Graph extends Component {
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.strokeStyle = pointerColor ?? link.color;
-        ctx.arc(knot.x, knot.y, this.props.data.nodeRadius * KNOT_NODE_RATIO * (pointerColor ? 2 : 1), 0, 2 * Math.PI);
+        ctx.arc(this.props.bezierMode ? knot.x : (knot.knot === 1 ? link.source.x : link.target.x) + knot.xOffset, 
+            this.props.bezierMode ? knot.y : (knot.knot === 1 ? link.source.y : link.target.y) + knot.yOffset, 
+            this.props.data.nodeRadius * KNOT_NODE_RATIO * (pointerColor ? 2 : 1),
+            0, 2 * Math.PI);
         ctx.stroke();
         ctx.fillStyle = pointerColor ?? "white";
         ctx.fill();

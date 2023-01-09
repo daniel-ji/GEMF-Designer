@@ -42,19 +42,17 @@ export const INVALID_STR_RATE_ERROR = 'Invalid rate. Please ensure numeric, non-
 export const TO_RAD = (deg) => {
     return deg * Math.PI / 180;
 }
-export const CALCULATE_KNOT_POINT = (sourceID, targetID, data, tx, ty = tx) => {
+export const CALCULATE_KNOT_POINT_FROM_RATIO = (sourceID, targetID, data, tx, ty = tx) => {
     const source = data.nodes.find(node => node.id === sourceID);
     const target = data.nodes.find(node => node.id === targetID);
-    return ({x: source.x * (1 - tx) + target.x * tx, y: source.y * (1 - ty) + target.y * ty})
+    return ({x: source.x * (1 - tx) + target.x * tx, y: source.y * (1 - ty) + target.y * ty, 
+        xOffset: source.x * -tx + target.x * tx, yOffset: source.y * -ty + target.y * ty})
 }
-export const CALCULATE_KNOT_RATIO = (link, knot1, knot2, data) => {
+
+export const CALCULATE_KNOT_OFFSET = (link, knot1, knot2, data) => {
     const source = data.nodes.find(node => node.id === link.source.id);
     const target = data.nodes.find(node => node.id === link.target.id);
-    const result = [(knot1.x - source.x) / (target.x - source.x), 
-    (knot1.y - source.y) / (target.y - source.y), 
-    (knot2.x - source.x) / (target.x - source.x), 
-    (knot2.y - source.y) / (target.y - source.y)];
-    return (result.map(ratio => isNaN(ratio) ? 0 : ratio))
+    return [knot1.x - source.x, knot1.y - source.y, knot2.x - target.x, knot2.y - target.y];
 }
 /**
  * Create shortened name from link object.

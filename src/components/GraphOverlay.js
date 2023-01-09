@@ -133,7 +133,7 @@ export class GraphOverlay extends Component {
                 </div>
                 <div className="graph-buttons">
                     <button className="btn btn-primary toggle-grid" onClick={this.toggleGrid}>Toggle Grid</button>
-                    {/* <button className="btn btn-primary toggle-bezier" onClick={this.toggleBezierMode}>Toggle Custom Curves</button> */}
+                    <button className="btn btn-primary toggle-bezier" onClick={this.toggleBezierMode}>Toggle Custom Curves</button>
                     <button className="btn btn-primary auto-draw" onClick={this.props.autoDraw}>Auto-Draw</button>
                     <div className="dropdown">
                         <button className="btn btn-success download-graph" type="button" data-bs-toggle="dropdown" aria-expanded="false">

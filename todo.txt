@@ -17,3 +17,5 @@ features to add:
     - learn some stuff about cubic beziers
 
 ensure data equal check is up-to-date
+
+adjustable edges: will have to store control points, not knots

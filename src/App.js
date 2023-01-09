@@ -16,7 +16,7 @@ import {
     GRAPHVIZ_PARSE_DELAY, GRAPHVIZ_PARSE_RETRY_INTERVAL, STR_REGEX, INVALID_STR_FILE_ERROR,
     INVALID_STR_ENTRY_ERROR, INVALID_STR_SELF_LOOP_ERROR, INVALID_STR_NODE_NAME_ERROR,
     INVALID_STR_RATE_ERROR, CREATE_ENTRY_ID, GRAPHS_EQUAL, DEFAULT_GRAPH_DATA, UPDATE_DATA_DEL,
-    LINK_NODE_SELECT_IDS, GRID_GAP, CALCULATE_KNOT_RATIO
+    LINK_NODE_SELECT_IDS, GRID_GAP, CALCULATE_KNOT_OFFSET
 } from './Constants';
 
 export class App extends Component {
@@ -683,11 +683,11 @@ export class App extends Component {
                 for (const link of data.links) {
                     const knot1 = data.nodes.find(node => node.id === link.knot1);
                     const knot2 = data.nodes.find(node => node.id === link.knot2);
-                    const ratio = CALCULATE_KNOT_RATIO(link, knot1, knot2, data);
-                    knot1.xRatio = ratio[0];
-                    knot1.yRatio = ratio[1];
-                    knot2.xRatio = ratio[2];
-                    knot2.yRatio = ratio[3];
+                    const ratio = CALCULATE_KNOT_OFFSET(link, knot1, knot2, data);
+                    knot1.xOffset = ratio[0];
+                    knot1.yOffset = ratio[1];
+                    knot2.xOffset = ratio[2];
+                    knot2.yOffset = ratio[3];
                 }
 
                 this.setGraphData(data, () => {
