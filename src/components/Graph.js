@@ -174,7 +174,6 @@ export class Graph extends Component {
                 aDX = Math.abs(dX);
             }
 
-
             switch (shape) {
                 case 'hexagon': 
                     result = 1.06 * this.props.data.nodeRadius;
@@ -368,6 +367,15 @@ export class Graph extends Component {
         if (this.props.bezierMode) {
             this.drawNode(this.props.data.nodes.find(node => node.id === link.knot1), ctx, globalScale, color)
             this.drawNode(this.props.data.nodes.find(node => node.id === link.knot2), ctx, globalScale, color)
+        }
+    }
+
+    nodePointerAreaPaint = (node, color, ctx, globalScale) => {
+        if (node.knot) {
+            if (this.props.bezierMode) {
+                const link = this.props.data.links.find(link => link.knot1 === node.id || link.knot2 === node.id);
+                this.drawKnot(ctx, link, node, color);
+            }
         }
     }
 
@@ -569,6 +577,12 @@ export class Graph extends Component {
             node.x = Math.round(node.x / GRID_GAP) * GRID_GAP;
             node.y = Math.round(node.y / GRID_GAP) * GRID_GAP;
         }
+
+        // if (node.knot) {
+        //     const link = this.props.data.links.find(link => link.knot1 === node.id || link.knot2 === node.id);
+        //     link.adjusted = true;
+        //     console.log('hit');
+        // }
     }
 
     /**

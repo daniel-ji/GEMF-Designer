@@ -113,6 +113,8 @@ export class AddEdgesContainer extends Component {
                 yRatio: 0.333,
             }
 
+            console.log(CALCULATE_KNOT_POINT(sourceID, targetID, this.props.data, 0.333).y)
+
             const knot2 = {
                 id: CREATE_ENTRY_ID(),
                 linkID: sourceID + "-" + targetID + 
@@ -136,7 +138,8 @@ export class AddEdgesContainer extends Component {
                 color: this.props.data.defaultEdgeColor,
                 order: this.props.data.links.length,
                 knot1: knot1.id,
-                knot2: knot2.id
+                knot2: knot2.id,
+                adjusted: false,
             }
             
             newLink.shortName = LINK_SHORT_NAME(newLink, data);

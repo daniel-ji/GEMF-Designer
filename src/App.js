@@ -683,14 +683,16 @@ export class App extends Component {
                 for (const link of data.links) {
                     const knot1 = data.nodes.find(node => node.id === link.knot1);
                     const knot2 = data.nodes.find(node => node.id === link.knot2);
-                    const knotRatio = CALCULATE_KNOT_RATIO(link, knot1, knot2, data)
-                    knot1.xRatio = knotRatio.knot1.x;
-                    knot1.yRatio = knotRatio.knot1.y;
-                    knot2.xRatio = knotRatio.knot2.x;
-                    knot2.yRatio = knotRatio.knot2.y;
+                    const ratio = CALCULATE_KNOT_RATIO(link, knot1, knot2, data);
+                    knot1.xRatio = ratio[0];
+                    knot1.yRatio = ratio[1];
+                    knot2.xRatio = ratio[2];
+                    knot2.yRatio = ratio[3];
                 }
 
-                this.setGraphData(data);
+                this.setGraphData(data, () => {
+                    console.log(data);
+                });
             }
         });
     }
