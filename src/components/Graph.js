@@ -202,7 +202,7 @@ export class Graph extends Component {
      * @param {*} x2 end x coordinate (the end that the arrow gets drawn on)
      * @param {*} y2 end y coordinate (the end that the arrow gets drawn on)
      */
-    drawArrow = (ctx, x1, y1, x2, y2, link) => {
+    drawArrow = (ctx, x1, y1, x2, y2, link, color) => {
         const adx = x2 - x1;           // arrow dx
         const ady = y2 - y1;           // arrow dy
         const dist = Math.sqrt(adx * adx + ady * ady);
@@ -217,10 +217,15 @@ export class Graph extends Component {
         ctx.lineTo(arrowBaseX - 0.5 * tdy, arrowBaseY + 0.5 * tdx);
         ctx.lineTo(x2, y2);
         ctx.closePath();
+        ctx.strokeStyle = color ?? ctx.strokeStyle;
         ctx.stroke();
-        ctx.fillStyle = link.color;
+        ctx.fillStyle = color ?? link.color;
         ctx.fill();
     };
+
+    linkPointerAreaPaint = (link, color, ctx, globalScale) => {
+        this.drawLink(link, ctx, globalScale, color);
+    }
 
     /**
      * Draw links between nodes, both curved and straight.
@@ -228,7 +233,7 @@ export class Graph extends Component {
      * @param {*} ctx canvas to draw on
      * @param {*} globalScale zoom / scale of canvas 
      */
-    drawLink = (link, ctx, globalScale) => {
+    drawLink = (link, ctx, globalScale, color) => {
         const data = this.props.data;
         // create array of edges that also link between source and target node (regardless of direction)
         const repeats = data.links.filter(
@@ -256,7 +261,7 @@ export class Graph extends Component {
         if (repeats.length === 1) {
             ctx.beginPath();
             ctx.lineWidth = 1;
-            ctx.strokeStyle = link.color;
+            ctx.strokeStyle = color ?? link.color;
             // add a bit of a stub for source if hexagon / pentagon since scaledLink is eyeballed  
             let stubX = 0;
             let stubY = 0;
@@ -267,7 +272,7 @@ export class Graph extends Component {
             ctx.moveTo(scaledLink.sourceX + stubX, scaledLink.sourceY + stubY);
             ctx.lineTo(scaledLink.targetX, scaledLink.targetY);
             ctx.stroke();
-            this.drawArrow(ctx, scaledLink.sourceX, scaledLink.sourceY, scaledLink.sourceX + x99, scaledLink.sourceY + y99, link);
+            this.drawArrow(ctx, scaledLink.sourceX, scaledLink.sourceY, scaledLink.sourceX + x99, scaledLink.sourceY + y99, link, color);
         // curved edge
         } else {
             // vertical height of edge based on distance and repeatedness of edge
@@ -297,7 +302,7 @@ export class Graph extends Component {
             ctx.beginPath();
             ctx.lineWidth = 1;
             // draw arc
-            ctx.strokeStyle = link.color;
+            ctx.strokeStyle = color ?? link.color;
             ctx.arc(fitCircle.x, fitCircle.y, fitCircle.radius, ang1, ang2, fitCircle.CCW);
             ctx.stroke();
 
@@ -315,19 +320,19 @@ export class Graph extends Component {
             const arrdfy = arrdfx * prm
             const arrfx = arrdfx + scaledLink.targetX
             const arrfy = arrdfy + scaledLink.targetY
-            this.drawArrow(ctx, arrfx, arrfy, scaledLink.targetX, scaledLink.targetY, link);
+            this.drawArrow(ctx, arrfx, arrfy, scaledLink.targetX, scaledLink.targetY, link, color);
         }
 
         // draw rate label circle
         ctx.beginPath();
         ctx.lineWidth = 2;
-        ctx.strokeStyle = link.color;
+        ctx.strokeStyle = color ?? link.color;
         ctx.arc(arcMx, arcMy, this.props.data.linkRadius, 0, 2 * Math.PI);
         ctx.stroke();
-        ctx.strokeStyle = link.color;
-        ctx.fillStyle = "white";
+        ctx.strokeStyle = color ?? link.color;
+        ctx.fillStyle = color ?? "white";
         ctx.fill();
-        ctx.fillStyle = "black";
+        ctx.fillStyle = color ?? "black";
         let adjustedRateFontSize = this.props.data.linkRadius / 2;
         const rateText = (link.rate === undefined ? "" : link.rate) + (link.inducer === undefined ? "" : ("," + data.nodes.find(node => node.id === link.inducer).name));
         if (rateText.length > RATE_TEXT_OVERFLOW) {
@@ -432,6 +437,15 @@ export class Graph extends Component {
         }
     }
 
+    nodeDragEnd = (node, translate) => {
+        if (this.props.snapMode) {
+            node.fx = Math.round(node.x / GRID_GAP) * GRID_GAP;
+            node.fy = Math.round(node.y / GRID_GAP) * GRID_GAP;
+            node.x = Math.round(node.x / GRID_GAP) * GRID_GAP;
+            node.y = Math.round(node.y / GRID_GAP) * GRID_GAP;
+        }
+    }
+
     render() {
         return (
             <ForceGraph2D 
@@ -444,16 +458,11 @@ export class Graph extends Component {
             nodeCanvasObject={this.drawNode}
             onNodeClick={this.props.shortcutLink}
             // snap mode feature
-            onNodeDragEnd={(node, translate) => {
-                if (this.props.snapMode) {
-                    node.fx = Math.round(node.x / GRID_GAP) * GRID_GAP;
-                    node.fy = Math.round(node.y / GRID_GAP) * GRID_GAP;
-                    node.x = Math.round(node.x / GRID_GAP) * GRID_GAP;
-                    node.y = Math.round(node.y / GRID_GAP) * GRID_GAP;
-                }
-            }}
+            onNodeDragEnd={this.nodeDragEnd}
             onNodeHover={(node) => {document.body.style.cursor = (node === null ? "pointer" : "grab")}}
             linkCanvasObject={this.drawLink}
+            linkPointerAreaPaint={this.linkPointerAreaPaint}
+            onLinkClick={() => console.log('hit')}
             cooldownTime={1000}
             width={window.innerWidth >= CSS_BREAKPOINT ? window.innerWidth * WIDTH_RATIO : window.innerWidth}
             height={window.innerWidth >= CSS_BREAKPOINT ? window.innerHeight : window.innerHeight * WIDTH_RATIO}
