@@ -16,6 +16,12 @@ export class Graph extends Component {
     constructor(props) {
         super(props)
 
+        this.state = {
+            multiSelectCorner1: undefined,
+            multiSelectCorner2: undefined,
+            zoomCoords: {x: 0, y: 0, k: 0},
+        }
+
         this.ref = React.createRef();
     }
 
@@ -28,6 +34,9 @@ export class Graph extends Component {
         this.ref.current.d3Force('collide', forceCollide(this.props.forceCollideRadius))
         this.ref.current.d3Force('link', null)
         this.ref.current.zoomToFit(0, 50);
+        
+        const canvas = document.getElementsByClassName("force-graph-container")[0].firstChild;
+        this.setState({zoomCoords: canvas.getContext('2d').canvas.__zoom});
     }
 
     /**
@@ -55,7 +64,7 @@ export class Graph extends Component {
 
         window.onresize = (e) => {
             this.forceUpdate();
-            this.ref.current.resumeAnimation();
+            this.ref.current.d3ReheatSimulation();
         }
     }
 
@@ -435,6 +444,36 @@ export class Graph extends Component {
                 ctx.stroke();
             }
         }
+
+        if (this.state.multiSelectCorner1) {
+            ctx.beginPath();
+            ctx.strokeStyle = "#0B5ED7";
+            ctx.fillStyle = "#0B5ED7";
+            ctx.arc(this.state.multiSelectCorner1.x, this.state.multiSelectCorner1.y, 1.5, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.fill();
+        }
+
+        if (this.state.multiSelectCorner2) {
+            ctx.beginPath();
+            ctx.strokeStyle = "#0B5ED7";
+            ctx.fillStyle = "#0B5ED7";
+            ctx.arc(this.state.multiSelectCorner2.x, this.state.multiSelectCorner2.y, 1.5, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.fill();
+
+            ctx.beginPath();
+            const width = this.state.multiSelectCorner2.x - this.state.multiSelectCorner1.x;
+            const height = this.state.multiSelectCorner2.y - this.state.multiSelectCorner1.y;
+            ctx.rect(this.state.multiSelectCorner1.x, this.state.multiSelectCorner1.y, width, height)
+            ctx.stroke();
+
+            if (this.state.zoomCoords.x !== ctx.canvas.__zoom.x && this.state.zoomCoords.y !== ctx.canvas.__zoom.y && this.state.zoomCoords.k === ctx.canvas.__zoom.k) {
+                this.setState({zoomCoords: ctx.canvas.__zoom}, () => {
+                    console.log('ooga')
+                })
+            }
+        }
     }
 
     nodeDragEnd = (node, translate) => {
@@ -444,6 +483,20 @@ export class Graph extends Component {
             node.x = Math.round(node.x / GRID_GAP) * GRID_GAP;
             node.y = Math.round(node.y / GRID_GAP) * GRID_GAP;
         }
+    }
+
+    backgroundRightClick = (event) => {
+        // no corners created
+        if (!this.state.multiSelectCorner1) {
+            this.setState({multiSelectCorner1: this.ref.current.screen2GraphCoords(event.offsetX, event.offsetY)})
+        // one corner created
+        } else if (this.state.multiSelectCorner1 && !this.state.multiSelectCorner2) {
+            this.setState({multiSelectCorner2: this.ref.current.screen2GraphCoords(event.offsetX, event.offsetY)})
+        // both corners created
+        } else if (this.state.multiSelectCorner1 && this.state.multiSelectCorner2) {
+            this.setState({multiSelectCorner1: undefined, multiSelectCorner2: undefined})
+        }
+        this.ref.current.d3ReheatSimulation();
     }
 
     render() {
@@ -461,7 +514,8 @@ export class Graph extends Component {
             onNodeDragEnd={this.nodeDragEnd}
             linkCanvasObject={this.drawLink}
             linkPointerAreaPaint={this.linkPointerAreaPaint}
-            onLinkClick={() => console.log('hit')}
+            onLinkRightClick={this.linkRightClick}
+            onBackgroundRightClick={this.backgroundRightClick}
             cooldownTime={1000}
             width={window.innerWidth >= CSS_BREAKPOINT ? window.innerWidth * WIDTH_RATIO : window.innerWidth}
             height={window.innerWidth >= CSS_BREAKPOINT ? window.innerHeight : window.innerHeight * WIDTH_RATIO}
