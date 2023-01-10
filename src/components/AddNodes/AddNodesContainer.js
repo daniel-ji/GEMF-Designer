@@ -175,7 +175,7 @@ export class AddNodesContainer extends Component {
                         </div>
                     </div>
                     <button className="btn btn-outline-danger mb-4 ms-3" type="button" onClick={this.resetShapePrompt}>
-                        Reset Nodes to Default Shape 
+                        Reset States to Default Shape 
                     </button>
                 </div>
                 <div className="d-flex justify-content-between">
@@ -195,7 +195,7 @@ export class AddNodesContainer extends Component {
                         </div>
                     </div>
                     <button className="btn btn-outline-danger mb-5 ms-3" type="button" onClick={this.resetColorPrompt}>
-                        Reset Nodes to Default Color
+                        Reset States to Default Color
                     </button>
                 </div>
                 <div id="node-inputs">

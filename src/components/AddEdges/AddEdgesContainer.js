@@ -289,10 +289,10 @@ export class AddEdgesContainer extends Component {
                         </div>
                     </div>
                     <button className="btn btn-outline-danger mb-4 ms-3" type="button" onClick={this.resetColorPrompt}>
-                        Reset Links to Default Color
+                        Reset Transitions to Default Color
                     </button>
                 </div>
-                <p>Select Source Node</p>
+                <p>Select Source State</p>
                 <select
                 className="form-select main-node-select"
                 aria-label="Select Source Node"
@@ -303,10 +303,10 @@ export class AddEdgesContainer extends Component {
                         )
                     })}
                 </select>
-                <p>Select Target Node</p>
+                <p>Select Target State</p>
                 <select
                 className="form-select main-node-select"
-                aria-label="Select Target Node"
+                aria-label="Select Target State"
                 id={LINK_NODE_SELECT_IDS[1]}>
                     {data.nodes.map(node => {
                         return (
@@ -314,10 +314,10 @@ export class AddEdgesContainer extends Component {
                         )
                     })}
                 </select>
-                <p>Select Inducer Node</p>
+                <p>Select Inducer State</p>
                 <select
                 className="form-select main-node-select"
-                aria-label="Select Inducer Node"
+                aria-label="Select Inducer State"
                 id={LINK_NODE_SELECT_IDS[2]}>
                     <option key={-1} value={-1} id={"select-inducer-none"}>None</option>
                     {data.nodes.map(node => {
@@ -340,7 +340,7 @@ export class AddEdgesContainer extends Component {
                     style={{width: "30%"}} 
                     onClick={this.addEdge}>Add</button>
                 </div>
-                <button className="btn btn-danger mt-4 mb-4" onClick={this.deleteAllPrompt}>Delete All Links</button>
+                <button className="btn btn-danger mt-4 mb-4" onClick={this.deleteAllPrompt}>Delete All Transitions</button>
                 <div id="linkEntries">
                     {this.state.edgeEntries}
                 </div>

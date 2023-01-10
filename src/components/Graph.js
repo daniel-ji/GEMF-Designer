@@ -459,7 +459,6 @@ export class Graph extends Component {
             onNodeClick={this.props.shortcutLink}
             // snap mode feature
             onNodeDragEnd={this.nodeDragEnd}
-            onNodeHover={(node) => {document.body.style.cursor = (node === null ? "pointer" : "grab")}}
             linkCanvasObject={this.drawLink}
             linkPointerAreaPaint={this.linkPointerAreaPaint}
             onLinkClick={() => console.log('hit')}
@@ -469,8 +468,6 @@ export class Graph extends Component {
             maxZoom={5}
             minZoom={1}
             onRenderFramePre={this.drawCanvas}
-            onMouseOver={() => {document.body.style.cursor = "pointer"}}
-            onMouseLeave={() => {document.body.style.cursor = "default"}}
             />
             )
         }

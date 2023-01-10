@@ -12,13 +12,13 @@ export class Welcome extends Component {
                 <li>Create new or select existing graph</li>
                 <li>Import existing STR (optional)
                     <ul>
-                        <li>Only imports new nodes</li>
-                        <li>Overrides existing links</li>
+                        <li>Only imports new states</li>
+                        <li>Overrides existing transitions</li>
                     </ul>
                 </li>
                 <li>Add states (nodes)</li>
                 <li>Add transitions (either edge-based and node-based)</li>
-                <li>Adjust nodes and edges through graph or auto-format feature</li>
+                <li>Adjust states and transitions through graph or auto-format feature</li>
                 <li>Download finished STR file</li>
             </ul>
             <h6>Graph Shortcuts (after creating nodes & while hovering over graph): </h6>

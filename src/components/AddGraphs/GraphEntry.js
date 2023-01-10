@@ -122,20 +122,20 @@ export class GraphEntry extends Component {
                     <div className="card card-body d-flex w-100 str-collapse">
                         <div>
                             {data.lastModified !== undefined && <h6>Last Modified: {new Date(data.lastModified).toLocaleString()}</h6>}
-                            <h6 className="mb-3">Graph Nodes: </h6>
+                            <h6 className="mb-3">Graph States: </h6>
                             <ul className="list-group">
                                 {data.nodes.length === 0 ? 
-                                <li className="list-group-item">No Nodes</li> : 
+                                <li className="list-group-item">No States</li> : 
                                 data.nodes.map(node => {
                                     return <li key={node.id} className="list-group-item">{node.name}</li>;
                                 })}
                             </ul>
                         </div>
                         <div>
-                            <h6 className="my-3">Graph Links: </h6>
+                            <h6 className="my-3">Graph Transitions: </h6>
                             <ul className="list-group">
                                 {data.links.length === 0 ? 
-                                <li className="list-group-item">No Links</li> : 
+                                <li className="list-group-item">No Transitions</li> : 
                                 data.links.map(link => {
                                     return <li key={link.id} className="list-group-item">{LINK_SHORT_NAME(link, data)}</li>;
                                 })}

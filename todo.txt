@@ -1,13 +1,5 @@
 bug testing
 code documentation
 
-link hitbox fix
-CUBIC BEZIER LINKS
-rectangle select multiple nodes
-better STR parsing
-Undo feature for STR import
-
-features to add:
-- Adjustable edge curves
-    - probably have to make an "edge" into four nodes
-    - learn some stuff about cubic beziers
+dont edit current str
+multi select and move

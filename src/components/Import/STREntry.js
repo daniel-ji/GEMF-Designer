@@ -114,7 +114,7 @@ export class STREntry extends Component {
                 id={"collapseWidth-" + entry.id}>
                     <div className={`card card-body d-flex w-100 str-collapse ${this.state.show ? "link-show" : ""}`}>
                         <div>
-                            <h6 className="mb-3">Imported Nodes: </h6>
+                            <h6 className="mb-3">Imported States: </h6>
                             <ul className="list-group">
                                 {entry.nodes.map(nodeID => {
                                     const node = data.nodes.find(node => node.id === nodeID);
@@ -126,7 +126,7 @@ export class STREntry extends Component {
                             </ul>
                         </div>
                         <div>
-                            <h6 className="my-3">Imported Links: </h6>
+                            <h6 className="my-3">Imported Transitions: </h6>
                             <ul className="list-group">
                                 {entry.links.map(linkID => {
                                     const link = data.links.find(link => link.id === linkID);

@@ -374,6 +374,7 @@ export class App extends Component {
 
     processSTR = (text, name, template = false, callback) => {
         const data = Object.assign({}, this.state.data);
+        template = template ? data.STRTemplates.find(template => template.name === name) : undefined;
         const nodes = data.nodes;
         const links = data.links;
 
@@ -509,9 +510,17 @@ export class App extends Component {
                 `${getNode(link.source).name} -> ${getNode(link.target).name} [label = "${(link.inducer !== undefined ? getNode(link.inducer).name + ", " : "") + link.rate}"];\n`;
         }
 
+        // set infected states
+        if (template) {
+            for (const infectedState of template.infectedStates) {
+                const node = data.nodes.find(node => node.name === infectedState);
+                node.infected = true;
+            }
+        }
+
         // add data to strdata
         data.STRData = [...data.STRData, {
-            id: template ? this.state.data.STRTemplates.find(template => template.name === name).id
+            id: template ? template.id
                 : CREATE_ENTRY_ID(),
             nodes: newNodes.map(node => node.id),
             links: newLinks.map(link => link.id),

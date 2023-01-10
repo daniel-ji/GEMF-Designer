@@ -219,7 +219,7 @@ export class AddEdgesEntry extends Component {
                         className="btn btn-primary mb-3 w-100"
                         onClick={this.toggleShowEntry}
                         >
-                            Transition {link.shortName} &nbsp;<i className={`bi bi-caret-${this.state.show ? 'up' : 'down'}-fill`} />
+                            {link.shortName} &nbsp;<i className={`bi bi-caret-${this.state.show ? 'up' : 'down'}-fill`} />
                         </button>
                     </div>
                     {this.state.edit && 

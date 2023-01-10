@@ -78,7 +78,7 @@ export class STRTemplate extends Component {
                 id={"collapseWidth-" + this.props.template.id}>
                     <div className={`card card-body d-flex w-100 str-collapse ${this.state.show ? "link-show" : ""}`}>
                         <div>
-                            <h6 className="mb-3">Imported Nodes: </h6>
+                            <h6 className="mb-3">Imported States: </h6>
                             <ul className="list-group">
                                 {this.state.newNodes.map(nodeName => {
                                     return <li key={nodeName} className="list-group-item">{nodeName}</li>;
@@ -86,7 +86,7 @@ export class STRTemplate extends Component {
                             </ul>
                         </div>
                         <div>
-                            <h6 className="my-3">Imported Links: </h6>
+                            <h6 className="my-3">Imported Transitions: </h6>
                             <ul className="list-group">
                                 {this.state.parsedSTR.map(link => {
                                         return (link.length === 4 ?
