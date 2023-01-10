@@ -2,4 +2,3 @@ bug testing
 code documentation
 
 dont edit current str
-multi select and move

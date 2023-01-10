@@ -17,9 +17,17 @@ export class Graph extends Component {
         super(props)
 
         this.state = {
+            // corner of multi select rectangle
             multiSelectCorner1: undefined,
             multiSelectCorner2: undefined,
-            zoomCoords: {x: 0, y: 0, k: 0},
+            // to help store original position and translate the box on user drag 
+            multiSelectCorner1Old: undefined,
+            multiSelectCorner2Old: undefined,
+            // initial position of mouse click, for user drag interaction
+            multiTranslateX0: undefined,
+            multiTranslateY0: undefined, 
+            // original nodes that were in the multi select square and their positions
+            multiOldNodes: undefined,
         }
 
         this.ref = React.createRef();
@@ -35,8 +43,19 @@ export class Graph extends Component {
         this.ref.current.d3Force('link', null)
         this.ref.current.zoomToFit(0, 50);
         
-        const canvas = document.getElementsByClassName("force-graph-container")[0].firstChild;
-        this.setState({zoomCoords: canvas.getContext('2d').canvas.__zoom});
+        // For when the user finishes dragging the multi-select box
+        window.addEventListener('mouseup', (e) => {
+            if (this.state.multiSelectCorner2) {
+                const oldNodes = this.props.data.nodes.filter(node => this.nodeWithinRect(node, this.state.multiSelectCorner1, this.state.multiSelectCorner2) && this.state.multiOldNodes.find(entry => entry.id === node.id));
+                this.setState({
+                    multiTranslateX0: undefined, 
+                    multiTranslateY0: undefined, 
+                    multiSelectCorner1Old: this.state.multiSelectCorner1, 
+                    multiSelectCorner2Old: this.state.multiSelectCorner2,
+                    multiOldNodes: JSON.parse(JSON.stringify(oldNodes))
+                });
+            }
+        }, true)
     }
 
     /**
@@ -467,16 +486,17 @@ export class Graph extends Component {
             const height = this.state.multiSelectCorner2.y - this.state.multiSelectCorner1.y;
             ctx.rect(this.state.multiSelectCorner1.x, this.state.multiSelectCorner1.y, width, height)
             ctx.stroke();
-
-            if (this.state.zoomCoords.x !== ctx.canvas.__zoom.x && this.state.zoomCoords.y !== ctx.canvas.__zoom.y && this.state.zoomCoords.k === ctx.canvas.__zoom.k) {
-                this.setState({zoomCoords: ctx.canvas.__zoom}, () => {
-                    console.log('ooga')
-                })
-            }
         }
     }
 
+    /**
+     * Handles when node drag ends.
+     * 
+     * @param {*} node node that was finished dragging
+     * @param {*} translate distance translated
+     */
     nodeDragEnd = (node, translate) => {
+        // snap to gridlines
         if (this.props.snapMode) {
             node.fx = Math.round(node.x / GRID_GAP) * GRID_GAP;
             node.fy = Math.round(node.y / GRID_GAP) * GRID_GAP;
@@ -485,44 +505,140 @@ export class Graph extends Component {
         }
     }
 
+    /**
+     * Handle graph background right click. Multi-select feature.
+     * 
+     * @param {*} event click event
+     */
     backgroundRightClick = (event) => {
-        // no corners created
+        // no corners created, so create one corner
         if (!this.state.multiSelectCorner1) {
-            this.setState({multiSelectCorner1: this.ref.current.screen2GraphCoords(event.offsetX, event.offsetY)})
-        // one corner created
+            this.setState({
+                multiSelectCorner1: this.ref.current.screen2GraphCoords(event.offsetX, event.offsetY), 
+                multiSelectCorner1Old: this.ref.current.screen2GraphCoords(event.offsetX, event.offsetY)
+            })
+        // one corner created, so create second corner and initialize original positions and values
         } else if (this.state.multiSelectCorner1 && !this.state.multiSelectCorner2) {
-            this.setState({multiSelectCorner2: this.ref.current.screen2GraphCoords(event.offsetX, event.offsetY)})
-        // both corners created
+            this.setState({
+                multiSelectCorner2: this.ref.current.screen2GraphCoords(event.offsetX, event.offsetY), 
+                multiSelectCorner2Old: this.ref.current.screen2GraphCoords(event.offsetX, event.offsetY)
+            }, () => {
+                const oldNodes = this.props.data.nodes.filter(node => this.nodeWithinRect(node, this.state.multiSelectCorner1, this.state.multiSelectCorner2));
+                this.setState({multiOldNodes: JSON.parse(JSON.stringify(oldNodes))})
+            })
+        // both corners created, so delete both of them (cancel multi-select)
         } else if (this.state.multiSelectCorner1 && this.state.multiSelectCorner2) {
-            this.setState({multiSelectCorner1: undefined, multiSelectCorner2: undefined})
+            this.setState({multiSelectCorner1: undefined, multiSelectCorner2: undefined, multiSelectCorner1Old: undefined, multiSelectCorner2Old: undefined, 
+            multiOldNodes: undefined})
         }
         this.ref.current.d3ReheatSimulation();
     }
 
+    /**
+     * Checks if node is within rectangle of two corners.
+     * 
+     * @param {*} node node object
+     * @param {*} corner1 a point object w/ values x and y, representing one of the rectangle's corners
+     * @param {*} corner2 another point object
+     * 
+     * @returns if node is within rectangle, with a bit of a buffer
+     */
+    nodeWithinRect = (node, corner1, corner2) => {
+        const upperXBound = Math.max(corner1.x, corner2.x);
+        const lowerXBound = Math.min(corner1.x, corner2.x);
+        const upperYBound = Math.max(corner1.y, corner2.y);
+        const lowerYBound = Math.min(corner1.y, corner2.y);
+        if (node.x + 1.25 * this.props.data.nodeRadius >= lowerXBound && node.x - 1.25 * this.props.data.nodeRadius <= upperXBound && 
+            node.y + 1.25 * this.props.data.nodeRadius >= lowerYBound && node.y - 1.25 * this.props.data.nodeRadius <= upperYBound) {
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Handles when the mouse is pressed down on the graph. For multi-select feature.
+     * @param {*} event mousedown event
+     */
+    mouseDown = (event) => {
+        // initialize original values used in drag translation if multi-select feature is on and user clicked within the multi-select rectangle
+        if (this.state.multiSelectCorner2) {
+            const clickCoords = this.ref.current.screen2GraphCoords(event.clientX, event.clientY);
+            const upperXBound = Math.max(this.state.multiSelectCorner1.x, this.state.multiSelectCorner2.x);
+            const lowerXBound = Math.min(this.state.multiSelectCorner1.x, this.state.multiSelectCorner2.x);
+            const upperYBound = Math.max(this.state.multiSelectCorner1.y, this.state.multiSelectCorner2.y);
+            const lowerYBound = Math.min(this.state.multiSelectCorner1.y, this.state.multiSelectCorner2.y);
+            if (clickCoords.x >= lowerXBound && clickCoords.x <= upperXBound && clickCoords.y >= lowerYBound && clickCoords.y <= upperYBound) {
+                this.setState({multiTranslateX0: clickCoords.x, multiTranslateY0: clickCoords.y})
+            }
+        }
+    }
+
+    /**
+     * Handles when mouse is moved. For multi-select feature.
+     * @param {*} event mousemove event
+     */
+    mouseMove = (event) => {
+        // checks if multi-select dragging
+        if (this.state.multiSelectCorner2 && this.state.multiTranslateX0) {
+            const moveCoords = this.ref.current.screen2GraphCoords(event.clientX, event.clientY);
+            const data = Object.assign({}, this.props.data);
+            // adjusts the position of original nodes within multi-select rectangle
+            for (const node of data.nodes) {
+                if (this.nodeWithinRect(node, this.state.multiSelectCorner1, this.state.multiSelectCorner2)) {
+                    const oldNode = this.state.multiOldNodes.find(entry => entry.id === node.id);
+                    if (oldNode) {
+                        node.fx = oldNode.x + moveCoords.x - this.state.multiTranslateX0;
+                        node.fy = oldNode.y + moveCoords.y - this.state.multiTranslateY0;
+                        node.x = oldNode.x + moveCoords.x - this.state.multiTranslateX0;
+                        node.y = oldNode.y + moveCoords.y - this.state.multiTranslateY0;
+                    }
+                }
+            }
+            // translates multi-select rectangle as well
+            this.setState({
+                    multiSelectCorner1: {
+                        x: this.state.multiSelectCorner1Old.x + moveCoords.x - this.state.multiTranslateX0,
+                        y: this.state.multiSelectCorner1Old.y + moveCoords.y - this.state.multiTranslateY0
+                    },
+                    multiSelectCorner2: {
+                        x: this.state.multiSelectCorner2Old.x + moveCoords.x - this.state.multiTranslateX0,
+                        y: this.state.multiSelectCorner2Old.y + moveCoords.y - this.state.multiTranslateY0
+                    },
+            })
+            this.props.setGraphData(data);
+        }
+    }
+
     render() {
         return (
-            <ForceGraph2D 
-            ref={this.ref}
-            id="graph" 
-            graphData={this.props.data}
-            nodeRelSize={this.props.data.nodeRadius}
-            nodeLabel=''
-            nodeAutoColorBy='group'
-            nodeCanvasObject={this.drawNode}
-            onNodeClick={this.props.shortcutLink}
-            // snap mode feature
-            onNodeDragEnd={this.nodeDragEnd}
-            linkCanvasObject={this.drawLink}
-            linkPointerAreaPaint={this.linkPointerAreaPaint}
-            onLinkRightClick={this.linkRightClick}
-            onBackgroundRightClick={this.backgroundRightClick}
-            cooldownTime={1000}
-            width={window.innerWidth >= CSS_BREAKPOINT ? window.innerWidth * WIDTH_RATIO : window.innerWidth}
-            height={window.innerWidth >= CSS_BREAKPOINT ? window.innerHeight : window.innerHeight * WIDTH_RATIO}
-            maxZoom={5}
-            minZoom={1}
-            onRenderFramePre={this.drawCanvas}
-            />
+            <div
+            onMouseDownCapture={this.mouseDown}
+            onMouseMove={this.mouseMove}>
+                <ForceGraph2D 
+                ref={this.ref}
+                id="graph" 
+                graphData={this.props.data}
+                nodeRelSize={this.props.data.nodeRadius}
+                nodeLabel=''
+                nodeAutoColorBy='group'
+                nodeCanvasObject={this.drawNode}
+                onNodeClick={this.props.shortcutLink}
+                // snap mode feature
+                onNodeDragEnd={this.nodeDragEnd}
+                linkCanvasObject={this.drawLink}
+                linkPointerAreaPaint={this.linkPointerAreaPaint}
+                onLinkRightClick={this.linkRightClick}
+                onBackgroundRightClick={this.backgroundRightClick}
+                cooldownTime={1000}
+                width={window.innerWidth >= CSS_BREAKPOINT ? window.innerWidth * WIDTH_RATIO : window.innerWidth}
+                height={window.innerWidth >= CSS_BREAKPOINT ? window.innerHeight : window.innerHeight * WIDTH_RATIO}
+                maxZoom={5}
+                minZoom={1}
+                onRenderFramePre={this.drawCanvas}
+                enablePanInteraction={!this.state.multiTranslateX0}
+                />
+            </div>
             )
         }
     }

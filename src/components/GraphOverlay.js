@@ -140,6 +140,7 @@ export class GraphOverlay extends Component {
                 <GraphComponent 
                 forceCollideRadius={this.props.forceCollideRadius}
                 data={this.props.data}
+                setGraphData={this.props.setGraphData}
                 downloading={this.state.downloading}
                 snapMode={this.props.snapMode}
                 shortcutLink={this.props.shortcutLink}
