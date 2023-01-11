@@ -468,10 +468,9 @@ export class Graph extends Component {
             ctx.rect(this.state.multiSelectCorner1.x, this.state.multiSelectCorner1.y, width, height)
             ctx.stroke();
 
+            // if panned
             if (this.state.zoomCoords.x !== ctx.canvas.__zoom.x && this.state.zoomCoords.y !== ctx.canvas.__zoom.y && this.state.zoomCoords.k === ctx.canvas.__zoom.k) {
-                this.setState({zoomCoords: ctx.canvas.__zoom}, () => {
-                    console.log('ooga')
-                })
+                this.setState({zoomCoords: ctx.canvas.__zoom})
             }
         }
     }

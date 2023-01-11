@@ -119,7 +119,7 @@ export class STREntry extends Component {
                                 {entry.nodes.map(nodeID => {
                                     const node = data.nodes.find(node => node.id === nodeID);
                                     if (node !== undefined) {
-                                        return <li key={node.id} className="list-group-item">{node.name}</li>;
+                                        return <li key={node.id} className="list-group-item">{node.name} {node.infected ? '(Infected)' : ''}</li>;
                                     }
                                     return "";
                                 })}

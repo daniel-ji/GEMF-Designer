@@ -81,7 +81,7 @@ export class STRTemplate extends Component {
                             <h6 className="mb-3">Imported States: </h6>
                             <ul className="list-group">
                                 {this.state.newNodes.map(nodeName => {
-                                    return <li key={nodeName} className="list-group-item">{nodeName}</li>;
+                                    return <li key={nodeName} className="list-group-item">{nodeName} {this.props.template.infectedStates.includes(nodeName) ? '(Infected)' : ''}</li>;
                                 })}
                             </ul>
                         </div>

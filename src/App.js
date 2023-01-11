@@ -388,7 +388,6 @@ export class App extends Component {
         // parse STR for both graphviz and force-graph use
         const parsedSTR = text.split(/\r?\n/).map(row => row.split(/\t/));
         const getNodeID = (i, j) => nodes.find(node => node.name === parsedSTR[i][j]).id;
-        const getNode = (id) => nodes.find(node => (node.id === id || node === id));
 
         // STR validation
         for (let i = 0; i < parsedSTR.length; i++) {
@@ -425,11 +424,15 @@ export class App extends Component {
             document.getElementById("STRFileUpload").value = "";
             return;
         }
+        
+        let hasOldNodes = false;
 
         for (let i = 0; i < parsedSTR.length; i++) {
             if (parsedSTR[i].length === 4) {
+
                 for (let j = 0; j < parsedSTR[i].length; j++) {
                     const foundNode = nodes.map(node => node.name).indexOf(parsedSTR[i][j]) !== -1;
+                    const addedNode = newNodes.map(node => node.name).indexOf(parsedSTR[i][j]) !== -1
                     // source and target node
                     const nodeObject = {
                         id: nodeID, 
@@ -439,18 +442,23 @@ export class App extends Component {
                         shape: this.state.data.defaultShape,
                         infected: false,
                     }
-                    if (j <= 1 && !foundNode) {
-                        newNodes.push(nodeObject);
-                        nodes.push(nodeObject);
-                        nodeID++;
-                    // inducer node
-                    } else if (j === 2) {
-                        if (parsedSTR[i][j] !== "None" && !foundNode) {
+                    if (foundNode) {
+                        if (!addedNode) {
+                            hasOldNodes = true;
+                        }
+                    } else {
+                        if (j <= 1) {
+                            newNodes.push(nodeObject);
+                            nodes.push(nodeObject);
+                            nodeID++;
+                        // inducer node
+                        } else if (j === 2 && parsedSTR[i][j] !== "None") {
                             newNodes.push(nodeObject);
                             nodes.push(nodeObject);
                             nodeID++;
                         }
                     }
+
                 }
                 
                 
@@ -498,18 +506,6 @@ export class App extends Component {
             }
         }
 
-        // create graphviz 
-        let dotNodeContent = '';
-        for (const node of nodes) {
-            dotNodeContent += node.name + ' ';
-        }
-
-        let dotLinkContent = '';
-        for (const link of links) {
-            dotLinkContent += 
-                `${getNode(link.source).name} -> ${getNode(link.target).name} [label = "${(link.inducer !== undefined ? getNode(link.inducer).name + ", " : "") + link.rate}"];\n`;
-        }
-
         // set infected states
         if (template) {
             for (const infectedState of template.infectedStates) {
@@ -539,16 +535,36 @@ export class App extends Component {
         });
 
         if (newNodes.length > 0) {
-            this.generateGraphviz(dotNodeContent, dotLinkContent, callback);
+            if (hasOldNodes && newNodes.length !== nodes.length) {
+                this.generateGraphviz(nodes, links, false, callback);
+            } else {
+                this.generateGraphviz(newNodes, newLinks, true, callback);
+            }
         }
     }
 
     /**
      * Creates graph visualization using provided nodes and links
-     * @param {*} dotNodeContent node content to pass into dot engine 
-     * @param {*} dotLinkContent link content to pass into dot engine
+     * @param {*} nodes node content to pass into dot engine 
+     * @param {*} links link content to pass into dot engine
+     * @param {*} disjoint if generated graph is disjoint from current graph
+     * @param {*} callback callback function after generation is done
      */
-    generateGraphviz = (dotNodeContent, dotLinkContent, callback) => {
+    generateGraphviz = (nodes, links, disjoint, callback) => {
+            // create graphviz 
+            let dotNodeContent = '';
+            for (const node of nodes) {
+                dotNodeContent += node.name + ' ';
+            }
+    
+            const getNode = (id) => nodes.find(node => (node.id === id || node === id));
+
+            let dotLinkContent = '';
+            for (const link of links) {
+                dotLinkContent += 
+                    `${getNode(link.source).name} -> ${getNode(link.target).name} [label = "${(link.inducer !== undefined ? getNode(link.inducer).name + ", " : "") + link.rate}"];\n`;
+            }
+
         this.setState({strGraphviz: 
             <Graphviz 
             className="graph-overlay graph-viz"
@@ -563,7 +579,7 @@ export class App extends Component {
                 rankdir=LR;
                 ${dotLinkContent}
             }`}/>
-        }, () => setTimeout(() => this.parseGraphvizSVG(this.state.data.nodes, this.state.data.links, callback), GRAPHVIZ_PARSE_DELAY));
+        }, () => setTimeout(() => this.parseGraphvizSVG(disjoint, callback), GRAPHVIZ_PARSE_DELAY));
     }
 
     /**
@@ -571,10 +587,10 @@ export class App extends Component {
      * actual force-graph interactive graph. Translates coordinates from the svg to
      * coordinates usable for the force-graph graph element. Utilizes the absolute position
      * of the svg element and interactive graph element through getBoundingClientRect(). 
-     * @param {*} nodes 
-     * @param {*} links 
+     * @param {*} disjoint if generated graph is disjoint from current graph
+     * @param {*} callback callback function after generation is done
      */
-    parseGraphvizSVG = (nodes, links, callback) => {
+    parseGraphvizSVG = (disjoint, callback) => {
         const graph = document.getElementById("graph0");
 
         // in the case that rendering had not finished yet
@@ -584,6 +600,9 @@ export class App extends Component {
             // change center of graph to simplify math later on for determining node coordinates 
             const graphMiddleX = (graphDimensions.left + graphDimensions.right) / 2; 
             const graphMiddleY = (graphDimensions.top + graphDimensions.bottom) / 2;
+
+            // make sure offset is appropriately occuring
+            const offset = disjoint ? data.nodes.reduce((prev, curr) => curr.y > prev ? curr.y : prev, -1000000) + 50 : 0;
 
             for (const child of graph.children) {
                 if (child.classList.contains("node")) {
@@ -598,9 +617,9 @@ export class App extends Component {
                     // add node with proper coordinate scaling
                     const node = data.nodes.find(node => node.name === child.getElementsByTagName('title')[0].innerHTML);
                     node.fx = normalizedX * scaleRatio;
-                    node.fy = normalizedY * scaleRatio;
+                    node.fy = normalizedY * scaleRatio + offset;
                     node.x = normalizedX * scaleRatio;
-                    node.y = normalizedY * scaleRatio;
+                    node.y = normalizedY * scaleRatio + offset;
                 }
             }
 
@@ -621,7 +640,7 @@ export class App extends Component {
             });
         } else {
             // retry in 200ms if graph has not rendered yet
-            setTimeout(() => this.parseGraphvizSVG(nodes, links), GRAPHVIZ_PARSE_RETRY_INTERVAL);
+            setTimeout(() => this.parseGraphvizSVG(disjoint, callback), GRAPHVIZ_PARSE_RETRY_INTERVAL);
         }
     }
 
