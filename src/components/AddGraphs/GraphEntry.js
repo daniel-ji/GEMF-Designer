@@ -127,7 +127,7 @@ export class GraphEntry extends Component {
                                 {data.nodes.length === 0 ? 
                                 <li className="list-group-item">No States</li> : 
                                 data.nodes.map(node => {
-                                    return <li key={node.id} className="list-group-item">{node.name}</li>;
+                                    return <li key={node.id} className="list-group-item">{node.name} {node.infected ? '(Infected)' : ''}</li>;
                                 })}
                             </ul>
                         </div>
