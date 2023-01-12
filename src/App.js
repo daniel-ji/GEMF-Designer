@@ -295,10 +295,7 @@ export class App extends Component {
      * Automatically draw graph from current nodes / links.
      */
     autoDraw = () => {
-        const nodes = this.state.data.nodes;
-        const links = this.state.data.links;
-
-        if (nodes.length > 0) {
+        if (this.state.data.nodes.length > 0) {
             // save node positions
             this.setState({oldNodePos: this.state.data.nodes.map(node => {
                 return {
@@ -307,19 +304,8 @@ export class App extends Component {
                     y: node.y
                 }
             })})
-            // create graphviz from current data
-            let dotNodeContent = '';
-            for (const node of nodes) {
-                dotNodeContent += node.name + ' ';
-            }
 
-            let dotLinkContent = '';
-            for (const link of links) {
-                dotLinkContent += 
-                    `${link.source.name} -> ${link.target.name} [label = "${(link.inducer !== undefined ? nodes.find(node => node.id === link.inducer).name + ", " : "") + link.rate}"];\n`;
-            }
-
-            this.generateGraphviz(dotNodeContent, dotLinkContent);
+            this.generateGraphviz(this.state.data.nodes, this.state.data.links, false);
         }
     }
 
@@ -442,21 +428,22 @@ export class App extends Component {
                         shape: this.state.data.defaultShape,
                         infected: false,
                     }
-                    if (foundNode) {
-                        if (!addedNode) {
-                            hasOldNodes = true;
-                        }
-                    } else {
-                        if (j <= 1) {
-                            newNodes.push(nodeObject);
-                            nodes.push(nodeObject);
-                            nodeID++;
-                        // inducer node
-                        } else if (j === 2 && parsedSTR[i][j] !== "None") {
+
+                    if (j <= 1) {
+                        if (foundNode) {
+                            if (!addedNode) {
+                                hasOldNodes = true;
+                            }
+                        } else {
                             newNodes.push(nodeObject);
                             nodes.push(nodeObject);
                             nodeID++;
                         }
+                    // inducer node
+                    } else if (!foundNode && j === 2 && parsedSTR[i][j] !== "None") {
+                        newNodes.push(nodeObject);
+                        nodes.push(nodeObject);
+                        nodeID++;
                     }
 
                 }
@@ -535,7 +522,7 @@ export class App extends Component {
         });
 
         if (newNodes.length > 0) {
-            if (hasOldNodes && newNodes.length !== nodes.length) {
+            if (hasOldNodes || newNodes.length === nodes.length) {
                 this.generateGraphviz(nodes, links, false, callback);
             } else {
                 this.generateGraphviz(newNodes, newLinks, true, callback);
@@ -602,7 +589,7 @@ export class App extends Component {
             const graphMiddleY = (graphDimensions.top + graphDimensions.bottom) / 2;
 
             // make sure offset is appropriately occuring
-            const offset = disjoint ? data.nodes.reduce((prev, curr) => curr.y > prev ? curr.y : prev, -1000000) + 50 : 0;
+            const offset = disjoint ? data.nodes.reduce((prev, curr) => curr.y > prev ? curr.y : prev, -1000000) : 0;
 
             for (const child of graph.children) {
                 if (child.classList.contains("node")) {
@@ -610,16 +597,16 @@ export class App extends Component {
                     const ellipse = child.querySelector('ellipse');
                     const rect = ellipse.getBoundingClientRect();
                     const normalizedX = (rect.left - graphMiddleX) / graphMiddleX;
-                    const normalizedY = (rect.top - graphMiddleY) / graphMiddleY;
+                    const normalizedY = (rect.top - graphMiddleY + (disjoint ? graphMiddleY : 0)) / graphMiddleY;
                     const normalizedR = rect.width / graphDimensions.width;
                     // 2 instead of 1 for spacing out more
                     const scaleRatio = 2 / normalizedR * this.state.data.nodeRadius;
                     // add node with proper coordinate scaling
                     const node = data.nodes.find(node => node.name === child.getElementsByTagName('title')[0].innerHTML);
                     node.fx = normalizedX * scaleRatio;
-                    node.fy = normalizedY * scaleRatio + offset;
+                    node.fy = (normalizedY) * scaleRatio + offset;
                     node.x = normalizedX * scaleRatio;
-                    node.y = normalizedY * scaleRatio + offset;
+                    node.y = (normalizedY) * scaleRatio + offset;
                 }
             }
 

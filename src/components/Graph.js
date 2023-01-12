@@ -64,10 +64,12 @@ export class Graph extends Component {
      */
     componentDidUpdate(prevProps, prevState) {
         this.ref.current.d3Force('collide', forceCollide(this.props.forceCollideRadius))
-        
-        if (prevProps.data.name !== this.props.data.name ||
+
+        if (prevProps.data.id !== this.props.data.id ||
             prevProps.data.STRData.length !== this.props.data.STRData.length || 
-            prevProps.downloading) {
+            prevProps.downloading || 
+            (prevProps.graphUndo !== this.props.graphUndo) ||
+            (!prevProps.resize && this.props.resize)) {
             setTimeout(() => {
                 this.ref.current.zoomToFit(0, 50);
             }, prevProps.data.STRData.length === this.props.data.STRData.length ? 0 : 2 * GRAPHVIZ_PARSE_DELAY);

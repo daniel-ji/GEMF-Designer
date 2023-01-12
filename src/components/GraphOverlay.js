@@ -22,6 +22,7 @@ export class GraphOverlay extends Component {
             // graph interaction indicator style
             indicatorStyle: {},
             hoveringUndo: false,
+            resize: false,
         }
     }
 
@@ -49,7 +50,7 @@ export class GraphOverlay extends Component {
                 } else if (e.key === "P") {
                     this.startDownload("PNG");
                 } else if (e.key === "A") {
-                    this.props.autoDraw();
+                    this.autoDraw();
                 }
             }
         }
@@ -106,6 +107,20 @@ export class GraphOverlay extends Component {
         }
     }
 
+    autoDraw = () => {
+        this.setState({resize: true}, () => {
+            this.setState({resize: false})
+        })
+        this.props.autoDraw();
+    }
+
+    undoGraph = () => {
+        this.setState({resize: true}, () => {
+            this.setState({resize: false})
+        })
+        this.props.undoGraph();
+    }
+
     render() {
         return (
             <div id="graph-cover">
@@ -120,7 +135,7 @@ export class GraphOverlay extends Component {
                 </div>
                 <div className="graph-buttons">
                     <button className="btn btn-primary toggle-grid" onClick={this.toggleGrid}>Toggle Grid</button>
-                    <button className="btn btn-primary auto-draw" onClick={this.props.autoDraw}>Auto-Draw</button>
+                    <button className="btn btn-primary auto-draw" onClick={this.autoDraw}>Auto-Draw</button>
                     <div className="dropdown">
                         <button className="btn btn-success download-graph" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i className="bi bi-download"></i>
@@ -145,11 +160,12 @@ export class GraphOverlay extends Component {
                 snapMode={this.props.snapMode}
                 shortcutLink={this.props.shortcutLink}
                 setModal={this.props.setModal}
+                graphUndo={this.props.graphUndo}
                 /> 
                 {this.props.graphUndo &&
                 <div className="alert alert-dark" id="undo-alert" role="alert" onMouseLeave={this.delayHideGraphUndo}>
                     <p>Auto-draw complete.</p>
-                    <button type="button" className="btn btn-outline-primary" onClick={this.props.undoGraph}>Undo</button>
+                    <button type="button" className="btn btn-outline-primary" onClick={this.undoGraph}>Undo</button>
                 </div>
                 }
             </div>
