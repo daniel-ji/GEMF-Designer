@@ -31,6 +31,20 @@ export class AddEdgesContainer extends Component {
                 this.props.setGraphData(UPDATE_DATA_ORDER(e, this.props.data, 'links'));
             }
         })})
+
+        window.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                const rateInput = document.getElementById("rateInput");
+
+                // has to have valid rate
+                if (rateInput.value.length === 0 || parseInt(rateInput.value) < 0) {
+                    return;
+                }
+
+                this.addEdge();
+            }
+        })
     }
 
     componentDidUpdate(prevProps, prevState) {
